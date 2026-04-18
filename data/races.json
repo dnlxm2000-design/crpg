@@ -1,0 +1,452 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-04-15",
+  "description": "Race data based on D&D 5e SRD with Silverhaven world integration",
+  
+  "races": {
+    "human": {
+      "name": "인간",
+      "name_en": "Human",
+      "ability_score_increases": {
+        "STR": 1,
+        "DEX": 1,
+        "CON": 1,
+        "INT": 1,
+        "WIS": 1,
+        "CHA": 1
+      },
+      "traits": [],
+      "languages": ["공용어"],
+      "darkvision": false,
+      "select_kingdom": true,
+      "select_bloodline": true,
+      "bloodline_options": ["ironbloods", "ether_guardians", "solar_walkers", "mist_sailors"],
+      "kingdom_options": [
+        {"id": "iron_guard", "name": "아이언가드", "description": "강력한 군사 국가. 질서와 규율", "ability_bonus": {"STR": 1, "CON": 1}, "starting_location": "아이언가드"},
+        {"id": "eterea", "name": "에테리아", "description": "마법 결계 내부. 고립과 보전", "ability_bonus": {"WIS": 2}, "starting_location": "에테리아"},
+        {"id": "solaris", "name": "솔라리스", "description": "태양 신전 근처. 종교와 태양", "ability_bonus": {"STR": 1, "DEX": 1}, "starting_location": "솔라리스"},
+        {"id": "mystral", "name": "미스트랄", "description": "실버하벤 인근. 자유와 상업", "ability_bonus": {"DEX": 1, "CHA": 1}, "starting_location": "미스트랄"}
+      ],
+      "size": "medium"
+    },
+    "elf": {
+      "name": "엘프",
+      "name_en": "Elf",
+      "ability_score_increases": {
+        "STR": 0,
+        "DEX": 2,
+        "CON": 0,
+        "INT": 0,
+        "WIS": 0,
+        "CHA": 0
+      },
+      "traits": [
+        {
+          "name": "Darkvision",
+          "description": "60ft 암시야",
+          "always_active": true
+        },
+        {
+          "name": "Fey Ancestry",
+          "description": 마법에 의한 최면 효과에 저항",
+          "always_active": true
+        }
+      ],
+      "languages": ["공용어", "엘프어"],
+      "darkvision": 60,
+      "select_kingdom": true,
+      "select_background": true,
+      "kingdom_options": [
+        {"id": "silverleaf", "name": "은빛 잎 왕국", "description": "강력한 결계 안에서 시간이 멈춘 듯한 삶을 사는 보존주의자들", "ability_bonus": {"WIS": 2}, "starting_location": "에테리아"},
+        {"id": "noise_walker", "name": "노이즈 워커", "description": "보이드 노이즈에 오염된 지역에서 기계화된 신체로 살아가는 감시자들", "ability_bonus": {"CON": 1, "INT": 1}, "starting_location": "노이즈 지역"},
+        {"id": "luminas_remnant", "name": "루미나스 유민", "description": "과거 마도공학 아카데미出身, 흩어진 마법 스크롤 회수자들", "ability_bonus": {"INT": 2}, "starting_location": "마도 아카데미"},
+        {"id": "mistral_stalker", "name": "미스트랄 추격대", "description": "실버하벤 인근 숲에서 활동하는 실용적 생존자들", "ability_bonus": {"DEX": 1, "WIS": 1}, "starting_location": "미스트랄 숲"},
+        {"id": "grid_architect", "name": "그리드 아키텍트", "description": "파괴된 에테르 그리드를 수리하려는 고집스러운 기술자들", "ability_bonus": {"INT": 1, "DEX": 1}, "starting_location": "에테르 그리드"},
+        {"id": "red_dew", "name": "붉은 이슬 부족", "description": "제물로 바쳐졌던 엘프들의 후손, 영혼 장례 의식자들", "ability_bonus": {"WIS": 1, "CHA": 1}, "starting_location": "영혼의 숲"},
+        {"id": "crystal_vein", "name": "수정 혈맥 부족", "description": "드워프와 협력하여 마력 수정 가치를 지키는 자원 보존자들", "ability_bonus": {"STR": 1, "INT": 1}, "starting_location": "수정 광산"},
+        {"id": "mist_sailor", "name": "안개 세일러", "description": "안개와 바다의 경계에서 배를 타는 유목 민족", "ability_bonus": {"DEX": 2}, "starting_location": "안개 항구"}
+      ],
+      "background_options": [
+        {"id": "preserve_keeper", "name": "수호자", "ability_bonus": {"WIS": 1, "DEX": 1}},
+        {"id": "arcane_scholar", "name": "마법 학자", "ability_bonus": {"INT": 2}}
+      ],
+      "size": "medium"
+    },
+    "dwarf": {
+      "name": "드워프",
+      "name_en": "Dwarf",
+      "ability_score_increases": {
+        "STR": 0,
+        "DEX": 0,
+        "CON": 2,
+        "INT": 0,
+        "WIS": 1,
+        "CHA": 0
+      },
+      "traits": [
+        {
+          "name": "Darkvision",
+          "description": "60ft 암시야",
+          "always_active": true
+        },
+        {
+          "name": "Dwarven Resilience",
+          "description": 독, 마비, 질병에 대한 저항",
+          "always_active": true
+        }
+      ],
+      "languages": ["공용어", "드워프어"],
+      "darkvision": 60,
+      "select_kingdom": true,
+      "select_background": true,
+      "kingdom_options": [
+        {"id": "granite_guard", "name": "그라니트 가드", "description": "빙벽 깊숙한 곳. 고립주의", "ability_bonus": {"CON": 1, "STR": 1}, "starting_location": "빙벽"},
+        {"id": "amber_fortress", "name": "엠버 포지", "description": "실버하벤 인근. 실용주의", "ability_bonus": {"INT": 1, "WIS": 1}, "starting_location": "엠버 포지"},
+        {"id": "sky_hammer", "name": "스카이 해머", "description": "산맥 정상. 룬 마법", "ability_bonus": {"DEX": 1, "CHA": 1}, "starting_location": "산맥"}
+      ],
+      "background_options": [
+        {"id": "granite_miner", "name": "광부", "ability_bonus": {"STR": 1, "CON": 1}},
+        {"id": "amber_smith", "name": "대장장이", "ability_bonus": {"STR": 1, "INT": 1}},
+        {"id": "sky_rune_mage", "name": "룬 마법사", "ability_bonus": {"INT": 1, "WIS": 1}}
+      ],
+      "size": "medium"
+    },
+"halfling": {
+      "name": "하플링",
+      "name_en": "Halfling",
+      "ability_score_increases": {
+        "STR": 0,
+        "DEX": 2,
+        "CON": 0,
+        "INT": 0,
+        "WIS": 0,
+        "CHA": 1
+      },
+      "traits": [
+        {
+          "name": "Lucky",
+          "description": "1일 1회 d20 리롤",
+          "always_active": true
+        },
+        {
+          "name": "Brave",
+          "description": "공포 효과에 저항",
+          "always_active": true
+        }
+      ],
+      "languages": ["공용어"],
+      "darkvision": false,
+      "select_kingdom": true,
+      "select_background": true,
+      "kingdom_options": [
+        {"id": "misty_realm", "name": "안개의 자치령", "description": "안개 속 비밀 국가. 물자 수송과 정보망", "ability_bonus": {"DEX": 1, "CHA": 1}, "starting_location": "안개 속"}
+      ],
+      "background_options": [
+        {"id": "informer", "name": "정보상", "ability_bonus": {"DEX": 1, "CHA": 1}},
+        {"id": "smuggler", "name": "밀수상", "ability_bonus": {"DEX": 1, "CHA": 1}},
+        {"id": "porter", "name": "항구 노동자", "ability_bonus": {"STR": 1, "CON": 1}}
+      ],
+      "size": "small"
+    },
+    "orc": {
+      "name": "오크",
+      "name_en": "Orc",
+      "ability_score_increases": {
+        "STR": 2,
+        "DEX": 0,
+        "CON": 1,
+        "INT": -2,
+        "WIS": 0,
+        "CHA": 0
+      },
+      "traits": [
+        {
+          "name": "Aggressive",
+          "description": "보너스 행동으로 이동 증가",
+          "always_active": true
+        },
+        {
+          "name": "Menacing",
+          "description": 공포 적용",
+          "always_active": true
+        }
+      ],
+      "languages": ["공용어", "오크어"],
+      "darkvision": false,
+      "select_kingdom": true,
+      "select_background": true,
+        "clan_options": [
+          {"id": "iron_skull", "name": "아이언스컬", "ability_bonus": {"STR": 2}},
+          {"id": "blood_moon", "name": "블러드 문", "ability_bonus": {"CON": 1, "CHA": 1}},
+          {"id": "bone_walker", "name": "본 워커", "ability_bonus": {"INT": 1}},
+          {"id": "sky_fang", "name": "스카이 팽", "ability_bonus": {"DEX": 2}},
+          {"id": "silver_tongue", "name": "실버 텅", "ability_bonus": {"CHA": 1}}
+        ],
+        "bloodline_options": [
+          {"id": "orc_bloodline_iron", "name": "아이언 혈맥", "name_en": "Iron Bloodline", "description": "강철 심장과 전쟁의 의지", "region": "Northlands", "region_kor": "노스랜드", "starting_location": "IronKeep", "ability_bonus": {"STR": 1, "CON": 1}, "requires_kingdom": true},
+          {"id": "orc_bloodline_shadow", "name": "피의 그림자 혈맥", "name_en": "Bloodshadow Bloodline", "description": "암흑의 은밀함", "region": "ForestReach", "region_kor": "숲지대", "starting_location": "ShadowGrove", "ability_bonus": {"DEX": 1, "CHA": 1}, "requires_kingdom": false},
+          {"id": "orc_bloodline_river", "name": "강의 혈맥", "name_en": "River Bloodline", "description": "강의 흐름을 지배하는 자", "region": "RiverDelta", "region_kor": "강 삼각주", "starting_location": "RiverGate", "ability_bonus": {"STR": 1, "DEX": 1}, "requires_kingdom": false},
+          {"id": "orc_bloodline_coast", "name": "해안의 혈맥", "name_en": "Coastal Bloodline", "description": "해안의 상인과 모험가", "region": "CoastalCliffs", "region_kor": "해안 절벽", "starting_location": "CoastWatch", "ability_bonus": {"CON": 1, "CHA": 1}, "requires_kingdom": false},
+          {"id": "orc_bloodline_mtn", "name": "산맥의 혈맥", "name_en": "Mountain Bloodline", "description": "산맥의 용자", "region": "MountainPass", "region_kor": "산맥 고개", "starting_location": "PeakFort", "ability_bonus": {"STR": 1, "WIS": 1}, "requires_kingdom": false}
+        ],
+      "background_options": [
+        {"id": "orc_warrior", "name": "전사", "ability_bonus": {"STR": 2}},
+        {"id": "orc_shaman", "name": "주술사", "ability_bonus": {"WIS": 1, "INT": 1}}
+      ],
+      "size": "medium"
+    },
+    "troll": {
+      "name": "트롤",
+      "name_en": "Troll",
+      "ability_score_increases": {
+        "STR": 2,
+        "DEX": 0,
+        "CON": 1,
+        "INT": 0,
+        "WIS": 0,
+        "CHA": 0
+      },
+      "traits": [
+        {
+          "name": "Regeneration",
+          "description": "매 턴结束 후HP 1 회복,闪电에 취약",
+          "always_active": true
+        },
+        {
+          "name": "Voracious Appetite",
+          "description": "음식으로 빠른 회복",
+          "always_active": true
+        }
+      ],
+      "languages": ["공용어", "트롤어"],
+      "darkvision": false,
+      "select_kingdom": true,
+      "select_background": true,
+      "clan_options": [
+        {"id": "silver_silent", "name": "은빛침묵 부족", "ability_bonus": {"WIS": 2}},
+        {"id": "blood_echo", "name": "피의 숨결 부족", "ability_bonus": {"CON": 2}},
+        {"id": "moss_root", "name": "이끼 뿌리 부족", "ability_bonus": {"CON": 1, "WIS": 1}},
+        {"id": "iron_bone", "name": "강철 뼈 부족", "ability_bonus": {"STR": 1, "INT": 1}},
+        {"id": "moon_veil", "name": "환영의 달 부족", "ability_bonus": {"DEX": 2}},
+        {"id": "ember_ash", "name": "재가루 부족", "ability_bonus": {"INT": 1, "CHA": 1}},
+        {"id": "tide_caller", "name": "바다 파도 부족", "ability_bonus": {"CON": 1, "CHA": 1}},
+        {"id": "soul_stalker", "name": "영혼 사냥꾼 부족", "ability_bonus": {"WIS": 2}},
+        {"id": "dune_wraith", "name": "모래 바람 부족", "ability_bonus": {"DEX": 2}},
+        {"id": "frost_fang", "name": "서리 이빨 부족", "ability_bonus": {"CON": 2}}
+      ],
+      "size": "large"
+    },
+    "half_orc": {
+      "name": "하프오크",
+      "name_en": "Half-Orc",
+      "ability_score_increases": {
+        "STR": 2,
+        "DEX": 0,
+        "CON": 1,
+        "INT": 0,
+        "WIS": 0,
+        "CHA": 0
+      },
+      "traits": [
+        {
+          "name": "Relentless Endurance",
+          "description": "HP 1에서死亡 시 1회 생존",
+          "always_active": true
+        },
+        {
+          "name": "Aggressive",
+          "description": "보너스 행동으로 이동 증가",
+          "always_active": true
+        }
+      ],
+      "languages": ["공용어", "오크어"],
+      "darkvision": false,
+      "select_kingdom": true,
+      "select_background": true,
+      "kingdom_options": [
+        {"id": "iron_guard", "name": "아이언가드", "description": "인간 왕국", "ability_bonus": {"STR": 1, "CON": 1}, "starting_location": "아이언가드"},
+        {"id": "orc_horde", "name": "오크 호드", "description": "오크 세력", "ability_bonus": {"STR": 2, "CHA": -1}, "starting_location": "오크 호드"}
+      ],
+      "background_options": [
+        {"id": "escaped_slave", "name": "탈출한 노예", "requires_kingdom": true, "ability_bonus": {"STR": 1, "CON": 1}, "starting_location": "하층 지구"},
+        {"id": "outlaw", "name": "부랑아", "requires_kingdom": true, "ability_bonus": {"DEX": 1, "CHA": 1}, "starting_location": "하층 지구 뒷골목"},
+        {"id": "commoner", "name": "고아", "requires_kingdom": false, "ability_bonus": {"CON": 1, "WIS": 1}, "starting_location": "하층 지구"},
+        {"id": "mercenary", "name": "용병", "requires_kingdom": false, "ability_bonus": {"STR": 1, "DEX": 1}, "starting_location": "광장"}
+      ],
+      "size": "medium"
+    },
+    "half_troll": {
+      "name": "하프트롤",
+      "name_en": "Half-Troll",
+      "ability_score_increases": {
+        "STR": 2,
+        "DEX": 0,
+        "CON": 1,
+        "INT": 0,
+        "WIS": 0,
+        "CHA": 0
+      },
+      "traits": [
+        {
+          "name": "Regeneration",
+          "description": "매 턴 종료 후HP 1 회복",
+          "always_active": true
+        }
+      ],
+      "languages": ["공용어", "트롤어"],
+      "darkvision": false,
+      "select_kingdom": true,
+      "select_background": true,
+      "kingdom_options": [
+        {"id": "iron_guard", "name": "아이언가드", "description": "인간 왕국", "ability_bonus": {"STR": 1, "CON": 1}, "starting_location": "아이언가드"},
+        {"id": "orc_horde", "name": "오크 호드", "description": "오크 세력", "ability_bonus": {"STR": 2, "CHA": -1}, "starting_location": "오크 호드"}
+      ],
+      "background_options": [
+        {"id": "escaped_slave", "name": "탈출한 노예", "requires_kingdom": true, "ability_bonus": {"STR": 1, "CON": 1}, "starting_location": "하층 지구"},
+        {"id": "outlaw", "name": "부랑아", "requires_kingdom": true, "ability_bonus": {"DEX": 1, "CHA": 1}, "starting_location": "하층 지구 뒷골목"},
+        {"id": "commoner", "name": "고아", "requires_kingdom": false, "ability_bonus": {"CON": 1, "WIS": 1}, "starting_location": "하층 지구"},
+        {"id": "mercenary", "name": "용병", "requires_kingdom": false, "ability_bonus": {"STR": 1, "DEX": 1}, "starting_location": "광장"}
+      ],
+      "size": "medium"
+    },
+    "gnome": {
+      "name": "노움",
+      "name_en": "Gnome",
+      "ability_score_increases": {
+        "STR": 0,
+        "DEX": 1,
+        "CON": 0,
+        "INT": 2,
+        "WIS": 0,
+        "CHA": 0
+      },
+      "traits": [
+        {
+          "name": "Darkvision",
+          "description": "60ft 암시야",
+          "always_active": true
+        },
+        {
+          "name": "Gnome Cunning",
+          "description": "마법/欺骗에 대한 저항",
+          "always_active": true
+        }
+      ],
+      "languages": ["공용어", "노움어", "森林어"],
+      "darkvision": 60,
+      "select_kingdom": true,
+      "select_background": true,
+      "select_bloodline": true,
+      "bloodline_options": ["ironbloods", "ether_guardians", "solar_walkers", "mist_sailors"],
+      "kingdom_options": [
+        {"id": "iron_guard", "name": "아이언가드", "description": "인간 왕국", "ability_bonus": {"STR": 1, "CON": 1}, "starting_location": "아이언가드"},
+        {"id": "amber_fortress", "name": "엠버 포지", "description": "드워프 협력 왕국", "ability_bonus": {"INT": 1, "WIS": 1}, "starting_location": "엠버 포지"}
+      ],
+      "background_options": [
+        {"id": "alchemist", "name": "연금술사", "ability_bonus": {"INT": 2}},
+        {"id": "illusionist", "name": "일루져니스트", "ability_bonus": {"DEX": 1, "INT": 1}}
+      ],
+      "size": "small"
+    },
+    "drow": {
+      "name": "다크엘프",
+      "name_en": "Drow",
+      "ability_score_increases": {
+        "STR": 0,
+        "DEX": 2,
+        "CON": 0,
+        "INT": 0,
+        "WIS": 0,
+        "CHA": 1
+      },
+      "traits": [
+        {
+          "name": "Superior Darkvision",
+          "description": "120ft 암시야",
+          "always_active": true
+        },
+        {
+          "name": "Fey Ancestry",
+          "description": 마법에 의한 최면 효과에 저항",
+          "always_active": true
+        }
+      ],
+      "languages": ["공용어", "엘프어"],
+      "darkvision": 120,
+      "select_background": true,
+      "background_options": [
+        {"id": "noize_survivor", "name": "노이즈 오염 지역", "ability_bonus": {"CON": 1, "WIS": 1}},
+        {"id": "abyss_cultist", "name": "심연의 사도", "ability_bonus": {"INT": 1, "CHA": 1}}
+      ],
+      "size": "medium"
+    }
+  },
+  
+  "stat_system": {
+    "method": "point_buy",
+    "point_total": 27,
+    "min_stat": 8,
+    "max_stat": 15,
+    "cost_table": {
+      "8": 0,
+      "9": 1,
+      "10": 2,
+      "11": 3,
+      "12": 4,
+      "13": 5,
+      "14": 7,
+      "15": 9
+    }
+  },
+  
+  "classes": {
+    "fighter": {
+      "name": "전사",
+      "hit_die": "d10",
+      "primary_stat": "STR",
+      "recommended_stats": ["STR", "CON"]
+    },
+    "rogue": {
+      "name": "도적",
+      "hit_die": "d8",
+      "primary_stat": "DEX",
+      "recommended_stats": ["DEX", "CHA"]
+    },
+    "wizard": {
+      "name": "마법사",
+      "hit_die": "d6",
+      "primary_stat": "INT",
+      "recommended_stats": ["INT", "DEX"]
+    },
+    "cleric": {
+      "name": "사제",
+      "hit_die": "d8",
+      "primary_stat": "WIS",
+      "recommended_stats": ["WIS", "STR"]
+    },
+    "ranger": {
+      "name": "레인저",
+      "hit_die": "d8",
+      "primary_stat": "DEX",
+      "recommended_stats": ["DEX", "WIS"]
+    },
+    "barbarian": {
+      "name": "야만전사",
+      "hit_die": "d12",
+      "primary_stat": "STR",
+      "recommended_stats": ["STR", "CON"]
+    },
+    "paladin": {
+      "name": "성기사",
+      "hit_die": "d10",
+      "primary_stat": "STR",
+      "recommended_stats": ["STR", "CHA"]
+    },
+    "bard": {
+      "name": "음유시인",
+      "hit_die": "d8",
+      "primary_stat": "CHA",
+      "recommended_stats": ["CHA", "DEX"]
+    }
+  }
+}
