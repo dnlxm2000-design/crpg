@@ -42,6 +42,8 @@
   - description: 해안의 상인과 모험가
   - name_en: Coastal Bloodline
 - MountainPass (산맥 고개) — 산맥의 혈맥 (Mountain Bloodline, name_en: Mountain Bloodline)
+- River Guard Bloodline (RiverDelta) — region: RiverDelta, region_kor: 강 삼각주, starting_location: RiverWatch, ability_bonus: {DEX:1, WIS:1}, description: 강의 흐름을 수호하는 혈맥
+- Mountain Guardian Bloodline (MountainPass) — region: MountainPass, region_kor: 산맥 고개, starting_location: PeakWatch, ability_bonus: {STR:1, WIS:1}, description: 산맥의 경계 수호자
   - region: MountainPass
   - region_kor: 산맥 고개
   - starting_location: PeakFort
