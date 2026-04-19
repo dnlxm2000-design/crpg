@@ -24,8 +24,8 @@
         {"id": "ironbloods", "name": "아이언블러드", "name_en": "Iron Bloodline", "description": "Human frontline bloodline focusing on resilience", "region": "Northlands", "region_kor": "노스랜드", "starting_location": "IronKeep", "ability_bonus": {"STR": 1, "CON": 1}, "requires_kingdom": true},
         {"id": "ether_guardians", "name": "에테르 가디언", "name_en": "Ether Guardians", "description": "Knowledge and magical discipline", "region": "ForestReach", "region_kor": "숲지대", "starting_location": "ForestGrove", "ability_bonus": {"INT": 2}, "requires_kingdom": false},
         {"id": "solar_walkers", "name": "솔라 워커", "name_en": "Solar Walkers", "description": "Solar/warmth guardians", "region": "RiverDelta", "region_kor": "강 삼각주", "starting_location": "Solarium", "ability_bonus": {"DEX": 1, "CHA": 1}, "requires_kingdom": false},
-        {"id": "mist_sailors", "name": "미스트 세일러", "name_en": "Mist Sailor", "description": "Mist sailors bridging seas", "region": "CoastalCliffs", "region_kor": "해안 절벽", "starting_location": "CoastWatch", "ability_bonus": {"DEX": 2}, "requires_kingdom": false},
-        ],
+        {"id": "mist_sailors", "name": "미스트 세일러", "name_en": "Mist Sailor", "description": "Mist sailors bridging seas", "region": "CoastalCliffs", "region_kor": "해안 절벽", "starting_location": "CoastWatch", "ability_bonus": {"DEX": 2}, "requires_kingdom": false}
+      ],
       "kingdom_options": [
         {"id": "human_kingdom", "name": "인간 왕국", "name_en": "Human Kingdom", "description": "중추적 정치 중심", "ability_bonus": {"CHA": 1, "INT": 1}, "starting_location": "HumanCapital"},
         {"id": "iron_guard", "name": "아이언가드", "description": "강력한 군사 국가. 질서와 규율", "ability_bonus": {"STR": 1, "CON": 1}, "starting_location": "아이언가드"},

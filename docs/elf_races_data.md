@@ -1,6 +1,6 @@
-## Elf 혈통 확장 요약 (Races Data)
+(제목) Elf 혈통 확장 요약 (Races Data)
 
-- Elf 혈통 옵션은 region 기반 Bloodline 확장을 통해 확장 중이며, 현재 3개 혈통이 추가되어 총 6개(또는 7~8개까지 확장 가능)까지 확장 여지가 남아 있습니다.
+- Elf 혈통 옵션은 region 기반 Bloodline 확장을 통해 확장 중이며, 현재 7개 혈통이 확장되어 있습니다. 확장 여지는 남아 있습니다.
 - 지역 표기: Northlands(노스랜드), ForestReach(숲지대), RiverDelta(강 삼각주), CoastalCliffs(해안 절벽), MountainPass(산맥 고개)
 
 혈통 옵션 (Bloodlines) - 확장 예시
@@ -28,7 +28,39 @@
   - name_en: Moonweaver Bloodline
   - description: 달빛과 은은한 마력의 조합
   - requires_kingdom: false
+- elf_bloodline_river_guard
+  - region: RiverDelta
+  - region_kor: 강 삼각주
+  - starting_location: RiverWatch
+  - ability_bonus: {"DEX": 1, "WIS": 1}
+  - name_en: River Guard Bloodline
+  - description: 강의 흐름과 항해의 수호자
+  - requires_kingdom: false
+- elf_bloodline_mountain_guard
+  - region: MountainPass
+  - region_kor: 산맥 고개
+  - starting_location: PeakWatch
+  - ability_bonus: {"STR": 1, "DEX": 0}
+  - name_en: Mountain Guardian Bloodline
+  - description: 산맥의 경계 수호자
+  - requires_kingdom: false
+- elf_bloodline_dawnpatron
+  - region: MountainPass
+  - region_kor: 산맥 고개
+  - starting_location: DawnPeak
+  - ability_bonus: {"DEX": 1, "INT": 1}
+  - name_en: Dawn Patron Bloodline
+  - description: 새벽의 숭배를 보호하는 자
+  - requires_kingdom: false
+- elf_bloodline_skyweaver
+  - region: Northlands
+  - region_kor: 노스랜드
+  - starting_location: Skyspire
+  - ability_bonus: {"DEX": 1, "CHA": 1}
+  - name_en: Skyweaver Bloodline
+  - description: 하늘과 바람의 주문
+  - requires_kingdom: false
 
 추가 확장 포인트
-- 향후 다지역 확장 가능성을 유지하되, 초기 3개 혈통에서 시작하고, 지역 확장을 통해 확장해 나가는 방식이 적합합니다.
+- 향후 다지역 확장 가능성을 유지하되, 초기 7개 혈통에서 시작하고, 지역 확장을 통해 확장해 나가는 방식이 적합합니다.
 - name_en이 존재하는 혈통은 UI에서 영어 이름과 함께 노출되도록 표기 로직을 유지합니다.

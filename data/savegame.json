@@ -2,14 +2,14 @@
 	"bloodline": "",
 	"class": "fighter",
 	"name": "Hero",
-	"race": "half_troll",
+	"race": "elf",
 	"starting_location": "unknown",
 	"stats": {
 		"CHA": 10,
-		"CON": 11,
-		"DEX": 10,
-		"INT": 10,
-		"STR": 12,
+		"CON": 10,
+		"DEX": 12,
+		"INT": 12,
+		"STR": 10,
 		"WIS": 10
 	}
 }
