@@ -1,0 +1,39 @@
+{
+  "version": "1.1.0",
+  "description": "지형 타일 데이터 (고도/경사 시스템)",
+  "tile_size": 2.0,
+  "map_width": 20,
+  "map_height": 20,
+  
+  "tiles": {
+    "0": {"name": "벽", "walkable": false, "height": 2.0, "elevation": 2.0, "slope": 90, "mesh": "box", "color": "#5c3333"},
+    "1": {"name": "바닥", "walkable": true, "height": 0.1, "elevation": 0.0, "slope": 0, "mesh": "box", "color": "#40404d"},
+    "2": {"name": "문", "walkable": true, "height": 2.0, "elevation": 0.0, "slope": 0, "mesh": "box", "color": "#8b7355"},
+    "3": {"name": "물", "walkable": false, "height": 0.5, "elevation": -0.5, "slope": 0, "mesh": "box", "color": "#1e3d5c"},
+    "4": {"name": "커버", "walkable": true, "height": 1.0, "elevation": 1.0, "slope": 45, "mesh": "box", "color": "#4a4a4a"},
+    "5": {"name": "경사", "walkable": true, "height": 0.5, "elevation": 0.5, "slope": 30, "mesh": "box", "color": "#505058"},
+    "6": {"name": "계단_위", "walkable": true, "height": 0.5, "elevation": 1.0, "slope": 45, "mesh": "box", "color": "#606068"},
+    "7": {"name": "계단_아래", "walkable": true, "height": 0.5, "elevation": 0.0, "slope": 45, "mesh": "box", "color": "#555560"}
+  },
+  
+  "obstacles": {
+    "rock": {"name": "암석", "walkable": false, "mesh": "sphere", "radius": 0.5, "elevation": 0.5, "color": "#666666"},
+    "crate": {"name": "상자", "walkable": false, "mesh": "box", "size": 0.8, "elevation": 0.4, "color": "#8b4513"},
+    "barrel": {"name": "배럴", "walkable": false, "mesh": "cylinder", "radius": 0.3, "height": 0.8, "elevation": 0.4, "color": "#654321"}
+  },
+  
+  "elevation_rules": {
+    "base_height": 0.0,
+    "water_level": -0.5,
+    "max_height": 3.0,
+    "slope_bonus_AP": 2,
+    "elevation_bonus": 1
+  },
+  
+  "terrain_effects": {
+    "high_ground": {"defense_bonus": 2, "view_bonus": 10},
+    "water": {"movement_cost": -1, "damage": 1},
+    "slope": {"movement_cost": 2, "defense_bonus": 1},
+    "cover": {"defense_bonus": 2}
+  }
+}

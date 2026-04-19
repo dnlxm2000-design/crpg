@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://enemy_scene"]
+
+[ext_resource type="Script" path="res://scripts/entities/enemy.gd" id="1_enemy"]
+
+[sub_resource type="CapsuleShape3D" id="Shape_enemy"]
+radius = 0.3
+height = 1.2
+
+[sub_resource type="CapsuleMesh" id="Mesh_enemy"]
+radius = 0.3
+height = 1.2
+
+[node name="Enemy" type="CharacterBody3D"]
+script = ExtResource("1_enemy")
+
+[node name="EnemyMesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh_enemy")
+
+[node name="EnemyCollision" type="CollisionShape3D" parent="."]
+shape = SubResource("Shape_enemy")

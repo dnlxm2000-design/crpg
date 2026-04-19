@@ -1,0 +1,53 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-04-15",
+  "description": "Resource types for Silverhaven simulation",
+  
+  "resource_types": {
+    "food": {
+      "name": "Food",
+      "name_kr": "식량",
+      "base_value": 1,
+      "decay_rate": 0.1,
+      "description": "Basics survival resource"
+    },
+    "mineral": {
+      "name": "Mineral",
+      "name_kr": "광물/기술",
+      "base_value": 3,
+      "description": "Crafting and technology"
+    },
+    "magic_crystal": {
+      "name": "Magic Crystal",
+      "name_kr": "마력 결정",
+      "base_value": 10,
+      "description": "Magic enhancement"
+    },
+    "trade_goods": {
+      "name": "Trade Goods",
+      "name_kr": "교역품",
+      "base_value": 5,
+      "description": "Commercial exchange"
+    }
+  },
+  
+  "resource_effects": {
+    "food_shortage": {
+      "happiness_modifier": -20,
+      "description": "Famine conditions"
+    },
+    "food_surplus": {
+      "happiness_modifier": 10,
+      "description": "Bountiful harvest"
+    },
+    "mineral_shortage": {
+      "tech_level_modifier": -1,
+      "defense_modifier": -2,
+      "description": "Technology shortage"
+    },
+    "magic_crystal_shortage": {
+      "magic_power_modifier": -50,
+      "description": "Magic potency reduced"
+    }
+  }
+}

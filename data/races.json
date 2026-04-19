@@ -21,12 +21,13 @@
       "select_kingdom": true,
       "select_bloodline": true,
       "bloodline_options": [
-        {"id": "ironbloods", "name": "아이언블러드", "name_en": "Iron Bloodline", "description": "Human representation placeholder", "region": "", "region_kor": "", "starting_location": "", "ability_bonus": {"STR": 0, "DEX": 0, "CON": 0, "INT": 0, "WIS": 0, "CHA": 0}, "requires_kingdom": false},
-        {"id": "ether_guardians", "name": "에테르 가디언", "name_en": "Ether Guardians", "description": "Human placeholder", "region": "", "region_kor": "", "starting_location": "", "ability_bonus": {"STR": 0, "DEX": 0, "CON": 0, "INT": 0, "WIS": 0, "CHA": 0}, "requires_kingdom": false},
-        {"id": "solar_walkers", "name": "솔라 워커", "name_en": "Solar Walkers", "description": "Human placeholder", "region": "", "region_kor": "", "starting_location": "", "ability_bonus": {"STR": 0, "DEX": 0, "CON": 0, "INT": 0, "WIS": 0, "CHA": 0}, "requires_kingdom": false},
-        {"id": "mist_sailors", "name": "미스트 세일러", "name_en": "Mist Sailor", "description": "Human placeholder", "region": "", "region_kor": "", "starting_location": "", "ability_bonus": {"STR": 0, "DEX": 0, "CON": 0, "INT": 0, "WIS": 0, "CHA": 0}, "requires_kingdom": false}
-      ],
+        {"id": "ironbloods", "name": "아이언블러드", "name_en": "Iron Bloodline", "description": "Human frontline bloodline focusing on resilience", "region": "Northlands", "region_kor": "노스랜드", "starting_location": "IronKeep", "ability_bonus": {"STR": 1, "CON": 1}, "requires_kingdom": true},
+        {"id": "ether_guardians", "name": "에테르 가디언", "name_en": "Ether Guardians", "description": "Knowledge and magical discipline", "region": "ForestReach", "region_kor": "숲지대", "starting_location": "ForestGrove", "ability_bonus": {"INT": 2}, "requires_kingdom": false},
+        {"id": "solar_walkers", "name": "솔라 워커", "name_en": "Solar Walkers", "description": "Solar/warmth guardians", "region": "RiverDelta", "region_kor": "강 삼각주", "starting_location": "Solarium", "ability_bonus": {"DEX": 1, "CHA": 1}, "requires_kingdom": false},
+        {"id": "mist_sailors", "name": "미스트 세일러", "name_en": "Mist Sailor", "description": "Mist sailors bridging seas", "region": "CoastalCliffs", "region_kor": "해안 절벽", "starting_location": "CoastWatch", "ability_bonus": {"DEX": 2}, "requires_kingdom": false},
+        ],
       "kingdom_options": [
+        {"id": "human_kingdom", "name": "인간 왕국", "name_en": "Human Kingdom", "description": "중추적 정치 중심", "ability_bonus": {"CHA": 1, "INT": 1}, "starting_location": "HumanCapital"},
         {"id": "iron_guard", "name": "아이언가드", "description": "강력한 군사 국가. 질서와 규율", "ability_bonus": {"STR": 1, "CON": 1}, "starting_location": "아이언가드"},
         {"id": "eterea", "name": "에테리아", "description": "마법 결계 내부. 고립과 보전", "ability_bonus": {"WIS": 2}, "starting_location": "에테리아"},
         {"id": "solaris", "name": "솔라리스", "description": "태양 신전 근처. 종교와 태양", "ability_bonus": {"STR": 1, "DEX": 1}, "starting_location": "솔라리스"},
@@ -77,12 +78,10 @@
           {"id": "elf_bloodline_forest_guard", "name": "숲의 수호 혈맥", "name_en": "Forest Guardian Bloodline", "description": "숲의 생태를 수호하는 자", "region": "ForestReach", "region_kor": "숲지대", "starting_location": "ForestGrove", "ability_bonus": {"DEX": 1, "WIS": 1}, "requires_kingdom": false},
           {"id": "elf_bloodline_moonweaver", "name": "달빛 혈맥", "name_en": "Moonweaver Bloodline", "description": "달빛과 은은한 마력의 조합", "region": "CoastalCliffs", "region_kor": "해안 절벽", "starting_location": "MoonriseCliff", "ability_bonus": {"INT": 1, "CHA": 1}, "requires_kingdom": false},
           {"id": "elf_bloodline_river_guard", "name": "강의 수호 혈맥", "name_en": "River Guard Bloodline", "description": "강의 흐름과 항해의 수호자", "region": "RiverDelta", "region_kor": "강 삼각주", "starting_location": "RiverWatch", "ability_bonus": {"DEX": 1, "WIS": 1}, "requires_kingdom": false},
-          {"id": "elf_bloodline_mountain_guard", "name": "산맥 수호 혈맥", "name_en": "Mountain Guardian Bloodline", "description": "산맥의 경계 수호자", "region": "MountainPass", "region_kor": "산맥 고개", "starting_location": "PeakWatch", "ability_bonus": {"STR": 1, "DEX": 0}, "requires_kingdom": false}
+          {"id": "elf_bloodline_mountain_guard", "name": "산맥 수호 혈맥", "name_en": "Mountain Guardian Bloodline", "description": "산맥의 경계 수호자", "region": "MountainPass", "region_kor": "산맥 고개", "starting_location": "PeakWatch", "ability_bonus": {"STR": 1, "DEX": 0}, "requires_kingdom": false},
+          {"id": "elf_bloodline_dawnpatron", "name": "새벽의 후원자 혈맥", "name_en": "Dawn Patron Bloodline", "description": "새벽의 숭배를 보호하는 자", "region": "MountainPass", "region_kor": "산맥 고개", "starting_location": "DawnPeak", "ability_bonus": {"DEX": 1, "INT": 1}, "requires_kingdom": false},
+          {"id": "elf_bloodline_skyweaver", "name": "하늘 직조 혈맥", "name_en": "Skyweaver Bloodline", "description": "하늘과 바람의 주문", "region": "Northlands", "region_kor": "노스랜드", "starting_location": "Skyspire", "ability_bonus": {"DEX": 1, "CHA": 1}, "requires_kingdom": false}
         ],
-        {"id": "elf_bloodline_dawnpatron", "name": "새벽의 후원자 혈맥", "name_en": "Dawn Patron Bloodline", "description": "새벽의 숭배를 보호하는 자", "region": "MountainPass", "region_kor": "산맥 고개", "starting_location": "DawnPeak", "ability_bonus": {"DEX": 1, "INT": 1}, "requires_kingdom": false},
-        {"id": "elf_bloodline_skyweaver", "name": "하늘 직조 혈맥", "name_en": "Skyweaver Bloodline", "description": "하늘과 바람의 주문", "region": "Northlands", "region_kor": "노스랜드", "starting_location": "Skyspire", "ability_bonus": {"DEX": 1, "CHA": 1}, "requires_kingdom": false}
-        {"id": "elf_bloodline_dawnpatron", "name": "새벽의 후원자 혈맥", "name_en": "Dawn Patron Bloodline", "description": "새벽의 숭배를 보호하는 자", "region": "MountainPass", "region_kor": "산맥 고개", "starting_location": "DawnPeak", "ability_bonus": {"DEX": 1, "INT": 1}, "requires_kingdom": false},
-        {"id": "elf_bloodline_skyweaver", "name": "하늘 직조 혈맥", "name_en": "Skyweaver Bloodline", "description": "하늘과 바람의 주문", "region": "Northlands", "region_kor": "노스랜드", "starting_location": "Skyspire", "ability_bonus": {"DEX": 1, "CHA": 1}, "requires_kingdom": false}
       "background_options": [
         {"id": "preserve_keeper", "name": "수호자", "ability_bonus": {"WIS": 1, "DEX": 1}},
         {"id": "arcane_scholar", "name": "마법 학자", "ability_bonus": {"INT": 2}}

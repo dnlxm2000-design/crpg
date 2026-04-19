@@ -1,0 +1,239 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-04-15",
+  "description": "직업별 전투 행동 시스템",
+  "classes": {
+    "fighter": {
+      "name": "전사",
+      "name_en": "Fighter",
+      "role": "melee",
+      "action_types": {
+        "standard": {
+          "attacks": ["근접 공격", "돌진", "견제"],
+          "skills": ["전술", "무기 전문화", "반격"]
+        },
+        "bonus": {
+          "second_wind": {"type": "heal", "ap_cost": 1, "effect": "HP 10+level 회복"}
+        }
+      },
+      "prerequisites": {
+        "STR": 13,
+        "skills": ["검술", "둔기전투"]
+      }
+    },
+    "rogue": {
+      "name": "도적",
+      "name_en": "Rogue",
+      "role": "stealth",
+      "action_types": {
+        "standard": {
+          "attacks": ["암습", "비검", "투척"],
+          "skills": ["은신", "소매치기", "독"]
+        },
+        "bonus": {
+          "cunning_action": {"type": "movement", "ap_cost": 1, "effect": "보조행동으로 이동/은신/후퇴"}
+        }
+      },
+      "prerequisites": {
+        "DEX": 13,
+        "skills": ["은신"]
+      }
+    },
+    "wizard": {
+      "name": "마법사",
+      "name_en": "Wizard",
+      "role": "magic",
+      "action_types": {
+        "standard": {
+          "attacks": ["마법 화살", "화염구", "얼음창"],
+          "skills": ["마법사용", "주문저항"]
+        },
+        "bonus": {
+          "arcane_recovery": {"type": "spell", "ap_cost": 1, "effect": "사용한 마법 슬롯 1개 회복"}
+        }
+      },
+      "prerequisites": {
+        "INT": 13,
+        "skills": ["마법사용"]
+      }
+    },
+    "cleric": {
+      "name": "사제",
+      "name_en": "Cleric",
+      "role": "divine",
+      "action_types": {
+        "standard": {
+          "attacks": "신성 공격",
+          "spells": ["치유", "보호", "재앙"],
+          "skills": ["신앙", "의학"]
+        },
+        "bonus": {
+          "divine_domain": {"type": "spell", "effect": "신성 마법 시전"}
+        }
+      },
+      "prerequisites": {
+        "WIS": 13,
+        "skills": ["신앙"]
+      }
+    },
+    "ranger": {
+      "name": "레인저",
+      "name_en": "Ranger",
+      "role": "ranged",
+      "action_types": {
+        "standard": {
+          "attacks": ["궁술", "투척", "표적"],
+          "skills": ["추적", "동물학", "야외생존"]
+        },
+        "bonus": {
+          "natural_explorer": {"type": "movement", "effect": "지형 불리无视"}
+        }
+      },
+      "prerequisites": {
+        "DEX": 13,
+        "WIS": 13
+      }
+    },
+    "barbarian": {
+      "name": "야만전사",
+      "name_en": "Barbarian",
+      "role": "berserker",
+      "action_types": {
+        "standard": {
+          "attacks": ["광폭 공격", "돌진", "분노"],
+          "skills": ["해부학", "생존", "공포"]
+        },
+        "bonus": {
+          "rage": {"type": "buff", "ap_cost": 1, "effect": "분노 상태: 대미지 +2, 내성 +2"}
+        }
+      },
+      "prerequisites": {
+        "STR": 13
+      }
+    },
+    "paladin": {
+      "name": "성기사",
+      "name_en": "Paladin",
+      "role": "hybrid",
+      "action_types": {
+        "standard": {
+          "attacks": ["신성 검", "강재", "치유"],
+          "skills": ["신앙", "骑术"]
+        },
+        "bonus": {
+          "divine_smite": {"type": "divine", "ap_cost": 1, "effect": "신성 대미지 추가 2d6"}
+        }
+      },
+      "prerequisites": {
+        "STR": 13,
+        "CHA": 13
+      }
+    },
+    "bard": {
+      "name": "음유시인",
+      "name_en": "Bard",
+      "role": "support",
+      "action_types": {
+        "standard": {
+          "spells": ["마법", "버프", "Debuff"],
+          "skills": ["도발", "협박", "유인"]
+        },
+        "bonus": {
+          "inspiration": {"type": "buff", "ap_cost": 1, "effect": "아군 힐 or 판정 +1d6"}
+        }
+      },
+      "prerequisites": {
+        "CHA": 13
+      }
+    }
+  },
+  "combat_actions": {
+    "movement": {
+      "disengage": {"ap_cost": 1, "type": "보조행동", "effect": "도망 가기"},  
+      "dash": {"ap_cost": 1, "type": "보조행동", "effect": "이동 거리 2배"},
+      "hide": {"ap_cost": 1, "type": "보조행동", "effect": "은신 시도"},
+      "prone": {"ap_cost": 0, "type": "보조행동", "effect": "엎드려回避"}
+    },
+    "attack_types": {
+      "melee": {"range": 5, "type": "공격"},
+      "ranged": {"range": 80, "type": "공격", "cover_penalty": -2},
+      "magical": {"range": 120, "type": "마법", "save_dc": 10},
+      "divine": {"range": 60, "type": "신성", "requires": "cleric/paladin"}
+    },
+    "special_maneuvers": {
+      "overrun": {"ap_cost": 1, "type": "일반행동", "dc": "AC"}
+    }
+  },
+  "initiative_system": {
+    "normal": "d20 + DEX Mod",
+    "surprise": {
+      "condition": "은신 or 미감지",
+      "effect": "첫 턴_skipped",
+      "counter": "감지 판정 (DC: 은신자의 Stealth)"
+    },
+    "first_strike": {
+      "condition": "，我先制",
+      "effect": "첫 턴 +2 공격",
+      "priority": "높은 initiative가"
+    }
+  },
+  "surprise_rules": {
+    "detection": {
+      "passive_perception": "10 + Wisdom Mod",
+      "active_check": "dc : Stealth Roll"
+    },
+    "surprise_round": {
+      "who_is_surprised": "양쪽 다 감지 못한 쪽",
+      "duration": "첫 번째 턴에만 적용",
+      "actions": "일반행동/보조행동 모두 불가"
+    },
+    "hiding_rules": {
+      "requirements": ["숨을 곳", "시야에서 가려짐"],
+      "check": "Stealth vs Perception",
+      "break_cover": ["공격", "대화", "시야 확보"]
+    }
+  },
+  "escape_rules": {
+    "disengage": {
+      "ap_cost": 1,
+      "effect": "이동 시 기회 공격 무시"
+    },
+    "retreat": {
+      "ap_cost": 2,
+      "effect": "3칸 후퇴,追击 시 아군 위치 확보"
+    },
+    "escape_check": {
+      "method": "DEX Saves vs追击자",
+      "success": "도망 성공 (전투 종료)",
+      "failure": "追击続行, 위치 불리"
+    },
+    "class_bonuses": {
+      "rogue": "도망 시 +5",
+      "ranger": "야외에서 도망 시 +3",
+      "barbarian": "분노 중 도망 시 +2 대미지"
+    }
+  },
+  "action_priority": {
+    "전투 시작": ["initiative 굴림", "surprise 판정", "선공 확보"],
+    "첫 턴": ["은신 감지", "커버 확보", "집중"),
+    "각 턴": ["보조행동", "일반행동", "이동"],
+    "전투 종료": ["도망/항복/포기 선택"]
+  },
+  "branching_conditions": {
+    "turn_start": {
+      "options": ["공격", "마법", "스킬", "이동", "도망"],
+      "depends_on": ["현재 AP", "적 거리", "직업", "상태 이상"]
+    },
+    "in_combat": {
+      "high_hp": ["공격적 전략", "돌진"],
+      "low_hp": ["방어적 전략", "치유/도망"],
+      "has_cover": ["견제 사격", "대기"]
+    },
+    "class_specific": {
+      "fighter": ["돌진", "견제", "반격"],
+      "rogue": ["암습", "도망", "독"],
+      "wizard": ["마법", "대기", "유리한 위치"],
+      "cleric": ["치유", "버프", "신성 마법"]
+    }
+  }
+}

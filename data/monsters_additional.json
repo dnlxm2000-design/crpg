@@ -1,0 +1,535 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-04-13",
+  "description": "노바 부유 도시 몬스터 + 마왕군 유닛 추가",
+  "additional_monsters": {
+    "nova_ruins": {
+      "description": "노바 부유 도시 잔해에서 발견되는 몬스터",
+      "monsters": [
+        {
+          "id": "nova_leech",
+          "name": "부유 거머리",
+          "name_en": "Floating Leech",
+          "cr": "1/8",
+          "hp": 7,
+          "ac": 11,
+          "spd": 30,
+          "fly": true,
+          "type": "aberration",
+          "size": "Small",
+          "abilities": {
+            "STR": 3,
+            "DEX": 14,
+            "CON": 10,
+            "INT": 2,
+            "WIS": 10,
+            "CHA": 4
+          },
+          "attacks": [
+            {
+              "name": "흡혈",
+              "type": "melee",
+              "hit": "d20+4",
+              "damage": "1d4",
+              "effect": "흡혈 (1d4 추가 대미지, HP 흡수)"
+            }
+          ],
+          "traits": [
+            {
+              "name": "부유 이동",
+              "description": "공중 부양, 지형 무시"
+            },
+            {
+              "name": "흡혈",
+              "description": "타겟 HP의 25%를 흡수"
+            }
+          ],
+          "drops": {
+            "gold": "2d6",
+            "items": []
+          },
+          "xp": 25
+        },
+        {
+          "id": "scrap_golem",
+          "name": "폭주 고철 골렘",
+          "name_en": "Rampaging Scrap Golem",
+          "cr": 3,
+          "hp": 52,
+          "ac": 15,
+          "spd": 25,
+          "type": "construct",
+          "size": "Large",
+          "abilities": {
+            "STR": 18,
+            "DEX": 8,
+            "CON": 16,
+            "INT": 3,
+            "WIS": 10,
+            "CHA": 1
+          },
+          "attacks": [
+            {
+              "name": "돌진",
+              "type": "melee",
+              "hit": "d20+6",
+              "damage": "2d8+4",
+              "effect": "돌진 (이동 경로 내 모든 적)",
+              "special": true
+            },
+            {
+              "name": "분노",
+              "type": "passive",
+              "trigger": "hp_50",
+              "effect": "피 50% 이하: 명중 +2, 대미지 +2"
+            }
+          ],
+          "traits": [
+            {
+              "name": "방어구 관통",
+              "description": "轻装甲 대상 AC -2"
+            },
+            {
+              "name": "분노",
+              "description": "HP 50% 이하 시 전투력 상승"
+            }
+          ],
+          "drops": {
+            "gold": "5d10",
+            "items": [
+              {
+                "name": "마도 부품",
+                "chance": 50,
+                "description": "장비 제작 재료"
+              }
+            ]
+          },
+          "xp": 100
+        },
+        {
+          "id": "arcane_purifier",
+          "name": "흑마도 정화기",
+          "name_en": "Corrupted Arcane Purifier",
+          "cr": 5,
+          "hp": 68,
+          "ac": 13,
+          "spd": 0,
+          "type": "construct",
+          "size": "Medium",
+          "abilities": {
+            "STR": 12,
+            "DEX": 10,
+            "CON": 14,
+            "INT": 5,
+            "WIS": 12,
+            "CHA": 8
+          },
+          "attacks": [
+            {
+              "name": "마법 방출",
+              "type": "ranged",
+              "hit": "d20+3",
+              "damage": "3d8",
+              "range": 60,
+              "save_dc": 14,
+              "save_type": "DEX",
+              "effect": "마법 대미지, 내성 성공 시 절반"
+            }
+          ],
+          "traits": [
+            {
+              "name": "오염 안개 생성",
+              "description": "반경 20ft 시야 감소",
+              "area": 20,
+              "duration": "지속"
+            },
+            {
+              "name": "마법 방어",
+              "description": "마법 공격 25% 무효화"
+            }
+          ],
+          "drops": {
+            "gold": "3d20",
+            "items": [
+              {
+                "name": "노바 금편",
+                "chance": 75,
+                "description": "방어구 관통 효과"
+              }
+            ]
+          },
+          "xp": 200
+        },
+        {
+          "id": "iron_clad_flyer",
+          "name": "날개 달린 철갑충",
+          "name_en": "Winged Ironclad",
+          "cr": 4,
+          "hp": 45,
+          "ac": 17,
+          "spd": 20,
+          "fly": true,
+          "type": "construct",
+          "size": "Medium",
+          "abilities": {
+            "STR": 16,
+            "DEX": 14,
+            "CON": 14,
+            "INT": 4,
+            "WIS": 12,
+            "CHA": 6
+          },
+          "attacks": [
+            {
+              "name": "산산이",
+              "type": "melee",
+              "hit": "d20+5",
+              "damage": "2d6+3",
+              "multiattack": 2,
+              "description": "2회 공격"
+            },
+            {
+              "name": "돌진",
+              "type": "special",
+              "hit": "d20+5",
+              "damage": "1d10+3",
+              "description": "공중에서 돌진, 기회 공격 불가"
+            }
+          ],
+          "traits": [
+            {
+              "name": "비행",
+              "description": "30ft 비행 가능"
+            },
+            {
+              "name": "철갑",
+              "description": "마법 공격 25% 무효화"
+            }
+          ],
+          "drops": {
+            "gold": "2d12",
+            "items": [
+              {
+                "name": "정밀 부품",
+                "chance": 60,
+                "description": "정밀 장비 제작 재료"
+              }
+            ]
+          },
+          "xp": 150
+        },
+        {
+          "id": "nova_specter",
+          "name": "노바의 망령",
+          "name_en": "Specter of Nova",
+          "cr": 6,
+          "hp": 85,
+          "ac": 12,
+          "spd": 30,
+          "fly": true,
+          "type": "undead",
+          "size": "Medium",
+          "abilities": {
+            "STR": 6,
+            "DEX": 16,
+            "CON": 0,
+            "INT": 14,
+            "WIS": 14,
+            "CHA": 16
+          },
+          "attacks": [
+            {
+              "name": "마력 폭발",
+              "type": "ranged",
+              "hit": "d20+6",
+              "damage": "3d8",
+              "range": 90,
+              "save_dc": 15,
+              "save_type": "WIS",
+              "effect": "마법 대미지, 내성 시 절반",
+              "legendary": true
+            },
+            {
+              "name": "정신 연결",
+              "type": "special",
+              "effect": "플레이어 1명 1턴 통제 시도",
+              "save_dc": 15,
+              "save_type": "WIS",
+              "legendary": true
+            },
+            {
+              "name": "유령 소환",
+              "type": "special",
+              "effect": "부유 거머리 1기 소환",
+              "legendary": true
+            }
+          ],
+          "immunities": ["마법 50%", "비마법 무기"],
+          "traits": [
+            {
+              "name": "통과",
+              "description": "벽과 적을 통과 가능"
+            },
+            {
+              "name": "공포",
+              "description": "DC 13 WIS 내성, 실패 시 도망",
+              "dc": 13,
+              "type": "fear"
+            },
+            {
+              "name": "전설 행동",
+              "description": "1턴에 2회 전설 행동 가능",
+              "uses": 2
+            }
+          ],
+          "drops": {
+            "gold": "10d20",
+            "items": [
+              {
+                "name": "제국 인장",
+                "chance": 100,
+                "description": "스토리 아이템, 노바 왕국의 증거"
+              }
+            ]
+          },
+          "xp": 400,
+          "legendary_actions": [
+            "마력 폭발 (3d8 마법 대미지)",
+            "정신 연결 (1턴 통제 시도)",
+            "유령 소환 (부유 거머리 1기)"
+          ]
+        }
+      ]
+    },
+    "demon_army": {
+      "description": "마왕 크로노스의 군단에서 발견되는 몬스터",
+      "monsters": [
+        {
+          "id": "mist_shadow",
+          "name": "안개 사도",
+          "name_en": "Mist Shadow",
+          "cr": 7,
+          "hp": 95,
+          "ac": 14,
+          "spd": 30,
+          "fly": true,
+          "type": "fiend",
+          "size": "Medium",
+          "abilities": {
+            "STR": 14,
+            "DEX": 18,
+            "CON": 16,
+            "INT": 14,
+            "WIS": 14,
+            "CHA": 18
+          },
+          "attacks": [
+            {
+              "name": "노이즈 접촉",
+              "type": "melee",
+              "hit": "d20+7",
+              "damage": "2d10+4",
+              "effect": "노이즈 오염 (1d6 추가 마법 대미지/턴)"
+            },
+            {
+              "name": "정신 지배",
+              "type": "ranged",
+              "range": 60,
+              "save_dc": 16,
+              "save_type": "WIS",
+              "effect": "적 1명 1턴 통제"
+            },
+            {
+              "name": "소환",
+              "type": "special",
+              "effect": "안개 하인 2기 소환"
+            }
+          ],
+          "traits": [
+            {
+              "name": "노이즈 감응",
+              "description": "안개 속에서 전투 시 모든 판정 +2"
+            },
+            {
+              "name": "마법 저항",
+              "description": "마법 내성 굴림 advantage"
+            }
+          ],
+          "drops": {
+            "gold": "5d20",
+            "items": [
+              {
+                "name": "심연의 찜질",
+                "chance": 80,
+                "description": "사건 B와 연계되는 스토리 아이템"
+              }
+            ]
+          },
+          "xp": 500
+        },
+        {
+          "id": "icewall_breaker",
+          "name": "빙벽 균열자",
+          "name_en": "Icewall Breaker",
+          "cr": 8,
+          "hp": 110,
+          "ac": 16,
+          "spd": 35,
+          "type": "elemental",
+          "size": "Large",
+          "abilities": {
+            "STR": 20,
+            "DEX": 12,
+            "CON": 18,
+            "INT": 8,
+            "WIS": 12,
+            "CHA": 10
+          },
+          "attacks": [
+            {
+              "name": "냉기 강타",
+              "type": "melee",
+              "hit": "d20+8",
+              "damage": "3d8+5",
+              "effect": "냉기 대미지 + 이동 속도 감소 1턴"
+            },
+            {
+              "name": "빙벽 파괴",
+              "type": "special",
+              "effect": "구조물 HP 50 감소",
+              "description": "벽/문을 파괴"
+            },
+            {
+              "name": "냉기 폭발",
+              "type": "ranged",
+              "range": 30,
+              "save_dc": 15,
+              "save_type": "DEX",
+              "damage": "4d6",
+              "effect": "范围 공격"
+            }
+          ],
+          "traits": [
+            {
+              "name": "냉기 면역",
+              "description": "냉기 대미지 무효화"
+            },
+            {
+              "name": "방어구 관통",
+              "description": "중갑옷 이하 AC -3"
+            },
+            {
+              "name": "빙벽 적응",
+              "description": "빙벽 근처에서 HP 5/턴 회복"
+            }
+          ],
+          "drops": {
+            "gold": "8d20",
+            "items": [
+              {
+                "name": "빙벽 조각",
+                "chance": 70,
+                "description": "마법 재료, 냉기 장비 제작"
+              }
+            ]
+          },
+          "xp": 700
+        },
+        {
+          "id": "cronos_lieutenant",
+          "name": "마왕 크로노스 부관",
+          "name_en": "Lieutenant of Kronos",
+          "cr": 10,
+          "hp": 180,
+          "ac": 18,
+          "spd": 40,
+          "fly": true,
+          "type": "fiend",
+          "size": "Large",
+          "abilities": {
+            "STR": 22,
+            "DEX": 18,
+            "CON": 20,
+            "INT": 16,
+            "WIS": 16,
+            "CHA": 20
+          },
+          "attacks": [
+            {
+              "name": "마도 검",
+              "type": "melee",
+              "hit": "d20+9",
+              "damage": "3d12+6",
+              "effect": "마법 + 물리 혼합 대미지"
+            },
+            {
+              "name": "마법 대폭발",
+              "type": "ranged",
+              "range": 120,
+              "save_dc": 17,
+              "save_type": "DEX",
+              "damage": "5d10",
+              "effect": "大范围 마법 대미지"
+            },
+            {
+              "name": "희생 강림",
+              "type": "special",
+              "effect": "HP 30% 이상일 때死亡 시 3턴 후 부활",
+              "description": "1번만 발동"
+            }
+          ],
+          "traits": [
+            {
+              "name": "전설 행동",
+              "description": "1턴에 2회 전설 행동 가능",
+              "uses": 2
+            },
+            {
+              "name": "마법 면역 75%",
+              "description": "마법 공격 75% 무효화"
+            },
+            {
+              "name": "마왕의 축복",
+              "description": "안개 속에서 모든 능력 +2"
+            }
+          ],
+          "legendary_actions": [
+            "공포 (DC 17 WIS)",
+            "마법 방어 (1턴 내 마법 무효화)",
+            "부관 소환 (하급 사도 1기)"
+          ],
+          "drops": {
+            "gold": "20d50",
+            "items": [
+              {
+                "name": "크로노스의 찜질",
+                "chance": 100,
+                "description": "스토리 결정권 아이템, 마왕군 핵심 임무 완수 증명"
+              },
+              {
+                "name": "마도핵 파편",
+                "chance": 50,
+                "description": "희귀 마법 재료"
+              }
+            ]
+          },
+          "xp": 1500
+        }
+      ]
+    }
+  },
+  "encounter_suggestions": {
+    "nova_ruins": {
+      "easy": ["부유 거머리 x4"],
+      "medium": ["폭주 고철 골렘 x2", "부유 거머리 x2"],
+      "hard": ["흑마도 정화기 x1", "날개 달린 철갑충 x2"],
+      "deadly": ["노바의 망령 x1", "부유 거머리 x3"]
+    },
+    "demon_army": {
+      "easy": ["안개 사도 x2"],
+      "medium": ["안개 사도 x3", "빙벽 균열자 x1"],
+      "hard": ["빙벽 균열자 x2", "안개 사도 x2"],
+      "deadly": ["마왕 크로노스 부관 x1", "안개 사도 x3"]
+    }
+  }
+}

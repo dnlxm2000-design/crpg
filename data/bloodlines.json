@@ -1,0 +1,265 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-04-13",
+  "description": "4대 혈통 상세 데이터",
+  "bloodlines": {
+    "ironbloods": {
+      "name": "아이언브러드",
+      "name_en": "Iron-bloods",
+      "origin": ["에델바이스", "아이언가드"],
+      "description": "북부 빙벽 수호의 Bloodline. 제국 초기 오크 유배에 가장 앞장섰던 종족.",
+      "ability_scores": {
+        "STR": 2,
+        "DEX": -1,
+        "CON": 1,
+        "INT": 0,
+        "WIS": 0,
+        "CHA": -1
+      },
+      "traits": [
+        {
+          "name": "추위 저항",
+          "name_en": "Cold Resistance",
+          "description": "Cold 데미지 50% 감소",
+          "type": "resistance",
+          "element": "cold",
+          "always_active": true
+        },
+        {
+          "name": "단단한 피부",
+          "name_en": "Iron Skin",
+          "description": "마법 외피 (피해 3 감소)",
+          "type": "passive",
+          "uses": 1,
+          "per": "day"
+        },
+        {
+          "name": "돌진",
+          "name_en": "Charge",
+          "description": "Charge 거리가 5ft 증가",
+          "type": "combat",
+          "always_active": true
+        }
+      ],
+      "recommended_classes": [
+        {"class": "Fighter", "priority": 5},
+        {"class": "Barbarian", "priority": 5},
+        {"class": "Paladin", "priority": 4},
+        {"class": "Fighter_Champion", "priority": 3}
+      ],
+      "recommended_skills": ["검술", "둔기전투", "전술", "해부학", "생존"],
+      "avoid_skills": ["마법사용", "은신", "소매치기"],
+      "starting_location": "하층 지구",
+      "starting_equipment": {
+        "weapon": "징발 한손 도끼",
+        "armor": "징발 흉갑 (AC+3)",
+        "special": "아이언가드 문장"
+      },
+      "flavor": {
+        "strengths": ["성벽 수비대", "강한 전사"],
+        "weaknesses": ["민첩함 부족", "원거리 취약"],
+        "relationships": {
+          "favors": ["아이언가드 출신", "수복파"],
+          "opposes": ["아이언스컬 오크", "미스트 세일러"]
+        }
+      }
+    },
+    "ether_guardians": {
+      "name": "에테르 가디언",
+      "name_en": "Ether-Guardians",
+      "origin": ["에테리아", "노바"],
+      "description": "마력 감응도가 비정상적으로 높은 Bloodline. 과거 루미나스의 주축.",
+      "ability_scores": {
+        "STR": -1,
+        "DEX": 0,
+        "CON": 0,
+        "INT": 2,
+        "WIS": 1,
+        "CHA": 0
+      },
+      "traits": [
+        {
+          "name": "에테르 시야",
+          "name_en": "Ether Sight",
+          "description": "암흑 + 30ft, 마법 오라 감지",
+          "type": "vision",
+          "darkvision_range": 30,
+          "always_active": true
+        },
+        {
+          "name": "마법 감응",
+          "name_en": "Arcane Affinity",
+          "description": "마법 성공률 +5%",
+          "type": "bonus",
+          "spell_success": 5,
+          "always_active": true
+        },
+        {
+          "name": "지식 탐색",
+          "name_en": "Lore Search",
+          "description": "역사/마법 관련 INT 체크 +2",
+          "type": "skill_bonus",
+          "skills": ["마법사용", "명상", "주문저항"],
+          "bonus": 2,
+          "always_active": true
+        }
+      ],
+      "recommended_classes": [
+        {"class": "Wizard", "priority": 5},
+        {"class": "Warlock", "priority": 5},
+        {"class": "Bard", "priority": 4},
+        {"class": "Sorcerer", "priority": 3}
+      ],
+      "recommended_skills": ["마법사용", "명상", "주문저항", "연금술", "사역술"],
+      "avoid_skills": ["궁술", "벌목", "투척"],
+      "starting_location": "증폭기실 근처",
+      "starting_equipment": {
+        "weapon": "연금단검 (마법대미지 1d4)",
+        "armor": "마도 로브 (AC+1, 마법저항 5%)",
+        "special": "에테리아 성물"
+      },
+      "flavor": {
+        "strengths": ["마법사", "지식인"],
+        "weaknesses": ["물리 전투 취약"],
+        "relationships": {
+          "favors": ["루미나스 출신", "수복파"],
+          "opposes": ["오크", "심연의 사도"]
+        }
+      }
+    },
+    "solar_walkers": {
+      "name": "솔라 워커",
+      "name_en": "Solar Walkers",
+      "origin": ["솔라리스"],
+      "description": "사막의 태양 아래 길들여진 Bloodline. 멸망 직전의 피난민.",
+      "ability_scores": {
+        "STR": 1,
+        "DEX": 1,
+        "CON": 0,
+        "INT": -1,
+        "WIS": 0,
+        "CHA": 0
+      },
+      "traits": [
+        {
+          "name": "더위 저항",
+          "name_en": "Heat Resistance",
+          "description": "Fire/Cold 데미지 50% 감소",
+          "type": "resistance",
+          "elements": ["fire", "cold"],
+          "always_active": true
+        },
+        {
+          "name": "동체 시력",
+          "name_en": "Motion Vision",
+          "description": "은신 적 감지 +5, 후방 공격 +1d4",
+          "type": "combat",
+          "stealth_detection": 5,
+          "backstab_bonus": "1d4",
+          "always_active": true
+        },
+        {
+          "name": "명중의 축복",
+          "name_en": "Blessed Accuracy",
+          "description": "원거리 공격 첫 히트 시 +2 대미지",
+          "type": "first_hit",
+          "damage_bonus": 2,
+          "per": "combat"
+        }
+      ],
+      "recommended_classes": [
+        {"class": "Ranger", "priority": 5},
+        {"class": "Rogue", "priority": 5},
+        {"class": "Fighter", "priority": 4}
+      ],
+      "recommended_skills": ["궁술", "투척", "추적", "생존", "동물학"],
+      "avoid_skills": ["사역술", "집중", "명상"],
+      "starting_location": "서성벽 외벽",
+      "starting_equipment": {
+        "weapon": "복합궁 (위력 低)",
+        "armor": "경량 가죽 갑옷",
+        "special": "태양 표식 목걸이"
+      },
+      "flavor": {
+        "strengths": ["궁수", "정탐"],
+        "weaknesses": ["마법 취약"],
+        "relationships": {
+          "favors": ["솔라리스 피난민", "적응파"],
+          "opposes": ["아이언브러드", "본 워커 오크"]
+        }
+      }
+    },
+    "mist_sailors": {
+      "name": "미스트 세일러",
+      "name_en": "Mist Sailors",
+      "origin": ["벤투스", "미스트랄", "자유의 항구"],
+      "description": "안개와 바다의 Bloodline. 실버하벤의情報網 장악.",
+      "ability_scores": {
+        "STR": -1,
+        "DEX": 2,
+        "CON": 0,
+        "INT": 0,
+        "WIS": 1,
+        "CHA": 1
+      },
+      "traits": [
+        {
+          "name": "안개 탐지",
+          "name_en": "Mist Sense",
+          "description": "시야 감소 구간에서 DEX 체크 +3",
+          "type": "skill_bonus",
+          "situation": "low_visibility",
+          "skill": "DEX",
+          "bonus": 3,
+          "always_active": true
+        },
+        {
+          "name": "행운의 아류",
+          "name_en": "Lucky",
+          "description": "1일 1회 d20 리롤 가능",
+          "type": "reroll",
+          "uses": 1,
+          "per": "day"
+        },
+        {
+          "name": "밀수 천재",
+          "name_en": "Smuggler",
+          "description": "계약밴드 관련 스킬 +2",
+          "type": "skill_bonus",
+          "skills": ["소매치기", "함정해제", "엿보기"],
+          "bonus": 2,
+          "always_active": true
+        }
+      ],
+      "recommended_classes": [
+        {"class": "Rogue", "priority": 5},
+        {"class": "Bard", "priority": 5},
+        {"class": "Ranger", "priority": 4}
+      ],
+      "recommended_skills": ["은신", "소매치기", "함정해제", "엿보기", "도발"],
+      "avoid_skills": ["전술", "둔기전투", "해부학"],
+      "starting_location": "하층 지구 뒷골목",
+      "starting_equipment": {
+        "weapon": "단검 x2",
+        "armor": "습식 망토",
+        "special": "안개 방울 (은신 +10)"
+      },
+      "flavor": {
+        "strengths": ["도적", "항해자"],
+        "weaknesses": ["근접 전투 취약"],
+        "relationships": {
+          "favors": ["하플링", "상인 연맹"],
+          "opposes": ["수복파 엄격파"]
+        }
+      }
+    }
+  },
+  "bloodline_choices": {
+    "description": "혈통 선택 시 고려사항",
+    "factors": [
+      "플레이 스타일 (근접/원거리/마법)",
+      "지속할 INT 수준",
+      "다른 플레이어와의 조합"
+    ]
+  }
+}

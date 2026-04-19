@@ -1,0 +1,589 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-04-15",
+  "description": "아이템 데이터 - 무기/방어구/소모품/장비",
+  "categories": {
+    "weapon": {
+      "name": "무기",
+      "icon": "⚔️",
+      "subcategories": {
+        "melee": {
+          "name": "근접 무기",
+          "items": [
+            {
+              "id": "longsword",
+              "name": "긴 검이",
+              "name_en": "Longsword",
+              "damage": "1d8",
+              "damage_type": "slashing",
+              "range": 5,
+              "weight": 3,
+              "price": 15,
+              "properties": ["versatile"],
+              "rarity": "common"
+            },
+            {
+              "id": "battleaxe",
+              "name": "전투 도끼",
+              "name_en": "Battleaxe",
+              "damage": "1d8",
+              "damage_type": "slashing",
+              "range": 5,
+              "weight": 4,
+              "price": 10,
+              "properties": ["versatile"],
+              "rarity": "common"
+            },
+            {
+              "id": "warhammer",
+              "name": "전투 해머",
+              "name_en": "Warhammer",
+              "damage": "1d8",
+              "damage_type": "bludgeoning",
+              "range": 5,
+              "weight": 5,
+              "price": 15,
+              "properties": ["versatile"],
+              "rarity": "common"
+            },
+            {
+              "id": "shortsword",
+              "name": "단검",
+              "name_en": "Shortsword",
+              "damage": "1d6",
+              "damage_type": "piercing",
+              "range": 5,
+              "weight": 2,
+              "price": 10,
+              "properties": ["finesse", "light"],
+              "rarity": "common"
+            },
+            {
+              "id": "greatsword",
+              "name": "대검",
+              "name_en": "Greatsword",
+              "damage": "2d6",
+              "damage_type": "slashing",
+              "range": 5,
+              "weight": 6,
+              "price": 50,
+              "properties": ["heavy", "two-handed"],
+              "rarity": "uncommon"
+            },
+            {
+              "id": "greataxe",
+              "name": "대도끼",
+              "name_en": "Greataxe",
+              "damage": "1d12",
+              "damage_type": "slashing",
+              "range": 5,
+              "weight": 7,
+              "price": 30,
+              "properties": ["heavy", "two-handed"],
+              "rarity": "uncommon"
+            },
+            {
+              "id": "spear",
+              "name": "창",
+              "name_en": "Spear",
+              "damage": "1d6",
+              "damage_type": "piercing",
+              "range": 10,
+              "weight": 3,
+              "price": 5,
+              "properties": ["versatile", "thrown"],
+              "rarity": "common"
+            }
+          ]
+        },
+        "ranged": {
+          "name": "원거리 무기",
+          "items": [
+            {
+              "id": "shortbow",
+              "name": "단궁",
+              "name_en": "Shortbow",
+              "damage": "1d6",
+              "damage_type": "piercing",
+              "range": 80,
+              "weight": 2,
+              "price": 25,
+              "properties": ["two-handed"],
+              "rarity": "common"
+            },
+            {
+              "id": "longbow",
+              "name": "장궁",
+              "name_en": "Longbow",
+              "damage": "1d8",
+              "damage_type": "piercing",
+              "range": 150,
+              "weight": 2,
+              "price": 50,
+              "properties": ["heavy", "two-handed"],
+              "rarity": "uncommon"
+            },
+            {
+              "id": "crossbow_light",
+              "name": "轻型 석궁",
+              "name_en": "Light Crossbow",
+              "damage": "1d8",
+              "damage_type": "piercing",
+              "range": 80,
+              "weight": 5,
+              "price": 25,
+              "properties": ["loading", "two-handed"],
+              "rarity": "common"
+            },
+            {
+              "id": "crossbow_heavy",
+              "name": "重형 석궁",
+              "name_en": "Heavy Crossbow",
+              "damage": "1d10",
+              "damage_type": "piercing",
+              "range": 120,
+              "weight": 18,
+              "price": 50,
+              "properties": ["heavy", "loading", "two-handed"],
+              "rarity": "uncommon"
+            },
+            {
+              "id": "hand_crossbow",
+              "name": "손석궁",
+              "name_en": "Hand Crossbow",
+              "damage": "1d6",
+              "damage_type": "piercing",
+              "range": 30,
+              "weight": 3,
+              "price": 75,
+              "properties": ["light", "loading"],
+              "rarity": "uncommon"
+            },
+            {
+              "id": "dart",
+              "name": "표창",
+              "name_en": "Dart",
+              "damage": "1d4",
+              "damage_type": "piercing",
+              "range": 20,
+              "weight": 0.25,
+              "price": 0.5,
+              "properties": ["finesse", "thrown"],
+              "rarity": "common"
+            },
+            {
+              "id": "javelin",
+              "name": "투창",
+              "name_en": "Javelin",
+              "damage": "1d6",
+              "damage_type": "piercing",
+              "range": 30,
+              "weight": 2,
+              "price": 0.5,
+              "properties": ["thrown"],
+              "rarity": "common"
+            }
+          ]
+        }
+      }
+    },
+    "armor": {
+      "name": "방어구",
+      "icon": "🛡️",
+      "subcategories": {
+        "light": {
+          "name": "경량 방어구",
+          "items": [
+            {
+              "id": "leather",
+              "name": "가죽 갑옷",
+              "name_en": "Leather Armor",
+              "ac": 11,
+              "weight": 5,
+              "price": 10,
+              "rarity": "common"
+            },
+            {
+              "id": "studded_leather",
+              "name": "장식 가죽 갑옷",
+              "name_en": "Studded Leather Armor",
+              "ac": 12,
+              "weight": 6,
+              "price": 45,
+              "rarity": "uncommon"
+            }
+          ]
+        },
+        "medium": {
+          "name": "중량 방어구",
+          "items": [
+            {
+              "id": "hide",
+              "name": "짐승 가죽 갑옷",
+              "name_en": "Hide Armor",
+              "ac": 12,
+              "weight": 12,
+              "price": 10,
+              "rarity": "common"
+            },
+            {
+              "id": "chain_shirt",
+              "name": "체인셔트",
+              "name_en": "Chain Shirt",
+              "ac": 13,
+              "weight": 20,
+              "price": 50,
+              "rarity": "common"
+            },
+            {
+              "id": "scale_mail",
+              "name": "비늘 갑옷",
+              "name_en": "Scale Mail",
+              "ac": 14,
+              "weight": 45,
+              "price": 50,
+              "rarity": "common"
+            },
+            {
+              "id": "breastplate",
+              "name": "흉갑",
+              "name_en": "Breastplate",
+              "ac": 14,
+              "weight": 20,
+              "price": 400,
+              "rarity": "uncommon"
+            },
+            {
+              "id": "half_plate",
+              "name": "하프 플레이트",
+              "name_en": "Half Plate",
+              "ac": 15,
+              "weight": 40,
+              "price": 750,
+              "rarity": "uncommon"
+            }
+          ]
+        },
+        "heavy": {
+          "name": "중량 방어구",
+          "items": [
+            {
+              "id": "ring_mail",
+              "name": "링메일",
+              "name_en": "Ring Mail",
+              "ac": 14,
+              "weight": 40,
+              "price": 30,
+              "rarity": "common"
+            },
+            {
+              "id": "chain_mail",
+              "name": "체인메일",
+              "name_en": "Chain Mail",
+              "ac": 16,
+              "weight": 55,
+              "price": 75,
+              "rarity": "common"
+            },
+            {
+              "id": "splint_armor",
+              "name": "비늘 갑옷",
+              "name_en": "Splint Armor",
+              "ac": 17,
+              "weight": 60,
+              "price": 200,
+              "rarity": "uncommon"
+            },
+            {
+              "id": "plate",
+              "name": "플레이트 갑옷",
+              "name_en": "Plate Armor",
+              "ac": 18,
+              "weight": 65,
+              "price": 1500,
+              "rarity": "rare"
+            }
+          ]
+        },
+        "shield": {
+          "name": "방패",
+          "items": [
+            {
+              "id": "wooden_shield",
+              "name": "나무 방패",
+              "name_en": "Wooden Shield",
+              "ac_bonus": 2,
+              "weight": 4,
+              "price": 10,
+              "rarity": "common"
+            },
+            {
+              "id": "steel_shield",
+              "name": "강철 방패",
+              "name_en": "Steel Shield",
+              "ac_bonus": 2,
+              "weight": 6,
+              "price": 20,
+              "rarity": "uncommon"
+            }
+          ]
+        }
+      }
+    },
+    "consumable": {
+      "name": "소모품",
+      "icon": "🧪",
+      "subcategories": {
+        "potion": {
+          "name": "물약",
+          "items": [
+            {
+              "id": "potion_healing",
+              "name": "치유의 물약",
+              "name_en": "Potion of Healing",
+              "effect": "HP 2d4+2 회복",
+              "weight": 0.5,
+              "price": 50,
+              "rarity": "common"
+            },
+            {
+              "id": "potion_greater_healing",
+              "name": "고급 치유 물약",
+              "name_en": "Potion of Greater Healing",
+              "effect": "HP 4d4+4 회복",
+              "weight": 0.5,
+              "price": 150,
+              "rarity": "uncommon"
+            },
+            {
+              "id": "potion_superior_healing",
+              "name": "상급 치유 물약",
+              "name_en": "Potion of Superior Healing",
+              "effect": "HP 8d4+8 회복",
+              "weight": 0.5,
+              "price": 450,
+              "rarity": "rare"
+            },
+            {
+              "id": "potion_antitoxin",
+              "name": "해독제",
+              "name_en": "Antitoxin",
+              "effect": "독 내성 +5 (1시간)",
+              "weight": 0.5,
+              "price": 50,
+              "rarity": "common"
+            },
+            {
+              "id": "potion_speed",
+              "name": "신속의 물약",
+              "name_en": "Potion of Speed",
+              "effect": "1턴간 행동 2배",
+              "weight": 0.5,
+              "price": 300,
+              "rarity": "rare"
+            }
+          ]
+        },
+        "scroll": {
+          "name": "마법 스크롤",
+          "items": [
+            {
+              "id": "scroll_fireball",
+              "name": "화염구 스크롤",
+              "name_en": "Scroll of Fireball",
+              "spell_level": 3,
+              "save_dc": 13,
+              "damage": "8d6 불꽃",
+              "weight": 0.1,
+              "price": 200,
+              "rarity": "uncommon"
+            },
+            {
+              "id": "scroll_cure_wounds",
+              "name": "상처 치유 스크롤",
+              "name_en": "Scroll of Cure Wounds",
+              "spell_level": 1,
+              "effect": "HP 1d8+Spellcasting 회복",
+              "weight": 0.1,
+              "price": 40,
+              "rarity": "common"
+            }
+          ]
+        },
+        "food": {
+          "name": "식량",
+          "items": [
+            {
+              "id": "rations",
+              "name": "전투 식량",
+              "name_en": "Rations",
+              "effect": "피로도 회복",
+              "weight": 2,
+              "price": 5,
+              "rarity": "common"
+            },
+            {
+              "id": "water",
+              "name": "물",
+              "name_en": "Water (1 gallon)",
+              "effect": "수분 보충",
+              "weight": 8,
+              "price": 0.1,
+              "rarity": "common"
+            }
+          ]
+        },
+        "tool": {
+          "name": "도구",
+          "items": [
+            {
+              "id": "torch",
+              "name": "횃불",
+              "name_en": "Torch",
+              "effect": "밝기 20ft, 1시간",
+              "weight": 1,
+              "price": 0.1,
+              "rarity": "common"
+            },
+            {
+              "id": "rope",
+              "name": "밧줄 (50ft)",
+              "name_en": "Rope",
+              "effect": "등반/결합",
+              "weight": 10,
+              "price": 1,
+              "rarity": "common"
+            },
+            {
+              "id": "bedroll",
+              "name": "침낭",
+              "name_en": "Bedroll",
+              "effect": "휴식 효과",
+              "weight": 7,
+              "price": 2,
+              "rarity": "common"
+            },
+            {
+              "id": "manacles",
+              "name": "수갑",
+              "name_en": "Manacles",
+              "effect": "적 포획",
+              "weight": 2,
+              "price": 2,
+              "rarity": "common"
+            }
+          ]
+        }
+      }
+    },
+    "equipment": {
+      "name": "장비",
+      "icon": "🎒",
+      "subcategories": {
+        "accessory": {
+          "name": "장신구",
+          "items": [
+            {
+              "id": "ring_protection",
+              "name": "보호 반지",
+              "name_en": "Ring of Protection",
+              "effect": "AC +1, 내성 +1",
+              "rarity": "rare",
+              "price": 1500
+            },
+            {
+              "id": "amulet_health",
+              "name": "건강 부적",
+              "name_en": "Amulet of Health",
+              "effect": "CON 19로 고정",
+              "rarity": "rare",
+              "price": 2000
+            },
+            {
+              "id": "cloak_displacement",
+              "name": "변위 망토",
+              "name_en": "Cloak of Displacement",
+              "effect": "적 공격劣势 -2",
+              "rarity": "rare",
+              "price": 2500
+            }
+          ]
+        },
+        "wonderous": {
+          "name": "마법 물품",
+          "items": [
+            {
+              "id": "boots_elven",
+              "name": "엘프 장화",
+              "name_en": "Boots of Elvenkind",
+              "effect": "은신 판정 +5",
+              "rarity": "uncommon",
+              "price": 250
+            },
+            {
+              "id": "goggles_night",
+              "name": "야간 고글",
+              "name_en": "Goggles of Night",
+              "effect": "야시 시야 60ft",
+              "rarity": "uncommon",
+              "price": 150
+            },
+            {
+              "id": "bag_holding",
+              "name": "보관 주머니",
+              "name_en": "Bag of Holding",
+              "effect": "64立法ft 저장 공간",
+              "rarity": "uncommon",
+              "price": 4000
+            },
+            {
+              "id": "helm_comprehend",
+              "name": "이해的头盔",
+              "name_en": "Helm of Comprehending Languages",
+              "effect": "모든 언어 이해",
+              "rarity": "uncommon",
+              "price": 2500
+            }
+          ]
+        }
+      }
+    },
+    "material": {
+      "name": "재료",
+      "icon": "💎",
+      "subcategories": {
+        "herb": {
+          "name": "약초",
+          "items": [
+            {"id": "healing_herb", "name": "치유 초본", "price": 5},
+            {"id": "antidote_herb", "name": "해독 초본", "price": 8},
+            {"id": "energy_herb", "name": "력 초본", "price": 10}
+          ]
+        },
+        "ore": {
+          "name": "광물",
+          "items": [
+            {"id": "iron_ore", "name": "철 광석", "price": 2},
+            {"id": "silver_ore", "name": "은 광석", "price": 10},
+            {"id": "mithril", "name": "미스릴", "price": 100}
+          ]
+        },
+        "beast": {
+          "name": "야수 재료",
+          "items": [
+            {"id": "spider_silk", "name": "거미 실", "price": 5},
+            {"id": "bear_pelt", "name": "곰 가죽", "price": 15},
+            {"id": "dragon_scale", "name": "용 비늘", "price": 200}
+          ]
+        }
+      }
+    }
+  },
+  "rarity_tiers": {
+    "common": {"color": "white", "price_mult": 1},
+    "uncommon": {"color": "green", "price_mult": 5},
+    "rare": {"color": "blue", "price_mult": 25},
+    "very_rare": {"color": "purple", "price_mult": 100},
+    "legendary": {"color": "orange", "price_mult": 500}
+  }
+}

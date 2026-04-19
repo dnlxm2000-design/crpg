@@ -1,0 +1,346 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-04-15",
+  "description": "Background data for character creation, based on bloodlines.json",
+  
+  "backgrounds": {
+    "ironbloods": {
+      "name": "아이언브러드",
+      "description": "북부 빙벽 수호의 Bloodline. 제국 초기 오크 유배에 가장 앞장섰던 종족.",
+      "origin": ["에델바이스", "아이언가드"],
+      "starting_location": "하층 지구",
+      "ability_scores": {
+        "STR": 2,
+        "DEX": -1,
+        "CON": 1,
+        "INT": 0,
+        "WIS": 0,
+        "CHA": -1
+      },
+      "traits": [
+        {
+          "name": "추위 저항",
+          "name_en": "Cold Resistance",
+          "description": "Cold 데미지 50% 감소",
+          "type": "resistance",
+          "always_active": true
+        },
+        {
+          "name": "단단한 피부",
+          "name_en": "Iron Skin",
+          "description": "마법 외피 (피해 3 감소)",
+          "type": "passive",
+          "uses": 1,
+          "per": "day"
+        }
+      ],
+      "recommended_classes": ["fighter", "barbarian", "paladin"],
+      "recommended_skills": ["검술", "둔기전투", "전술", "해부학", "생존"],
+      "flavor": {
+        "strengths": ["성벽 수비대", "강한 전사"],
+        "weaknesses": ["민첩함 부족", "원거리 취약"],
+        "relationships": {
+          "favors": ["아이언가드 출신", "수복파"],
+          "opposes": ["아이언스컬 오크", "미스트 세일러"]
+        }
+      }
+    },
+    "ether_guardians": {
+      "name": "에테르 가디언",
+      "description": "마력 감응도가 비정상적으로 높은 Bloodline. 과거 루미나스의 주축.",
+      "origin": ["에테리아", "노바"],
+      "starting_location": "증폭기실 근처",
+      "ability_scores": {
+        "STR": -1,
+        "DEX": 0,
+        "CON": 0,
+        "INT": 2,
+        "WIS": 1,
+        "CHA": 0
+      },
+      "traits": [
+        {
+          "name": "에테르 시야",
+          "name_en": "Ether Sight",
+          "description": "암흑 + 30ft, 마법 오라 감지",
+          "type": "vision",
+          "always_active": true
+        },
+        {
+          "name": "마법 감응",
+          "name_en": "Arcane Affinity",
+          "description": "마법 성공률 +5%",
+          "type": "bonus",
+          "always_active": true
+        }
+      ],
+      "recommended_classes": ["wizard", "bard"],
+      "recommended_skills": ["마법사용", "명상", "주문저항", "연금술"],
+      "flavor": {
+        "strengths": ["마법사", "지식인"],
+        "weaknesses": ["물리 전투 취약"],
+        "relationships": {
+          "favors": ["루미나스 출신", "수복파"],
+          "opposes": ["오크", "심연의 사도"]
+        }
+      }
+    },
+    "solar_walkers": {
+      "name": "솔라 워커",
+      "description": "사막의 태양 아래 길들여진 Bloodline. 멸망 직전의 피난민.",
+      "origin": ["솔라리스"],
+      "starting_location": "서성벽 외벽",
+      "ability_scores": {
+        "STR": 1,
+        "DEX": 1,
+        "CON": 0,
+        "INT": -1,
+        "WIS": 0,
+        "CHA": 0
+      },
+      "traits": [
+        {
+          "name": "더위 저항",
+          "name_en": "Heat Resistance",
+          "description": "Fire/Cold 데미지 50% 감소",
+          "type": "resistance",
+          "always_active": true
+        },
+        {
+          "name": "동체 시력",
+          "name_en": "Motion Vision",
+          "description": "은신 적 감지 +5",
+          "type": "combat",
+          "always_active": true
+        }
+      ],
+      "recommended_classes": ["ranger", "rogue", "fighter"],
+      "recommended_skills": ["궁술", "투척", "추적", "생존", "동물학"],
+      "flavor": {
+        "strengths": ["궁수", "정탐"],
+        "weaknesses": ["마법 취약"],
+        "relationships": {
+          "favors": ["솔라리스 피난민", "적응파"],
+          "opposes": ["아이언브러드", "본 워커 오크"]
+        }
+      }
+    },
+    "mist_sailors": {
+      "name": "미스트 세일러",
+      "description": "안개와 바다의 Bloodline. 실버하벤의 정보망을 장악.",
+      "origin": ["벤투스", "미스트랄", "자유의 항구"],
+      "starting_location": "하층 지구 뒷골목",
+      "ability_scores": {
+        "STR": -1,
+        "DEX": 2,
+        "CON": 0,
+        "INT": 0,
+        "WIS": 1,
+        "CHA": 1
+      },
+      "traits": [
+        {
+          "name": "안개 탐지",
+          "name_en": "Mist Sense",
+          "description": "시야 감소 구간에서 DEX 체크 +3",
+          "type": "skill_bonus",
+          "always_active": true
+        },
+        {
+          "name": "행운의 아류",
+          "name_en": "Lucky",
+          "description": "1일 1회 d20 리롤",
+          "type": "reroll",
+          "uses": 1,
+          "per": "day"
+        }
+      ],
+      "recommended_classes": ["rogue", "bard", "ranger"],
+      "recommended_skills": ["은신", "소매치기", "함정해제", "엿보기"],
+      "flavor": {
+        "strengths": ["도적", "항해자"],
+        "weaknesses": ["근접 전투 취약"],
+        "relationships": {
+          "favors": ["하플링", "상인 연맹"],
+          "opposes": ["수복파 엄격파"]
+        }
+      }
+    },
+    
+    "하플링_정보상": {
+      "name": "정보상",
+      "description": "안개의 자치령 소속 정보원",
+      "ability_scores": {"DEX": 1, "CHA": 1},
+      "starting_location": "안개 속"
+    },
+    "하플링_밀수상": {
+      "name": "밀수상",
+      "description": "반밀수 연합 소속 밀수업자",
+      "ability_scores": {"DEX": 1, "CHA": 1},
+      "starting_location": "하층 지구 뒷골목"
+    },
+    "하플링_항구노동자": {
+      "name": "항구 노동자",
+      "description": "항구에서 일하는 하플링 노동자",
+      "ability_scores": {"STR": 1, "CON": 1},
+      "starting_location": "항구 지역"
+    },
+    
+    "오크_전사": {
+      "name": "전사",
+      "description": "오크 부족의 전사",
+      "ability_scores": {"STR": 2},
+      "starting_location": "오크营地"
+    },
+    "오크_주술사": {
+      "name": "주술사",
+      "description": "오크 부족의 영혼 주술사",
+      "ability_scores": {"WIS": 1, "INT": 1},
+      "starting_location": "오크营地"
+    },
+    
+    "하프오크_탈출노예": {
+      "name": "탈출한 노예",
+      "description": "노예에서 탈출한 하프오크",
+      "ability_scores": {"STR": 1, "CON": 1},
+      "starting_location": "하층 지구"
+    },
+    "하프오크_부랑아": {
+      "name": "부랑아",
+      "description": "사회边缘의 떠돌이",
+      "ability_scores": {"DEX": 1, "CHA": 1},
+      "starting_location": "하층 지구 뒷골목"
+    },
+    "하프오크_고아": {
+      "name": "고아",
+      "description": "거리의 고아",
+      "ability_scores": {"CON": 1, "WIS": 1},
+      "starting_location": "하층 지구"
+    },
+    "하프오크_용병": {
+      "name": "용병",
+      "description": "돈을 위해 싸우는 전투원",
+      "ability_scores": {"STR": 1, "DEX": 1},
+      "starting_location": "광장"
+    },
+    
+    "노움_연금술사": {
+      "name": "연금술사",
+      "description": "노움 연금술사",
+      "ability_scores": {"INT": 2},
+      "starting_location": "노움 연구소"
+    },
+    "노움_일루져니스트": {
+      "name": "일루져니스트",
+      "description": "환각 마법사",
+      "ability_scores": {"DEX": 1, "INT": 1},
+      "starting_location": "노움 연구소"
+    },
+    
+    "다크엘프_노이즈": {
+      "name": "노이즈 오염 지역",
+      "description": "노이즈 오염 지역 생존자",
+      "ability_scores": {"CON": 1, "WIS": 1},
+      "starting_location": "노이즈 오염 지역"
+    },
+    "다크엘프_심연사도": {
+      "name": "심연의 사도",
+      "description": "심연의 사도 신봉자",
+      "ability_scores": {"INT": 1, "CHA": 1},
+      "starting_location": "심연의 문"
+    }
+  },
+  
+  "starting_locations": {
+    "하층 지구": {
+      "description": "실버하벤 지하의 노동자 거주 지역",
+      "accessible_from": ["아이언브러드", "미스트 세일러"],
+      "dangers": ["노예 거주지", "뒷골목"]
+    },
+    "증폭기실 근처": {
+      "description": "중앙 에테르 증폭기가 있는 지역",
+      "accessible_from": ["에테르 가디언"],
+      "dangers": ["마력 방출"]
+    },
+    "서성벽 외벽": {
+      "description": "서쪽 성벽 밖 캠프 지역",
+      "accessible_from": ["솔라 워커"],
+      "dangers": ["오크 침입"]
+    },
+    "하층 지구 뒷골목": {
+      "description": "암시장과 인접한 은밀한 지역",
+      "accessible_from": ["미스트 세일러"],
+      "dangers": ["암시장"]
+    },
+    "빙벽": {
+      "description": "드워프 폐쇄 왕국, 빙벽深处",
+      "accessible_from": ["그라니트 가드"],
+      "dangers": ["고립적"]
+    },
+    "엠버 포지": {
+      "description": "드워프 협력 도시, 실버하벤 인근",
+      "accessible_from": ["엠버 포지"],
+      "dangers": ["드워프 무기 거래"]
+    },
+    "산맥": {
+      "description": "스카이 해머 야생 부족 근거지",
+      "accessible_from": ["스카이 해머"],
+      "dangers": ["트롤", "험난한 지형"]
+    },
+    "에테리아": {
+      "description": "엘프 은빛 잎 왕국, 결계 내부",
+      "accessible_from": ["에테리아"],
+      "dangers": ["결계 외부 출입 금지"]
+    },
+    "미스트랄": {
+      "description": "엘프 실용적 마법 왕국",
+      "accessible_from": ["미스트랄"],
+      "dangers": ["마법 사고"]
+    },
+    "안개 속": {
+      "description": "하플링 안개의 자치령",
+      "accessible_from": ["안개의 자치령"],
+      "dangers": ["방향 감각 상실"]
+    },
+    "오크营地": {
+      "description": "오크 부족 근거지",
+      "accessible_from": ["아이언스컬", "블러드 문", "본 워커", "스카이 팽", "실버 텅"],
+      "dangers": ["오크 공격"]
+    },
+    "아이언가드": {
+      "description": "인간 왕국 아이언가드",
+      "accessible_from": ["아이언가드"],
+      "dangers": ["오크 침입"]
+    },
+    "오크 호드": {
+      "description": "오크 세력 오크 호드",
+      "accessible_from": ["오크 호드"],
+      "dangers": ["전투"]
+    },
+    "광장": {
+      "description": "실버하벤 중앙 광장",
+      "accessible_from": ["용병", "광대"],
+      "dangers": ["도둑"]
+    },
+    "항구 지역": {
+      "description": "실버하벤 항구",
+      "accessible_from": ["항구 노동자"],
+      "dangers": ["해적"]
+    },
+    "노움 연구소": {
+      "description": "노움 카텔 연구소",
+      "accessible_from": ["연금술사", "일루져니스트"],
+      "dangers": ["마법 실험 사고"]
+    },
+    "노이즈 오염 지역": {
+      "description": "노이즈 오염 지역",
+      "accessible_from": ["노이즈 오염 지역"],
+      "dangers": ["독성 가스", "돌연볛"]
+    },
+    "심연의 문": {
+      "description": "심연으로 통하는 문",
+      "accessible_from": ["심연의 사도"],
+      "dangers": ["심연의 존재"]
+    }
+  }
+}

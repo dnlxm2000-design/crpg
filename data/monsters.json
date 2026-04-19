@@ -1,0 +1,1148 @@
+﻿{
+  "version": "1.0.0",
+  "last_updated": "2026-04-15",
+  "description": "기본 몬스터 데이터 - 3층 던전용",
+  "monsters": {
+    "goblin": {
+      "name": "고블린",
+      "name_en": "Goblin",
+      "category": "humanoid",
+      "cr": "1/4",
+      "hp": 7,
+      "ac": 13,
+      "spd": 30,
+      "type": "humanoid",
+      "size": "Small",
+      "abilities": {
+        "STR": 8,
+        "DEX": 14,
+        "CON": 10,
+        "INT": 10,
+        "WIS": 8,
+        "CHA": 8
+      },
+      "attacks": [
+        {
+          "name": "단검",
+          "type": "melee",
+          "hit": "d20+4",
+          "damage": "1d6+2",
+          "range": 5
+        },
+        {
+          "name": "단궁",
+          "type": "ranged",
+          "hit": "d20+4",
+          "damage": "1d6+2",
+          "range": 80,
+          "reload": 2
+        }
+      ],
+      "traits": [
+        {
+          "name": "후퇴",
+          "description": "적 사망 시 이동 거리 +10"
+        },
+        {
+          "name": "암습",
+          "description": "첫 공격 +2d6 대미지"
+        }
+      ],
+      "drops": {
+        "gold": "1d6",
+        "items": []
+      },
+      "xp": 50
+    },
+    "skeleton": {
+      "name": "해골",
+      "name_en": "Skeleton",
+      "category": "undead",
+      "cr": "1/4",
+      "hp": 13,
+      "ac": 13,
+      "spd": 30,
+      "type": "undead",
+      "size": "Medium",
+      "abilities": {
+        "STR": 10,
+        "DEX": 14,
+        "CON": 0,
+        "INT": 6,
+        "WIS": 8,
+        "CHA": 4
+      },
+      "attacks": [
+        {
+          "name": "검",
+          "type": "melee",
+          "hit": "d20+4",
+          "damage": "1d8+2"
+        },
+        {
+          "name": "화살",
+          "type": "ranged",
+          "hit": "d20+4",
+          "damage": "1d6+2",
+          "range": 100
+        }
+      ],
+      "traits": [
+        {
+          "name": "면역:독",
+          "description": "독 대미지 무효화"
+        },
+        {
+          "name": "불사",
+          "description": "타워에서 떨어지면 1턴간 기절"
+        }
+      ],
+      "drops": {
+        "gold": "1d10",
+        "items": [
+          {
+            "name": "해골 열쇠",
+            "chance": 25,
+            "description": "던전 해골 열림"
+          }
+        ]
+      },
+      "xp": 50
+    },
+    "orc": {
+      "name": "오크",
+      "name_en": "Orc",
+      "category": "humanoid",
+      "cr": "1/2",
+      "hp": 15,
+      "ac": 13,
+      "spd": 30,
+      "type": "humanoid",
+      "size": "Medium",
+      "abilities": {
+        "STR": 16,
+        "DEX": 12,
+        "CON": 14,
+        "INT": 7,
+        "WIS": 11,
+        "CHA": 10
+      },
+      "attacks": [
+        {
+          "name": "도끼",
+          "type": "melee",
+          "hit": "d20+5",
+          "damage": "1d12+3"
+        }
+      ],
+      "traits": [
+        {
+          "name": "광분",
+          "description": "HP 50% 이하 시 근거리 +2 공격"
+        },
+        {
+          "name": "집단 전투",
+          "description": "인접 아군 있으면 AC +1"
+        }
+      ],
+      "drops": {
+        "gold": "2d6",
+        "items": []
+      },
+      "xp": 100
+    },
+    "dark_elf": {
+      "name": "다크엘프",
+      "name_en": "Drow",
+      "cr": "1/2",
+      "hp": 13,
+      "ac": 15,
+      "spd": 30,
+      "type": "humanoid",
+      "size": "Medium",
+      "abilities": {
+        "STR": 10,
+        "DEX": 14,
+        "CON": 10,
+        "INT": 14,
+        "WIS": 13,
+        "CHA": 14
+      },
+      "attacks": [
+        {
+          "name": "비검",
+          "type": "melee",
+          "hit": "d20+4",
+          "damage": "1d6+2",
+          "multiattack": 2
+        },
+        {
+          "name": "마법 화살",
+          "type": "ranged",
+          "hit": "d20+4",
+          "damage": "1d10",
+          "range": 120,
+          "save_dc": 12,
+          "save_type": "DEX"
+        }
+      ],
+      "traits": [
+        {
+          "name": "천장适应性",
+          "description": "동굴에서 은신 +2"
+        },
+        {
+          "name": "마법 저항",
+          "description": "마법 내성 굴림 +2"
+        }
+      ],
+      "drops": {
+        "gold": "3d10",
+        "items": [
+          {
+            "name": "다크엘프 단검",
+            "chance": 30,
+            "description": "마법 무기"
+          }
+        ]
+      },
+      "xp": 100
+    },
+    "giant_spider": {
+      "name": "거미",
+      "name_en": "Giant Spider",
+      "category": "beast",
+      "cr": 1,
+      "hp": 26,
+      "ac": 14,
+      "spd": 30,
+      "climb": true,
+      "type": "beast",
+      "size": "Large",
+      "abilities": {
+        "STR": 14,
+        "DEX": 16,
+        "CON": 12,
+        "INT": 2,
+        "WIS": 10,
+        "CHA": 4
+      },
+      "attacks": [
+        {
+          "name": "bite",
+          "type": "melee",
+          "hit": "d20+5",
+          "damage": "1d8+3",
+          "effect": "독 (DC 11 CON 내성 실패 시 2d6 독)"
+        },
+        {
+          "name": "web",
+          "type": "ranged",
+          "range": 60,
+          "effect": "이동 불가 1턴",
+          "save_dc": 12,
+          "save_type": "STR"
+        }
+      ],
+      "traits": [
+        {
+          "name": "거미 감응",
+          "description": "웹 위를 이동 가능"
+        },
+        {
+          "name": "탑승",
+          "description": "플레이어를 덮치면 이동 +-AP 소모"
+        }
+      ],
+      "drops": {
+        "gold": "1d12",
+        "items": [
+          {
+            "name": "거미 실",
+            "chance": 50,
+            "description": "장비 제작 재료"
+          }
+        ]
+      },
+      "xp": 200
+    },
+    "cave_bear": {
+      "name": "동굴곰",
+      "name_en": "Cave Bear",
+      "category": "beast",
+      "cr": 2,
+      "hp": 42,
+      "ac": 15,
+      "spd": 40,
+      "type": "beast",
+      "size": "Large",
+      "abilities": {
+        "STR": 20,
+        "DEX": 10,
+        "CON": 18,
+        "INT": 2,
+        "WIS": 13,
+        "CHA": 7
+      },
+      "attacks": [
+        {
+          "name": "통상",
+          "type": "melee",
+          "hit": "d20+7",
+          "damage": "2d10+5",
+          "multiattack": 2
+        },
+        {
+          "name": "뒷발차기",
+          "type": "melee",
+          "hit": "d20+7",
+          "damage": "2d8+5"
+        }
+      ],
+      "traits": [
+        {
+          "name": "민감한 후각",
+          "description": "25ft 내 은신 적 감지"
+        },
+        {
+          "name": "돌진",
+          "description": "전투 시작 시 20ft 돌진 시 +2d6 대미지"
+        }
+      ],
+      "drops": {
+        "gold": "2d20",
+        "items": [
+          {
+            "name": "곰 가죽",
+            "chance": 80,
+            "description": "고급 방어구 재료"
+          }
+        ]
+      },
+      "xp": 450
+    },
+    "basilisk": {
+      "name": "바실리스크",
+      "name_en": "Basilisk",
+      "category": "beast",
+      "cr": 3,
+      "hp": 52,
+      "ac": 15,
+      "spd": 20,
+      "type": "monstrosity",
+      "size": "Large",
+      "abilities": {
+        "STR": 18,
+        "DEX": 8,
+        "CON": 16,
+        "INT": 2,
+        "WIS": 8,
+        "CHA": 6
+      },
+      "attacks": [
+        {
+          "name": "bite",
+          "type": "melee",
+          "hit": "d20+6",
+          "damage": "2d8+4",
+          "effect": "부식성 독"
+        },
+        {
+          "name": "石化 시야",
+          "type": "special",
+          "range": 30,
+          "save_dc": 13,
+          "save_type": "CON",
+          "effect": "石化 (내성 실패 시 1턴 间 동작 불가)"
+        }
+      ],
+      "traits": [
+        {
+          "name": "암시",
+          "description": "자신의 시야에서 +
+          "石化 대미지 1d6"
+        }
+      ],
+      "drops": {
+        "gold": "5d10",
+        "items": [
+          {
+            "name": "바실리크 눈",
+            "chance": 50,
+            "description": "변신 마법 재료"
+          }
+        ]
+      },
+      "xp": 700
+    },
+    "rabbit": {
+      "name": "토끼",
+      "name_en": "Rabbit",
+      "category": "beast",
+      "cr": "0",
+      "hp": 3,
+      "ac": 12,
+      "spd": 40,
+      "type": "beast",
+      "size": "Tiny",
+      "abilities": {
+        "STR": 2,
+        "DEX": 14,
+        "CON": 8,
+        "INT": 2,
+        "WIS": 12,
+        "CHA": 4
+      },
+      "attacks": [
+        {
+          "name": "bit",
+          "type": "melee",
+          "hit": "d20+4",
+          "damage": "1d4-2"
+        }
+      ],
+      "traits": [],
+      "drops": {
+        "gold": "0",
+        "items": []
+      },
+      "xp": 10
+    },
+    "deer": {
+      "name": "사슴",
+      "name_en": "Deer",
+      "category": "beast",
+      "cr": "0",
+      "hp": 12,
+      "ac": 13,
+      "spd": 50,
+      "type": "beast",
+      "size": "Medium",
+      "abilities": {
+        "STR": 14,
+        "DEX": 16,
+        "CON": 12,
+        "INT": 2,
+        "WIS": 12,
+        "CHA": 8
+      },
+      "attacks": [
+        {
+          "name": "bite",
+          "type": "melee",
+          "hit": "d20+5",
+          "damage": "1d6+2"
+        },
+        {
+          "name": "kick",
+          "type": "melee",
+          "hit": "d20+5",
+          "damage": "1d8+2"
+        }
+      ],
+      "traits": [
+        {
+          "name": "도주",
+          "description": "40ft以内的 적을 발견하면 즉시 도주"
+        }
+      ],
+      "drops": {
+        "gold": "1d4",
+        "items": [
+          {
+            "name": "사슴 가죽",
+            "chance": 50,
+            "description": "가죽製作 재료"
+          }
+        ]
+      },
+      "xp": 10
+    },
+    "wolf": {
+      "name": "늑대",
+      "name_en": "Wolf",
+      "category": "beast",
+      "cr": "1/4",
+      "hp": 11,
+      "ac": 13,
+      "spd": 40,
+      "type": "beast",
+      "size": "Medium",
+      "abilities": {
+        "STR": 12,
+        "DEX": 15,
+        "CON": 12,
+        "INT": 3,
+        "WIS": 12,
+        "CHA": 6
+      },
+      "attacks": [
+        {
+          "name": "bite",
+          "type": "melee",
+          "hit": "d20+4",
+          "damage": "1d6+2",
+          "effect": " Cumberland (DC 11 내성)"
+        }
+      ],
+      "traits": [
+        {
+          "name": "집단 전투",
+          "description": "같은 종류 아군 +1 공격"
+        },
+        {
+          "name": "민감한 후각",
+          "description": "은신 적 감지 +5"
+        }
+      ],
+      "drops": {
+        "gold": "1d10",
+        "items": [
+          {
+            "name": "늑대 가죽",
+            "chance": 50,
+            "description": "방어구 재료"
+          }
+        ]
+      },
+      "xp": 50
+    },
+    "dire_wolf": {
+      "name": "다이어울프",
+      "name_en": "Dire Wolf",
+      "category": "beast",
+      "cr": "1",
+      "hp": 19,
+      "ac": 14,
+      "spd": 50,
+      "type": "beast",
+      "size": "Large",
+      "abilities": {
+        "STR": 18,
+        "DEX": 14,
+        "CON": 15,
+        "INT": 3,
+        "WIS": 12,
+        "CHA": 8
+      },
+      "attacks": [
+        {
+          "name": "bite",
+          "type": "melee",
+          "hit": "d20+6",
+          "damage": "2d6+4",
+          "effect": "Knockdown (DC 13 CON save)"
+        }
+      ],
+      "traits": [
+        {
+          "name": "공포의 울음",
+          "description": "30ft 내 아군 Douglas +1 공격"
+        },
+        {
+          "name": "역할",
+          "description": "대미지 +1d6"
+        }
+      ],
+      "drops": {
+        "gold": "2d10",
+        "items": [
+          {
+            "name": "다이어울프 가죽",
+            "chance": 75,
+            "description": "고급 방어구 재료"
+          }
+        ]
+      },
+      "xp": 200
+    },
+    "boar": {
+      "name": "멧돼지",
+      "name_en": "Boar",
+      "category": "beast",
+      "cr": "1/4",
+      "hp": 11,
+      "ac": 12,
+      "spd": 40,
+      "type": "beast",
+      "size": "Medium",
+      "abilities": {
+        "STR": 13,
+        "DEX": 11,
+        "CON": 12,
+        "INT": 2,
+        "WIS": 9,
+        "CHA": 5
+      },
+      "attacks": [
+        {
+          "name": "tusk",
+          "type": "melee",
+          "hit": "d20+3",
+          "damage": "1d6+1"
+        }
+      ],
+      "traits": [
+        {
+          "name": "Ferocity",
+          "description": "HP 0에서도 1動作 가능"
+        },
+        {
+          "name": "충돌",
+          "description": "이동 중 대미지 +1d4"
+        }
+      ],
+      "drops": {
+        "gold": "1d8",
+        "items": [
+          {
+            "name": "멧돼지 이빨",
+            "chance": 50,
+            "description": "무기 재료"
+          }
+        ]
+      },
+      "xp": 50
+    },
+    "bear": {
+      "name": "곰",
+      "name_en": "Bear",
+      "category": "beast",
+      "cr": "1/2",
+      "hp": 19,
+      "ac": 12,
+      "spd": 40,
+      "type": "beast",
+      "size": "Large",
+      "abilities": {
+        "STR": 19,
+        "DEX": 10,
+        "CON": 14,
+        "INT": 2,
+        "WIS": 13,
+        "CHA": 7
+      },
+      "attacks": [
+        {
+          "name": "bite",
+          "type": "melee",
+          "hit": "d20+5",
+          "damage": "1d8+4"
+        },
+        {
+          "name": "claw",
+          "type": "melee",
+          "hit": "d20+5",
+          "damage": "2d4+2",
+          "multiattack": 2
+        }
+      ],
+      "traits": [],
+      "drops": {
+        "gold": "2d10",
+        "items": [
+          {
+            "name": "곰 가죽",
+            "chance": 75,
+            "description": "고급 방어구 재료"
+          }
+        ]
+      },
+      "xp": 100
+    },
+    "tiger": {
+      "name": "호랑이",
+      "name_en": "Tiger",
+      "category": "beast",
+      "cr": "2",
+      "hp": 37,
+      "ac": 13,
+      "spd": 40,
+      "type": "beast",
+      "size": "Large",
+      "abilities": {
+        "STR": 17,
+        "DEX": 15,
+        "CON": 14,
+        "INT": 2,
+        "WIS": 12,
+        "CHA": 8
+      },
+      "attacks": [
+        {
+          "name": "bite",
+          "type": "melee",
+          "hit": "d20+5",
+          "damage": "1d8+3",
+          "effect": "상처 출혈 (매 턴 1 대미지)"
+        },
+        {
+          "name": "claw",
+          "type": "melee",
+          "hit": "d20+5",
+          "damage": "2d4+3",
+          "multiattack": 2
+        }
+      ],
+      "traits": [
+        {
+          "name": "괴물",
+          "description": "후계 시 15ft 이동, 대상 없이 이동 시 대미지 +1d6"
+        },
+        {
+          "name": "매복",
+          "description": "60ft 후계 후 첫 공격 +2d6"
+        }
+      ],
+      "drops": {
+        "gold": "3d10",
+        "items": [
+          {
+            "name": "호랑이 가죽",
+            "chance": 100,
+            "description": "고급 방어구 재료"
+          }
+        ]
+      },
+      "xp": 450
+    },
+    "grizzly": {
+      "name": "그리즐리",
+      "name_en": "Grizzly Bear",
+      "category": "beast",
+      "cr": "2",
+      "hp": 42,
+      "ac": 15,
+      "spd": 40,
+      "type": "beast",
+      "size": "Large",
+      "abilities": {
+        "STR": 20,
+        "DEX": 10,
+        "CON": 18,
+        "INT": 2,
+        "WIS": 13,
+        "CHA": 7
+      },
+      "attacks": [
+        {
+          "name": "bite",
+          "type": "melee",
+          "hit": "d20+7",
+          "damage": "1d8+5"
+        },
+        {
+          "name": "claw",
+          "type": "melee",
+          "hit": "d20+7",
+          "damage": "2d6+5",
+          "multiattack": 2
+        }
+      ],
+      "traits": [
+        {
+          "name": "돌진",
+          "description": "돌진 시 대미지 +2d6"
+        }
+      ],
+      "drops": {
+        "gold": "4d10",
+        "items": [
+          {
+            "name": "그리즐리 가죽",
+            "chance": 100,
+            "description": "최고급 방어구 재료"
+          }
+        ]
+      },
+      "xp": 450
+    },
+    "kobold": {
+      "name": "코볼드",
+      "name_en": "Kobold",
+      "category": "humanoid",
+      "cr": "1/8",
+      "hp": 5,
+      "ac": 12,
+      "spd": 30,
+      "type": "humanoid",
+      "size": "Small",
+      "abilities": {
+        "STR": 7,
+        "DEX": 15,
+        "CON": 9,
+        "INT": 8,
+        "WIS": 7,
+        "CHA": 8
+      },
+      "attacks": [
+        {
+          "name": "단검",
+          "type": "melee",
+          "hit": "d20+4",
+          "damage": "1d4+2"
+        },
+        {
+          "name": " sling",
+          "type": "ranged",
+          "hit": "d20+4",
+          "damage": "1d4+2",
+          "range": 30
+        }
+      ],
+      "traits": [
+        {
+          "name": "Sunlight Sensitivity",
+          "description": "阳光下 공격 -1"
+        },
+        {
+          "name": "Pack Tactics",
+          "description": "아군 Douglas +1 공격"
+        }
+      ],
+      "drops": {
+        "gold": "1d6",
+        "items": []
+      },
+      "xp": 25
+    },
+    "bugbear": {
+      "name": "버그베어",
+      "name_en": "Bugbear",
+      "category": "humanoid",
+      "cr": "1",
+      "hp": 27,
+      "ac": 16,
+      "spd": 30,
+      "type": "humanoid",
+      "size": "Medium",
+      "abilities": {
+        "STR": 15,
+        "DEX": 14,
+        "CON": 13,
+        "INT": 10,
+        "WIS": 11,
+        "CHA": 9
+      },
+      "attacks": [
+        {
+          "name": "메이스",
+          "type": "melee",
+          "hit": "d20+4",
+          "damage": "1d8+2"
+        },
+        {
+          "name": "javelin",
+          "type": "ranged",
+          "hit": "d20+4",
+          "damage": "1d6+2",
+          "range": 30
+        }
+      ],
+      "traits": [
+        {
+          "name": "Brute",
+          "description": "무기 대미지 +1d6"
+        },
+        {
+          "name": "Surprise Attack",
+          "description": "첫 공격 +2d6"
+        }
+      ],
+      "drops": {
+        "gold": "2d8",
+        "items": []
+      },
+      "xp": 200
+    },
+    "zombie": {
+      "name": "좀비",
+      "name_en": "Zombie",
+      "category": "undead",
+      "cr": "1/4",
+      "hp": 22,
+      "ac": 8,
+      "spd": 20,
+      "type": "undead",
+      "size": "Medium",
+      "abilities": {
+        "STR": 13,
+        "DEX": 6,
+        "CON": 16,
+        "INT": 3,
+        "WIS": 6,
+        "CHA": 5
+      },
+      "attacks": [
+        {
+          "name": "punch",
+          "type": "melee",
+          "hit": "d20+3",
+          "damage": "1d6+1"
+        }
+      ],
+      "traits": [
+        {
+          "name": "Undead Resilience",
+          "description": "즉사 판정 시 CON 대신 CHA 사용"
+        },
+        {
+          "name": "Rotting",
+          "description": "bite 시 출혈 효과 없음"
+        }
+      ],
+      "drops": {
+        "gold": "1d8",
+        "items": []
+      },
+      "xp": 50
+    },
+    "ghoul": {
+      "name": "굴",
+      "name_en": "Ghoul",
+      "category": "undead",
+      "cr": "1/4",
+      "hp": 22,
+      "ac": 12,
+      "spd": 30,
+      "type": "undead",
+      "size": "Medium",
+      "abilities": {
+        "STR": 13,
+        "DEX": 15,
+        "CON": 14,
+        "INT": 11,
+        "WIS": 10,
+        "CHA": 12
+      },
+      "attacks": [
+        {
+          "name": "bite",
+          "type": "melee",
+          "hit": "d20+2",
+          "damage": "1d6+1"
+        },
+        {
+          "name": "claw",
+          "type": "melee",
+          "hit": "d20+2",
+          "damage": "1d3+1",
+          "multiattack": 2
+        }
+      ],
+      "traits": [
+        {
+          "name": "Paralyzing Stench",
+          "description": "주변 CON 내성 실패 시 마비",
+          "save_dc": 10,
+          "save_type": "CON"
+        },
+        {
+          "name": "민감한 후각",
+          "description": "은신 적 감지 +2"
+        }
+      ],
+      "drops": {
+        "gold": "1d10",
+        "items": [
+          {
+            "name": "무덤 유물",
+            "chance": 25,
+            "description": "판매 가능"
+          }
+        ]
+      },
+      "xp": 50
+    },
+    "mind_flayer_minion": {
+      "name": "마음 잡아吞者",
+      "name_en": "Mind Flayer Spawn",
+      "category": "aberration",
+      "cr": 2,
+      "hp": 30,
+      "ac": 12,
+      "spd": 30,
+      "type": "aberration",
+      "size": "Medium",
+      "abilities": {
+        "STR": 12,
+        "DEX": 14,
+        "CON": 14,
+        "INT": 14,
+        "WIS": 14,
+        "CHA": 10
+      },
+      "attacks": [
+        {
+          "name": "촉수",
+          "type": "melee",
+          "hit": "d20+4",
+          "damage": "1d8+2",
+          "effect": "정신 대미지 1d4"
+        }
+      ],
+      "traits": [
+        {
+          "name": "정신 감응",
+          "description": "마법 대미지 +2 저항"
+        }
+      ],
+      "drops": {
+        "gold": "2d10",
+        "items": []
+      },
+      "xp": 450
+    }
+  },
+  "encounters": {
+    "dungeon_floor_1": {
+      "name": "지하 감옥",
+      "recommended_encounters": [
+        {
+          "name": "고블린 경비대",
+          "difficulty": "easy",
+          "monsters": [
+            {
+              "id": "goblin",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "name": "해골 감옥",
+          "difficulty": "medium",
+          "monsters": [
+            {
+              "id": "skeleton",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "name": "고블린 + 해골",
+          "difficulty": "hard",
+          "monsters": [
+            {
+              "id": "goblin",
+              "count": 2
+            },
+            {
+              "id": "skeleton",
+              "count": 2
+            }
+          ]
+        }
+      ]
+    },
+    "dungeon_floor_2": {
+      "name": "고대 유적",
+      "recommended_encounters": [
+        {
+          "name": "오크 순찰대",
+          "difficulty": "easy",
+          "monsters": [
+            {
+              "id": "orc",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "name": "다크엘프 사냥꾼",
+          "difficulty": "medium",
+          "monsters": [
+            {
+              "id": "dark_elf",
+              "count": 2
+            },
+            {
+              "id": "orc",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "name": "거미의 둥지",
+          "difficulty": "hard",
+          "monsters": [
+            {
+              "id": "giant_spider",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "name": "동굴곰 소굴",
+          "difficulty": "deadly",
+          "monsters": [
+            {
+              "id": "cave_bear",
+              "count": 1
+            },
+            {
+              "id": "giant_spider",
+              "count": 2
+            }
+          ]
+        }
+      ]
+    },
+    "dungeon_floor_3": {
+      "name": "심연의 문",
+      "recommended_encounters": [
+        {
+          "name": "심연의 전哨",
+          "difficulty": "medium",
+          "monsters": [
+            {
+              "id": "mind_flayer_minion",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "name": "石化의 문堂",
+          "difficulty": "hard",
+          "monsters": [
+            {
+              "id": "basilisk",
+              "count": 1
+            },
+            {
+              "id": "mind_flayer_minion",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "name": "안개 사도+부하",
+          "difficulty": "deadly",
+          "monsters": [
+            {
+              "id": "mist_shadow",
+              "count": 1
+            },
+            {
+              "id": "mind_flayer_minion",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "name": "마왕군 전진",
+          "difficulty": "deadly",
+          "monsters": [
+            {
+              "id": "cronos_lieutenant",
+              "count": 1
+            },
+            {
+              "id": "mist_shadow",
+              "count": 2
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

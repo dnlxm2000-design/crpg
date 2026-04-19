@@ -1,0 +1,129 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-04-15",
+  "description": "Settlement data for Silverhaven simulation",
+  
+  "settlements": {
+    "silverhaven": {
+      "name": "Silverhaven",
+      "name_kr": "실버하벤",
+      "faction": "recovery",
+      "population": 5000,
+      "resource_output": {"food": 3, "mineral": 1, "magic_crystal": 0},
+      "resource_demand": {"food": 2, "mineral": 2, "magic_crystal": 1},
+      "tags": ["capital", "fortress", "artificial_fog"],
+      "defense": 15,
+      "description": "Main fortress in the Mistral, central location"
+    },
+    "ironclad": {
+      "name": "Ironclad",
+      "name_kr": "아이언클래드",
+      "faction": "iron_guard",
+      "population": 25000,
+      "resource_output": {"mineral": 5, "food": 0},
+      "resource_demand": {"food": 3, "magic_crystal": 1},
+      "tags": ["mountain", "military", "capital"],
+      "defense": 20,
+      "description": "Mountain fortress, Iron Guard capital"
+    },
+    "hollyetheria": {
+      "name": "HollyEtheria",
+      "name_kr": "홀리에테리아",
+      "faction": "etheria",
+      "population": 30000,
+      "resource_output": {"magic_crystal": 2, "food": 2},
+      "resource_demand": {"mineral": 2, "food": 2},
+      "tags": ["religious", "capital", "grid_node"],
+      "defense": 12,
+      "description": "Sacred city, western Grid node"
+    },
+    "ventura": {
+      "name": "Ventura",
+      "name_kr": "벤투라",
+      "faction": "merchant",
+      "population": 20000,
+      "resource_output": {"trade_goods": 5, "food": 1},
+      "resource_demand": {"food": 3, "mineral": 2},
+      "tags": ["port", "trade", "coast"],
+      "defense": 10,
+      "description": "Major port, Merchant League headquarters"
+    },
+    "snowfell": {
+      "name": "Snowfell",
+      "name_kr": "스노우폴",
+      "faction": "edelweis",
+      "population": 5000,
+      "resource_output": {"food": 2, "trade_goods": 1},
+      "resource_demand": {"food": 1, "mineral": 1},
+      "tags": ["port", "ice"],
+      "defense": 8,
+      "description": "Northern port city"
+    },
+    "winterhaven": {
+      "name": "Winterhaven",
+      "name_kr": "윈터헤븐",
+      "faction": "edelweis",
+      "population": 8000,
+      "resource_output": {"mineral": 3, "food": 1},
+      "resource_demand": {"food": 2},
+      "tags": ["mining", "mountain"],
+      "defense": 10,
+      "description": "Mining city in ice mountains"
+    },
+    "ember_forge": {
+      "name": "Ember Forge",
+      "name_kr": "엠버포지",
+      "faction": "dwarf_alliance",
+      "population": 12000,
+      "resource_output": {"mineral": 5, "food": 0},
+      "resource_demand": {"food": 3},
+      "tags": ["mining", "craft"],
+      "defense": 15,
+      "description": "Dwarf cooperation city"
+    },
+    "mist_wastes": {
+      "name": "Mist Wastes",
+      "name_kr": "미스트랄 숲外围",
+      "faction": "wilderness",
+      "population": 1000,
+      "resource_output": {"food": 2, "magic_crystal": 1},
+      "resource_demand": {"food": 1, "mineral": 0},
+      "tags": ["wilderness", "forest"],
+      "defense": 3,
+      "description": "Peripheral forest area"
+    }
+  },
+  
+  "trade_routes": [
+    {
+      "from": "silverhaven",
+      "to": "ventura",
+      "distance": 20,
+      "terrain": "coast"
+    },
+    {
+      "from": "silverhaven",
+      "to": "hollyetheria",
+      "distance": 15,
+      "terrain": "plains"
+    },
+    {
+      "from": "ironclad",
+      "to": "ember_forge",
+      "distance": 10,
+      "terrain": "mountain"
+    },
+    {
+      "from": "ironclad",
+      "to": "hollyetheria",
+      "distance": 30,
+      "terrain": "mountain"
+    },
+    {
+      "from": "ventura",
+      "to": "snowfell",
+      "distance": 40,
+      "terrain": "coast"
+    }
+  ]
+}

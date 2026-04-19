@@ -1,0 +1,15 @@
+{
+	"bloodline": "",
+	"class": "fighter",
+	"name": "Hero",
+	"race": "half_troll",
+	"starting_location": "unknown",
+	"stats": {
+		"CHA": 10,
+		"CON": 11,
+		"DEX": 10,
+		"INT": 10,
+		"STR": 12,
+		"WIS": 10
+	}
+}

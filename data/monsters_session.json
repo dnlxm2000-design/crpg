@@ -1,0 +1,282 @@
+﻿{
+  "version": "1.0.0",
+  "last_updated": "2026-04-15",
+  "description": "Session-based monsters that appear based on session variables",
+  
+  "session_monsters": {
+    "fog_beast": {
+      "name": "안개 악마",
+      "name_en": "Fog Beast",
+      "category": "aberration",
+      "cr": 2,
+      "hp": 32,
+      "ac": 13,
+      "spd": 30,
+      "type": "aberration",
+      "size": "Large",
+      "abilities": {
+        "STR": 16,
+        "DEX": 16,
+        "CON": 14,
+        "INT": 6,
+        "WIS": 12,
+        "CHA": 10
+      },
+      "attacks": [
+        {
+          "name": "claw",
+          "type": "melee",
+          "hit": "d20+5",
+          "damage": "2d6+3",
+          "effect": "Confusion (DC 12 WIS save)"
+        }
+      ],
+      "traits": [
+        {
+          "name": "Fog Form",
+          "description": "안개 속에서 은신 +5"
+        },
+        {
+          "name": "Realthirst",
+          "description": "시야 감소 구역에서 대미지 +1d6"
+        }
+      ],
+      "drops": {
+        "gold": "2d12",
+        "items": [
+          {
+            "name": "안개 결정",
+            "chance": 50,
+            "description": "마법 재료"
+          }
+        ]
+      },
+      "xp": 450,
+      "condition": "fog_density >= 0.7"
+    },
+    "noise_creature": {
+      "name": "노이즈 生物",
+      "name_en": "Noise Creature",
+      "category": "aberration",
+      "cr": 2,
+      "hp": 28,
+      "ac": 12,
+      "spd": 35,
+      "type": "aberration",
+      "size": "Medium",
+      "abilities": {
+        "STR": 14,
+        "DEX": 14,
+        "CON": 14,
+        "INT": 8,
+        "WIS": 10,
+        "CHA": 8
+      },
+      "attacks": [
+        {
+          "name": "corrosive touch",
+          "type": "melee",
+          "hit": "d20+4",
+          "damage": "1d8+2",
+          "effect": "AC -1 until next turn"
+        }
+      ],
+      "traits": [
+        {
+          "name": "Noise Aura",
+          "description": "주변 적들에게 psychic 대미지 1"
+        },
+        {
+          "name": "Instability",
+          "description": "각 턴 20% 확률로 형태 변화"
+        }
+      ],
+      "drops": {
+        "gold": "1d10",
+        "items": [
+          {
+            "name": "노이즈 결정",
+            "chance": 33,
+            "description": "마도 연구 재료"
+          }
+        ]
+      },
+      "xp": 450,
+      "condition": "fog_density >= 0.5"
+    },
+    "demon_hunter": {
+      "name": "데몬 사냥꾼",
+      "name_en": "Demon Hunter",
+      "category": "fiend",
+      "cr": 3,
+      "hp": 45,
+      "ac": 14,
+      "spd": 30,
+      "type": "fiend",
+      "size": "Medium",
+      "abilities": {
+        "STR": 16,
+        "DEX": 14,
+        "CON": 16,
+        "INT": 10,
+        "WIS": 12,
+        "CHA": 14
+      },
+      "attacks": [
+        {
+          "name": "hellfire blade",
+          "type": "melee",
+          "hit": "d20+5",
+          "damage": "1d10+3",
+          "effect": "Fire 1d6"
+        },
+        {
+          "name": "bow",
+          "type": "ranged",
+          "hit": "d20+4",
+          "damage": "1d8+2",
+          "range": 80
+        }
+      ],
+      "traits": [
+        {
+          "name": "Hellfire",
+          "description": "화염 대미지 +1d6"
+        },
+        {
+          "name": "Devotion",
+          "description": "빠른 행동 Douglas +1"
+        }
+      ],
+      "drops": {
+        "gold": "3d12",
+        "items": [
+          {
+            "name": "지옥 불꽃",
+            "chance": 50,
+            "description": "마법 재료"
+          }
+        ]
+      },
+      "xp": 700,
+      "condition": "orc_disposition >= 4"
+    },
+    "void_construct": {
+      "name": "공허 구성물",
+      "name_en": "Void Construct",
+      "category": "construct",
+      "cr": 3,
+      "hp": 55,
+      "ac": 16,
+      "spd": 25,
+      "type": "construct",
+      "size": "Large",
+      "abilities": {
+        "STR": 18,
+        "DEX": 8,
+        "CON": 18,
+        "INT": 3,
+        "WIS": 10,
+        "CHA": 3
+      },
+      "attacks": [
+        {
+          "name": "fist",
+          "type": "melee",
+          "hit": "d20+6",
+          "damage": "2d8+4"
+        }
+      ],
+      "traits": [
+        {
+          "name": "Antimagic Vulnerability",
+          "description": "마법에 취약"
+        },
+        {
+          "name": "Construct Nature",
+          "description": "독, 마비, 질병에 면역"
+        }
+      ],
+      "drops": {
+        "gold": "4d10",
+        "items": [
+          {
+            "name": "공허 금속",
+            "chance": 75,
+            "description": "고급 방어구 재료"
+          }
+        ]
+      },
+      "xp": 700,
+      "condition": "grid_resonance >= 0.7"
+    },
+    "abyssal_spawn": {
+      "name": "심연의 알",
+      "name_en": "Abyssal Spawn",
+      "category": "fiend",
+      "cr": 2,
+      "hp": 30,
+      "ac": 13,
+      "spd": 30,
+      "type": "fiend",
+      "size": "Medium",
+      "abilities": {
+        "STR": 14,
+        "DEX": 14,
+        "CON": 14,
+        "INT": 8,
+        "WIS": 10,
+        "CHA": 10
+      },
+      "attacks": [
+        {
+          "name": "claw",
+          "type": "melee",
+          "hit": "d20+4",
+          "damage": "1d6+2"
+        },
+        {
+          "name": "dark bolt",
+          "type": "ranged",
+          "hit": "d20+4",
+          "damage": "1d8+2",
+          "range": 60
+        }
+      ],
+      "traits": [
+        {
+          "name": "Darkness",
+          "description": "30ft Darkness 시전 가능"
+        },
+        {
+          "name": "Soul Hunger",
+          "description": "HP 미만의 적에게 대미지 +1d6"
+        }
+      ],
+      "drops": {
+        "gold": "2d10",
+        "items": []
+      },
+      "xp": 450,
+      "condition": "grid_resonance >= 0.5"
+    }
+  },
+  
+  "spawn_modifiers": {
+    "fog_density": {
+      "base_multiplier": 1.0,
+      "extra_per": 0.3,
+      "description": "fog_density ≥ 0.7 시 추가 몬스터 출현"
+    },
+    "orc_disposition": {
+      "base_multiplier": 1.0,
+      "extra_per": 0.2,
+      "description": "orc_disposition >= 4 시 오크/트롤/마왕군 증가"
+    },
+    "grid_resonance": {
+      "base_multiplier": 1.0,
+      "extra_per": 0.3,
+      "description": "grid_resonance ≥ 0.7 시 마도/마계 몬스터 증가"
+    }
+  }
+}

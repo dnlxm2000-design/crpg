@@ -1,0 +1,267 @@
+[gd_scene load_steps=4 format=3 uid="uid://character_creation"]
+
+[ext_resource type="Script" path="res://scripts/systems/character_creation.gd" id="1_creation"]
+
+[sub_resource type="Environment" id="Environment_creation"]
+background_mode = 1
+background_color = Color(0.1, 0.1, 0.15, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.3, 0.3, 0.4, 1)
+
+[node name="CharacterCreation" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_creation")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.08, 0.08, 0.12, 1)
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 30.0
+offset_right = 200.0
+offset_bottom = 80.0
+grow_horizontal = 2
+text = "Character Creation"
+horizontal_alignment = 1
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -350.0
+offset_top = -280.0
+offset_right = 350.0
+offset_bottom = 320.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="RaceLabel" type="Label" parent="PanelContainer/VBox"]
+layout_mode = 2
+text = "종족 선택"
+
+[node name="RaceOption" type="OptionButton" parent="PanelContainer/VBox"]
+layout_mode = 2
+item_count = 10
+default_item = 0
+item_0/text = "인간"
+item_1/text = "엘프"
+item_2/text = "드워프"
+item_3/text = "하플링"
+item_4/text = "오크"
+item_5/text = "트롤"
+item_6/text = "하프오크"
+item_7/text = "하프트롤"
+item_8/text = "노움"
+item_9/text = "다크엘프"
+
+[node name="KingdomLabel" type="Label" parent="PanelContainer/VBox"]
+layout_mode = 2
+visible = false
+text = "왕국/부족"
+
+[node name="KingdomOption" type="OptionButton" parent="PanelContainer/VBox"]
+layout_mode = 2
+visible = false
+
+[node name="BloodlineLabel" type="Label" parent="PanelContainer/VBox"]
+layout_mode = 2
+text = "혈통 선택"
+
+[node name="BloodlineOption" type="OptionButton" parent="PanelContainer/VBox"]
+layout_mode = 2
+disabled = true
+
+[node name="BackgroundLabel" type="Label" parent="PanelContainer/VBox"]
+layout_mode = 2
+visible = false
+text = "배경"
+
+[node name="BackgroundOption" type="OptionButton" parent="PanelContainer/VBox"]
+layout_mode = 2
+visible = false
+
+[node name="ClassLabel" type="Label" parent="PanelContainer/VBox"]
+layout_mode = 2
+text = "직업 선택"
+
+[node name="ClassOption" type="OptionButton" parent="PanelContainer/VBox"]
+layout_mode = 2
+item_count = 8
+default_item = 0
+item_0/text = "전사"
+item_1/text = "도적"
+item_2/text = "마법사"
+item_3/text = "사제"
+item_4/text = "레인저"
+item_5/text = "야만전사"
+item_6/text = "성기사"
+item_7/text = "음유시인"
+
+[node name="StatsLabel" type="Label" parent="PanelContainer/VBox"]
+layout_mode = 2
+text = "포인트 구매 (27 포인트)"
+
+[node name="StatsContainer" type="HBoxContainer" parent="PanelContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="STR" type="VBoxContainer" parent="PanelContainer/VBox/StatsContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBox/StatsContainer/STR"]
+layout_mode = 2
+text = "STR"
+
+[node name="Value" type="Label" parent="PanelContainer/VBox/StatsContainer/STR"]
+layout_mode = 2
+text = "10"
+
+[node name="ButtonMinus" type="Button" parent="PanelContainer/VBox/StatsContainer/STR"]
+layout_mode = 2
+text = "-"
+
+[node name="ButtonPlus" type="Button" parent="PanelContainer/VBox/StatsContainer/STR"]
+layout_mode = 2
+text = "+"
+
+[node name="DEX" type="VBoxContainer" parent="PanelContainer/VBox/StatsContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBox/StatsContainer/DEX"]
+layout_mode = 2
+text = "DEX"
+
+[node name="Value" type="Label" parent="PanelContainer/VBox/StatsContainer/DEX"]
+layout_mode = 2
+text = "10"
+
+[node name="ButtonMinus" type="Button" parent="PanelContainer/VBox/StatsContainer/DEX"]
+layout_mode = 2
+text = "-"
+
+[node name="ButtonPlus" type="Button" parent="PanelContainer/VBox/StatsContainer/DEX"]
+layout_mode = 2
+text = "+"
+
+[node name="CON" type="VBoxContainer" parent="PanelContainer/VBox/StatsContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBox/StatsContainer/CON"]
+layout_mode = 2
+text = "CON"
+
+[node name="Value" type="Label" parent="PanelContainer/VBox/StatsContainer/CON"]
+layout_mode = 2
+text = "10"
+
+[node name="ButtonMinus" type="Button" parent="PanelContainer/VBox/StatsContainer/CON"]
+layout_mode = 2
+text = "-"
+
+[node name="ButtonPlus" type="Button" parent="PanelContainer/VBox/StatsContainer/CON"]
+layout_mode = 2
+text = "+"
+
+[node name="INT" type="VBoxContainer" parent="PanelContainer/VBox/StatsContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBox/StatsContainer/INT"]
+layout_mode = 2
+text = "INT"
+
+[node name="Value" type="Label" parent="PanelContainer/VBox/StatsContainer/INT"]
+layout_mode = 2
+text = "10"
+
+[node name="ButtonMinus" type="Button" parent="PanelContainer/VBox/StatsContainer/INT"]
+layout_mode = 2
+text = "-"
+
+[node name="ButtonPlus" type="Button" parent="PanelContainer/VBox/StatsContainer/INT"]
+layout_mode = 2
+text = "+"
+
+[node name="WIS" type="VBoxContainer" parent="PanelContainer/VBox/StatsContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBox/StatsContainer/WIS"]
+layout_mode = 2
+text = "WIS"
+
+[node name="Value" type="Label" parent="PanelContainer/VBox/StatsContainer/WIS"]
+layout_mode = 2
+text = "10"
+
+[node name="ButtonMinus" type="Button" parent="PanelContainer/VBox/StatsContainer/WIS"]
+layout_mode = 2
+text = "-"
+
+[node name="ButtonPlus" type="Button" parent="PanelContainer/VBox/StatsContainer/WIS"]
+layout_mode = 2
+text = "+"
+
+[node name="CHA" type="VBoxContainer" parent="PanelContainer/VBox/StatsContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBox/StatsContainer/CHA"]
+layout_mode = 2
+text = "CHA"
+
+[node name="Value" type="Label" parent="PanelContainer/VBox/StatsContainer/CHA"]
+layout_mode = 2
+text = "10"
+
+[node name="ButtonMinus" type="Button" parent="PanelContainer/VBox/StatsContainer/CHA"]
+layout_mode = 2
+text = "-"
+
+[node name="ButtonPlus" type="Button" parent="PanelContainer/VBox/StatsContainer/CHA"]
+layout_mode = 2
+text = "+"
+
+[node name="NameLabel" type="Label" parent="PanelContainer/VBox"]
+layout_mode = 2
+text = "캐릭터 이름"
+
+[node name="NameInput" type="LineEdit" parent="PanelContainer/VBox"]
+layout_mode = 2
+placeholder_text = "이름 입력..."
+
+[node name="PointsRemaining" type="Label" parent="PanelContainer/VBox"]
+layout_mode = 2
+text = "남은 포인트: 27"
+
+[node name="CreateButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_top = -80.0
+offset_right = 100.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "캐릭터 생성"

@@ -1,0 +1,210 @@
+[gd_scene load_steps=2 format=3 uid="uid://session_setup"]
+
+[ext_resource type="Script" path="res://scripts/systems/session_setup.gd" id="1_setup"]
+
+[node name="SessionSetup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_setup")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.08, 0.1, 0.15, 1)
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 30.0
+offset_right = 200.0
+offset_bottom = 80.0
+grow_horizontal = 2
+text = "세션 설정"
+horizontal_alignment = 1
+
+[node name="SessionNameLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -250.0
+offset_right = -20.0
+offset_bottom = -210.0
+grow_horizontal = 2
+text = "세션 이름:"
+
+[node name="SessionNameInput" type="LineEdit" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -250.0
+offset_right = 300.0
+offset_bottom = -210.0
+grow_horizontal = 2
+placeholder_text = "Enter session name..."
+
+[node name="FogLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -180.0
+offset_right = 300.0
+offset_bottom = -140.0
+grow_horizontal = 2
+text = "안개 밀도 (0.0 = 맑음, 1.0 = 짙음):"
+
+[node name="FogSlider" type="HSlider" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -130.0
+offset_right = 300.0
+offset_bottom = -100.0
+grow_horizontal = 2
+min_value = 0.0
+max_value = 1.0
+step = 0.1
+value = 0.5
+
+[node name="FogValue" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 320.0
+offset_top = -130.0
+offset_right = 400.0
+offset_bottom = -100.0
+grow_horizontal = 2
+text = "0.5"
+
+[node name="GridLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -70.0
+offset_right = 300.0
+offset_bottom = -30.0
+grow_horizontal = 2
+text = "그리드 공명 (0.0 = 약함, 1.0 = 강함):"
+
+[node name="GridSlider" type="HSlider" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -20.0
+offset_right = 300.0
+offset_bottom = 10.0
+grow_horizontal = 2
+min_value = 0.0
+max_value = 1.0
+step = 0.1
+value = 0.5
+
+[node name="GridValue" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 320.0
+offset_top = -20.0
+offset_right = 400.0
+offset_bottom = 10.0
+grow_horizontal = 2
+text = "0.5"
+
+[node name="OrcLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = 40.0
+offset_right = 300.0
+offset_bottom = 80.0
+grow_horizontal = 2
+text = "오크 태도 (1=협상, 3=적대, 5=전멸):"
+
+[node name="OrcSlider" type="HSlider" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = 90.0
+offset_right = 300.0
+offset_bottom = 120.0
+grow_horizontal = 2
+min_value = 1.0
+max_value = 5.0
+step = 1.0
+value = 3.0
+
+[node name="OrcValue" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 320.0
+offset_top = 90.0
+offset_right = 400.0
+offset_bottom = 120.0
+grow_horizontal = 2
+text = "3"
+
+[node name="StartButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_top = -80.0
+offset_right = 100.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "게임 시작"

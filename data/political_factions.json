@@ -1,0 +1,172 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-04-15",
+  "description": "Political factions for Silverhaven simulation",
+  
+  "factions": {
+    "recovery": {
+      "name": "Recovery Faction",
+      "name_kr": "수복파",
+      "leader": "Valentin",
+      "ideology": "order",
+      "personality_template": "militarist",
+      "resource_priority": ["food", "defense"],
+      "environment_response": {
+        "food_shortage": "Hoard resources for military",
+        "threat_nearby": "Increase patrols",
+        "peace_treaty": "Skeptical but pragmatic"
+      },
+      "description": "Militarist order faction controlling Silverhaven"
+    },
+    "merchant": {
+      "name": "Merchant League",
+      "name_kr": "상인 연맹",
+      "leader": "Kaira",
+      "ideology": "neutral",
+      "personality_template": "trader",
+      "resource_priority": ["trade_goods", "profit"],
+      "environment_response": {
+        "food_shortage": "Raise prices",
+        "threat_nearby": "Hire mercenaries",
+        "peace_treaty": "Open trade routes"
+      },
+      "description": "Trade-focused faction, pragmatic"
+    },
+    "etheria": {
+      "name": "Etheria",
+      "name_kr": "에테리아",
+      "leader": "Ether King",
+      "ideology": "religious",
+      "personality_template": "zealot",
+      "resource_priority": ["magic_crystal", "faith"],
+      "environment_response": {
+        "food_shortage": "Rely on faith",
+        "threat_nearby": "Holy war",
+        "peace_treaty": "Demand religious recognition"
+      },
+      "description": "Religious faction, Keeper of Grid"
+    },
+    "iron_guard": {
+      "name": "Iron Guard",
+      "name_kr": "아이언가드",
+      "leader": "Iron Commander",
+      "ideology": "military",
+      "personality_template": "militarist",
+      "resource_priority": ["mineral", "defense"],
+      "environment_response": {
+        "food_shortage": "Ration military",
+        "threat_nearby": "Full mobilization",
+        "peace_treaty": "Require tribute"
+      },
+      "description": "Military kingdom, dwarf alliance"
+    },
+    "dwarf_alliance": {
+      "name": "Dwarf Alliance",
+      "name_kr": "드워프 협력왕국",
+      "leader": "Sky Hammer",
+      "ideology": "neutral",
+      "personality_template": "craftsman",
+      "resource_priority": ["mineral", "craft"],
+      "environment_response": {
+        "food_shortage": "Trade for food",
+        "threat_nearby": "Defend mountains",
+        "peace_treaty": "Trade weapons"
+      },
+      "description": "Dwarf settlement, technology focused"
+    },
+    "shadow_order": {
+      "name": "Shadow Order",
+      "name_kr": "심연의 사도",
+      "leader": "Unknown",
+      "ideology": "chaos",
+      "personality_template": "manipulator",
+      "resource_priority": ["magic_crystal", "knowledge"],
+      "environment_response": {
+        "food_shortage": "Opportunity for influence",
+        "threat_nearby": "Wait and watch",
+        "peace_treaty": "Infiltrate"
+      },
+      "description": "Hidden order, puppeteers"
+    },
+    "orc_horde": {
+      "name": "Orc Horde",
+      "name_kr": "오크 왕국",
+      "leader": "Warlord",
+      "ideology": "chaos",
+      "personality_template": "raider",
+      "resource_priority": ["food", "plunder"],
+      "environment_response": {
+        "food_shortage": "Raid neighbors",
+        "threat_nearby": "All-out attack",
+        "peace_treaty": "Trap for weaknesses"
+      },
+      "description": "Orc 5 clans united"
+    },
+    "edelweis": {
+      "name": "Edelweis",
+      "name_kr": "에델바이스",
+      "leader": "Ice Queen",
+      "ideology": "order",
+      "personality_template": "survivor",
+      "resource_priority": ["defense", "survival"],
+      "environment_response": {
+        "food_shortage": "Build reserves",
+        "threat_nearby": "Fortify walls",
+        "peace_treaty": "Trade food for help"
+      },
+      "description": "Northern ice kingdom, Alliance capital"
+    }
+  },
+  
+  "personality_templates": {
+    "militarist": {
+      "name": "Militarist",
+      "name_kr": " 군사력 중심",
+      "base_traits": ["disciplined", "defensive"],
+      "diplomatic_style": "threat_based",
+      "aggression_threshold": 3
+    },
+    "trader": {
+      "name": "Trader",
+      "name_kr": "교역 중심",
+      "base_traits": ["pragmatic", "profit_minded"],
+      "diplomatic_style": "economic",
+      "aggression_threshold": 5
+    },
+    "zealot": {
+      "name": "Zealot",
+      "name_kr": "신앙 중심",
+      "base_traits": ["devoted", "intolerant"],
+      "diplomatic_style": "ideological",
+      "aggression_threshold": 4
+    },
+    "raider": {
+      "name": "Raider",
+      "name_kr": "약탈 중심",
+      "base_traits": ["aggressive", "opportunistic"],
+      "diplomatic_style": "power",
+      "aggression_threshold": 1
+    },
+    "survivor": {
+      "name": "Survivor",
+      "name_kr": "생존 중심",
+      "base_traits": ["cautious", "self_reliant"],
+      "diplomatic_style": "survival",
+      "aggression_threshold": 3
+    },
+    "craftsman": {
+      "name": "Craftsman",
+      "name_kr": "기술 중심",
+      "base_traits": ["skilled", "trade_oriented"],
+      "diplomatic_style": "economic",
+      "aggression_threshold": 5
+    },
+    "manipulator": {
+      "name": "Manipulator",
+      "name_kr": "조작 중심",
+      "base_traits": ["secretive", "calculating"],
+      "diplomatic_style": "influence",
+      "aggression_threshold": 4
+    }
+  }
+}

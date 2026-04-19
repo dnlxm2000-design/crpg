@@ -1,0 +1,12 @@
+# Node/Python/Platform artifacts
+export/
+.import/
+.godot/
+*.log
+Thumbs.db
+.DS_Store
+*.tmp
+
+# IDE/Editors
+.vscode/
+.idea/

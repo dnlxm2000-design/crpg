@@ -1,0 +1,64 @@
+[gd_scene load_steps=5 format=3 uid="uid://main_scene"]
+
+[ext_resource type="Script" path="res://scripts/systems/main_controller.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/entities/player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/systems/ui_manager.gd" id="3_ui"]
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 1
+background_color = Color(0.15, 0.15, 0.2, 0.8)
+ambient_light_source = 2
+ambient_light_color = Color(0.3, 0.3, 0.4, 1)
+fog_enabled = true
+fog_light_color = Color(0.2, 0.25, 0.35, 0.5)
+fog_density = 0.02
+
+[sub_resource type="CapsuleShape3D" id="Shape_player"]
+radius = 0.3
+height = 1.5
+
+[sub_resource type="CapsuleMesh" id="Mesh_player"]
+radius = 0.3
+height = 1.5
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_main")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 15, 15)
+current = true
+fov = 75.0
+near = 0.1
+far = 100.0
+
+[node name="TopCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 30, 0)
+current = false
+fov = 90.0
+near = 0.1
+far = 100.0
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.707107, 0.707107, 0, -0.707107, -0.707107, 0, 20, 0)
+light_energy = 0.8
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="Player" type="CharacterBody3D" parent="."]
+script = ExtResource("2_player")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.75, 2)
+collision_layer = 1
+collision_mask = 1
+
+[node name="PlayerMesh" type="MeshInstance3D" parent="Player"]
+mesh = SubResource("Mesh_player")
+
+[node name="PlayerCollision" type="CollisionShape3D" parent="Player"]
+shape = SubResource("Shape_player")
+
+[node name="CanvasUI" type="CanvasLayer" parent="."]
+
+[node name="UIManager" type="Control" parent="CanvasUI"]
+script = ExtResource("3_ui")
