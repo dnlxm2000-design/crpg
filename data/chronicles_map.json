@@ -1,0 +1,26 @@
+{
+  "silverhaven_foundation": {
+    "region": "Silverhaven",
+    "bloodlines": ["elf_bloodline_silver_guard", "mist_sailors"]
+  },
+  "silverhaven_gird_expansion": {
+    "region": "Silverhaven",
+    "bloodlines": ["ether_guardians"]
+  },
+  "silverhaven_trade_treaty": {
+    "region": "Silverhaven",
+    "bloodlines": ["mist_sailors", "elf_bloodline_forest_guard"]
+  },
+  "silverhaven_defense_upgrade": {
+    "region": "Silverhaven",
+    "bloodlines": ["elf_bloodline_silver_guard", "ironbloods"]
+  },
+  "mist_sailors_pirate_trade": {
+    "region": "Silverhaven",
+    "bloodlines": ["mist_sailors"]
+  },
+  "silverhaven_arcane_rise": {
+    "region": "Silverhaven",
+    "bloodlines": ["grid_architect", "ether_guardians"]
+  }
+}

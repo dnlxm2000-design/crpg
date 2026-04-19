@@ -78,4 +78,19 @@ JSON Sample (data/chronicles_silverhaven_samples.json)
     "related_bloodlines": ["mist_sailors"],
     "sources": ["docs/chronicles.md"]
   }
+  ,
+  {
+    "id": "silverhaven_arcane_rise",
+    "title": "마력의 부흥",
+    "title_en": "Arcane Rise",
+    "era": "Expansion Era",
+    "date": "1028",
+    "region": "Silverhaven",
+    "region_kor": "실버하벤",
+    "description": "마력 연구의 새로운 국면이 열림.",
+    "description_en": "A new phase of magical research opens.",
+    "significance": "마력 기술 도약",
+    "related_bloodlines": ["grid_architect","ether_guardians"],
+    "sources": ["docs/research_full.md"]
+  }
 ]

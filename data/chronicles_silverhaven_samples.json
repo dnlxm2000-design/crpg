@@ -29,8 +29,7 @@
       "significance": "무역 및 마력 연계 성장 촉진",
       "related_bloodlines": ["ether_guardians"],
       "sources": ["docs/research_full.md"]
-    }
-    ,
+    },
     {
       "id": "silverhaven_trade_treaty",
       "title": "실버하벤 무역 협정",
@@ -74,34 +73,6 @@
       "sources": ["docs/chronicles.md"]
     },
     {
-      "id": "silverhaven_port_upgrade",
-      "title": "항만 개조",
-      "title_en": "Port Upgrade",
-      "era": "Expansion Era",
-      "date": "1014",
-      "region": "Silverhaven",
-      "region_kor": "실버하벤",
-      "description": "항만 시설 확충으로 해상 무역 활성화.",
-      "description_en": "Port facilities expansion boosts maritime trade.",
-      "significance": "무역량 증가, 지역 경제 활성화",
-      "related_bloodlines": ["mist_sailors"],
-      "sources": ["docs/world_building.md"]
-    },
-    {
-      "id": "silverhaven_academic_shift",
-      "title": "학문적 시도 전환",
-      "title_en": "Academic Shift",
-      "era": "Expansion Era",
-      "date": "1025",
-      "region": "Silverhaven",
-      "region_kor": "실버하벤",
-      "description": "루미나스 계열의 연구 방향이 실버하벤 학문에 큰 방향성 제시.",
-      "description_en": "Luminous academy lineage redirects research to Silverhaven's arcane study.",
-      "significance": "지식 체계와 마력 기술의 융합 촉진",
-      "related_bloodlines": ["ether_guardians", "grid_architect"],
-      "sources": ["docs/research_full.md"]
-    },
-    {
       "id": "silverhaven_arcane_rise",
       "title": "마력의 부흥",
       "title_en": "Arcane Rise",
@@ -113,34 +84,6 @@
       "description_en": "A new phase of magical research opens.",
       "significance": "마력 기술 도약",
       "related_bloodlines": ["grid_architect","ether_guardians"],
-      "sources": ["docs/research_full.md"]
-    },
-    {
-      "id": "silverhaven_allied_looms",
-      "title": "동맹의 직조",
-      "title_en": "Allied Looms",
-      "era": "Expansion Era",
-      "date": "1023",
-      "region": "Silverhaven",
-      "region_kor": "실버하벤",
-      "description": "연합 상인 네트워크 확장.",
-      "description_en": "Expansion of allied merchant networks.",
-      "significance": "무역 안정성 강화",
-      "related_bloodlines": ["mist_sailors","elf_bloodline_forest_guard"],
-      "sources": ["docs/world_building.md"]
-    },
-    {
-      "id": "silverhaven_mathematics_innovation",
-      "title": "수학-마법의 융합",
-      "title_en": "Mathematics & Magic Fusion",
-      "era": "Expansion Era",
-      "date": "1030",
-      "region": "Silverhaven",
-      "region_kor": "실버하벤",
-      "description": "수학적 원리와 마법의 융합으로 계산/시뮬레이션의 정확성 향상.",
-      "description_en": "Fusion of mathematical principles with magic to improve calculation accuracy.",
-      "significance": "연구 효율성 증가",
-      "related_bloodlines": ["ether_guardians"],
       "sources": ["docs/research_full.md"]
     }
   ]
