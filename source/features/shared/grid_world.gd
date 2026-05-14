@@ -1,12 +1,13 @@
-# grid_world.gd — Tile-based grid with A* pathfinding (Stoneshard-inspired).
-# Converts between world coordinates and grid coordinates.
+# grid_world.gd — Isometric tile-based grid with A* pathfinding.
+# Converts between grid coordinates and isometric world coordinates.
 class_name GridWorld
 extends Node
 
-## 한 타일의 픽셀 크기 (32×32).
+## 아이소메트릭 타일 크기 (너비 64, 높이 32 = 2:1 비율).
+const TILE_WIDTH_ISO: int = 64
+const TILE_HEIGHT_ISO: int = 32
+## 레거시 호환용 타일 크기 (참조용).
 const CELL_SIZE: int = 32
-## Size of each tile in pixels (see CELL_SIZE for the constant).
-@export var tile_size: int = CELL_SIZE
 ## Grid dimensions (tiles).
 @export var grid_width: int = 64
 @export var grid_height: int = 64
@@ -31,12 +32,13 @@ func _ready() -> void:
 
 
 ## Build the A* graph and connect neighbors.
+## A* 점 위치는 아이소메트릭 월드 좌표 사용.
 func _build_grid() -> void:
 	astar = AStar2D.new()
 	for xi in grid_width:
 		for yi in grid_height:
 			var idi: int = _point_id(xi, yi)
-			astar.add_point(idi, Vector2(xi * tile_size + tile_size / 2.0, yi * tile_size + tile_size / 2.0))
+			astar.add_point(idi, _grid_to_world_iso(Vector2i(xi, yi)))
 
 	# Connect cardinal neighbors
 	for xi in grid_width:
@@ -51,7 +53,7 @@ func _build_grid() -> void:
 					if not astar.are_points_connected(idi, nid):
 						astar.connect_points(idi, nid)
 
-	# Connect diagonal neighbors (Stoneshard-style numpad movement)
+	# Connect diagonal neighbors
 	if enable_diagonal:
 		for xi in grid_width:
 			for yi in grid_height:
@@ -66,14 +68,32 @@ func _build_grid() -> void:
 							astar.connect_points(idi, nid, 1.4)
 
 
-## Convert world position to grid coordinate.
+## 아이소메트릭 그리드 → 월드 좌표 변환 (타일 중앙).
+func _grid_to_world_iso(grid_pos: Vector2i) -> Vector2:
+	return Vector2(
+		(grid_pos.x - grid_pos.y) * TILE_WIDTH_ISO / 2.0,
+		(grid_pos.x + grid_pos.y) * TILE_HEIGHT_ISO / 2.0
+	)
+
+
+## 월드 좌표 → 아이소메트릭 그리드 좌표 변환.
+func _world_to_grid_iso(world_pos: Vector2) -> Vector2i:
+	var px: float = world_pos.x / (TILE_WIDTH_ISO / 2.0)
+	var py: float = world_pos.y / (TILE_HEIGHT_ISO / 2.0)
+	return Vector2i(
+		floori((px + py) / 2.0),
+		floori((py - px) / 2.0)
+	)
+
+
+## Convert world position to grid coordinate (isometric).
 func world_to_grid(world_pos: Vector2) -> Vector2i:
-	return Vector2i(floori(world_pos.x / tile_size), floori(world_pos.y / tile_size))
+	return _world_to_grid_iso(world_pos)
 
 
-## Convert grid coordinate to world position (center of tile).
+## Convert grid coordinate to world position — center of isometric diamond.
 func grid_to_world(grid_pos: Vector2i) -> Vector2:
-	return Vector2(grid_pos.x * tile_size + tile_size / 2.0, grid_pos.y * tile_size + tile_size / 2.0)
+	return _grid_to_world_iso(grid_pos)
 
 
 ## Check if a grid position is within bounds and walkable.
@@ -150,11 +170,11 @@ func find_path_grid(from_grid: Vector2i, to_grid: Vector2i) -> Array[Vector2i]:
 	if point_ids.is_empty():
 		return []
 
-	# Skip the first point (current position), convert rest to Vector2i
+	# Skip the first point (current position), convert A* world position → grid coordinates
 	var result: Array[Vector2i] = []
 	for idx in range(1, point_ids.size()):
 		var p: Vector2 = astar.get_point_position(point_ids[idx])
-		result.append(Vector2i(roundi(p.x / tile_size - 0.5), roundi(p.y / tile_size - 0.5)))
+		result.append(_world_to_grid_iso(p))
 
 	return result
 
