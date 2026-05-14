@@ -34,6 +34,8 @@ var status_effects: Array = []
 var facing_direction: Vector2 = Vector2.DOWN
 ## 방향 표시용 삼각형 노드
 var _direction_indicator: Node2D = null
+## 그림자 스프라이트
+var _shadow_sprite: Sprite2D = null
 
 ## Equipment slots (references to Item resources, null = empty)
 var equipped_weapon = null   # WEAPON → right_hand
@@ -65,6 +67,25 @@ var gold: int = 0
 func _ready() -> void:
 	current_hp = max_hp
 	movement = get_node_or_null("UnitMovement")
+
+	# ── 그림자 (반투명 검은 타원) ──
+	_shadow_sprite = Sprite2D.new()
+	_shadow_sprite.name = "ShadowSprite"
+	var shadow_img := Image.create(40, 16, false, Image.FORMAT_RGBA8)
+	shadow_img.fill(Color.TRANSPARENT)
+	# 타원형 그림자
+	var shadow_color := Color(0.0, 0.0, 0.0, 0.25)
+	for px in 40:
+		for py in 16:
+			var nx: float = (px - 20) / 20.0
+			var ny: float = (py - 8) / 8.0
+			if nx * nx + ny * ny <= 1.0:
+				shadow_img.set_pixel(px, py, shadow_color)
+	_shadow_sprite.texture = ImageTexture.create_from_image(shadow_img)
+	_shadow_sprite.position = Vector2(0, 2)  # 유닛 발 아래
+	_shadow_sprite.z_index = -1
+	add_child(_shadow_sprite)
+
 	# 방향 표시 삼각형 생성
 	_direction_indicator = Node2D.new()
 	_direction_indicator.name = "DirectionIndicator"
@@ -86,8 +107,32 @@ func _ready() -> void:
 	add_child(_direction_indicator)
 
 
-## Placeholder 시각 요소 설정 (사각형).
-## 나중에 SpriteSheet로 교체: 이 함수 내용을 Sprite2D → AnimatedSprite2D 로 변경.
+## 실시간 모드 흔들림(Bobbing) 효과.
+## 이동 중일 때 스프라이트가 위아래로 미세하게 흔들린다.
+func _process(_delta: float) -> void:
+	if not is_alive:
+		return
+
+	var is_moving = movement.get("is_moving") if movement else false
+	var in_realtime = (GameState.current_mode == GameState.GameMode.REALTIME) or (GameState.current_mode == GameState.GameMode.MENU)
+
+	# Bobbing: 이동 중에만
+	if is_moving and in_realtime:
+		var bob_offset: float = sin(Time.get_ticks_msec() * 0.008) * 1.5
+		_sprite_position_y(bob_offset)
+	else:
+		_sprite_position_y(0.0)
+
+
+## Sprite2D의 y 위치 설정 (bobbing용)
+func _sprite_position_y(offset: float) -> void:
+	# UnitSprite는 setup_placeholder_visual에서 생성한 Sprite2D
+	for child in get_children():
+		if child is Sprite2D and child.name == "UnitSprite":
+			child.position.y = -4 + offset  # -4는 기본 오프셋 (타일 위에 서기)
+			return
+
+
 func setup_placeholder_visual(body_color: Color, collision_size: Vector2i = Vector2i(28, 20), sprite_size: Vector2i = Vector2i(32, 48)) -> void:
 	# ── CollisionShape (클릭/물리 영역) ──
 	var collision := CollisionShape2D.new()
