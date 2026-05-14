@@ -4,16 +4,18 @@ extends Node
 
 const CombatResolver = preload("res://source/features/turnbased/combat_resolver.gd")
 
-# 이동 키 → 방향 벡터 매핑 (8방향, Stoneshard 숫자패드 스타일)
+# 이동 키 → 그리드 방향 벡터 매핑 (아이소메트릭 8방향).
+# WASD = 화면 상하좌우, QEZC = 화면 대각선.
+# 화면 ↑ = 그리드 (-1,-1), 화면 → = 그리드 (1,-1), 등.
 const DIRECTION_MAP: Dictionary = {
-	"move_up": Vector2i(0, -1),
-	"move_down": Vector2i(0, 1),
-	"move_left": Vector2i(-1, 0),
-	"move_right": Vector2i(1, 0),
-	"move_up_left": Vector2i(-1, -1),
-	"move_up_right": Vector2i(1, -1),
-	"move_down_left": Vector2i(-1, 1),
-	"move_down_right": Vector2i(1, 1),
+	"move_up": Vector2i(-1, -1),        # W → 화면 위
+	"move_down": Vector2i(1, 1),        # S → 화면 아래
+	"move_left": Vector2i(-1, 1),       # A → 화면 왼쪽
+	"move_right": Vector2i(1, -1),      # D → 화면 오른쪽
+	"move_up_left": Vector2i(-1, 0),    # Q → 화면 왼쪽 위
+	"move_up_right": Vector2i(0, -1),   # E → 화면 오른쪽 위
+	"move_down_left": Vector2i(0, 1),   # Z → 화면 왼쪽 아래
+	"move_down_right": Vector2i(1, 0),  # C → 화면 오른쪽 아래
 }
 
 var _movement = null   # UnitMovement 컴포넌트 (경로 탐색 + 이동)
@@ -70,23 +72,10 @@ func _process(_delta: float) -> void:
 
 	var is_turn: bool = (GameState.current_mode == GameState.GameMode.TURNBASED)
 
-	# Keyboard movement (works in both modes)
-	if Input.is_action_just_pressed("move_up"):
-		_do_key_move(Vector2i(0, -1), is_turn)
-	if Input.is_action_just_pressed("move_down"):
-		_do_key_move(Vector2i(0, 1), is_turn)
-	if Input.is_action_just_pressed("move_left"):
-		_do_key_move(Vector2i(-1, 0), is_turn)
-	if Input.is_action_just_pressed("move_right"):
-		_do_key_move(Vector2i(1, 0), is_turn)
-	if Input.is_action_just_pressed("move_up_left"):
-		_do_key_move(Vector2i(-1, -1), is_turn)
-	if Input.is_action_just_pressed("move_up_right"):
-		_do_key_move(Vector2i(1, -1), is_turn)
-	if Input.is_action_just_pressed("move_down_left"):
-		_do_key_move(Vector2i(-1, 1), is_turn)
-	if Input.is_action_just_pressed("move_down_right"):
-		_do_key_move(Vector2i(1, 1), is_turn)
+	# Keyboard movement (works in both modes) — DIRECTION_MAP에서 벡터 참조
+	for action in DIRECTION_MAP:
+		if Input.is_action_just_pressed(action):
+			_do_key_move(DIRECTION_MAP[action], is_turn)
 
 	if not is_turn:
 		# E키: 가장 가까운 아이템 집기 (탐험/조사 중심 RPG — 자동 줍기 없음)
