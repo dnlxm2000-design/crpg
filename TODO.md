@@ -8,6 +8,25 @@
 
 ## ✅ 완료된 기능
 
+### 5. GameState.current_mode 버그 수정
+- **파일**: `source/core/game_loop.gd`
+- `enter_realtime()` / `enter_turn_mode()`에서 `GameState.current_mode`를 업데이트하지 않던 버그 수정
+- 이제 모드 전환 시 `GameState.current_mode`가 `REALTIME` / `TURNBASED`로 정상 변경됨
+- (이전에는 `MENU`에서 영원히 안 벗어나서 입/출력 처리에 문제가 있었음)
+
+### 6. 방향 표시기 (Direction Indicator)
+- **파일**: `source/features/shared/unit.gd`
+- 유닛 아래에 흰색 V자 삼각형 화살표 표시
+- `facing_direction` 속성으로 마지막 이동 방향 추적
+- 턴제/실시간 모두 이동 시 자동 업데이트
+- `update_facing_direction(dir)` 호출로 회전
+
+### 7. 타겟 정보 패널
+- **파일**: `source/ui/hud/hud.gd`
+- 우측 상단에 현재 타겟 정보 표시: 이름, HP, 거리
+- Tab으로 타겟 변경 시 자동 갱신
+- 전투 종료 시 자동 숨김
+
 ### 1. Zone of Control (ZOC)
 - **파일**: `source/features/turnbased/zoc_controller.gd`
 - 인접 8타일 통제, 진입 시 AP+1, 이탈 시 Attack of Opportunity

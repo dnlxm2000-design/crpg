@@ -35,6 +35,7 @@ func enter_realtime() -> void:
 	if mode_state_machine:
 		mode_state_machine.change_state("realtime")
 		is_turn_mode = false
+		GameState.current_mode = GameState.GameMode.REALTIME
 		mode_changed.emit("realtime")
 		EventBus.game_mode_changed.emit("realtime")
 
@@ -44,6 +45,7 @@ func enter_turn_mode() -> void:
 	if mode_state_machine:
 		mode_state_machine.change_state("turnbased")
 		is_turn_mode = true
+		GameState.current_mode = GameState.GameMode.TURNBASED
 		mode_changed.emit("turnbased")
 		EventBus.game_mode_changed.emit("turnbased")
 

@@ -120,6 +120,11 @@ func move_one_tile(direction: Vector2i, unit_node = null) -> bool:
 	# Instant snap for turn-based mode
 	_unit.global_position = target_world
 
+	# Update facing direction
+	if "update_facing_direction" in _unit:
+		var dir: Vector2 = Vector2(target_grid - current_grid)
+		_unit.update_facing_direction(dir.normalized())
+
 	# Notify
 	EventBus.unit_moved.emit(_unit, _grid_world.grid_to_world(current_grid), target_world)
 
@@ -157,6 +162,10 @@ func _process(delta: float) -> void:
 		_unit.global_position = _target_world
 		_pop_next_path_point()
 		return
+
+	# Update facing direction for real-time movement
+	if "update_facing_direction" in _unit and dir.length() > 1.0:
+		_unit.update_facing_direction(dir.normalized())
 
 	var velocity: Vector2 = dir.normalized() * move_speed
 	var motion: Vector2 = velocity * delta

@@ -24,6 +24,11 @@ var max_action_points: int = 3
 var is_alive: bool = true
 var status_effects: Array = []
 
+## 바라보는 방향 (마지막 이동 방향)
+var facing_direction: Vector2 = Vector2.DOWN
+## 방향 표시용 삼각형 노드
+var _direction_indicator: Node2D = null
+
 ## Equipment slots (references to Item resources, null = empty)
 var equipped_weapon = null   # WEAPON → right_hand
 var equipped_armor = null    # ARMOR → body
@@ -54,6 +59,35 @@ var gold: int = 0
 func _ready() -> void:
 	current_hp = max_hp
 	movement = get_node_or_null("UnitMovement")
+	# 방향 표시 삼각형 생성
+	_direction_indicator = Node2D.new()
+	_direction_indicator.name = "DirectionIndicator"
+	# 삼각형 (2개의 ColorRect로 V자형 화살표)
+	var arm_l := ColorRect.new()
+	arm_l.color = Color(1.0, 1.0, 1.0, 0.7)
+	arm_l.size = Vector2(10, 3)
+	arm_l.position = Vector2(-5, 0)
+	arm_l.rotation = 2.356  # 135도
+	_direction_indicator.add_child(arm_l)
+	var arm_r := ColorRect.new()
+	arm_r.color = Color(1.0, 1.0, 1.0, 0.7)
+	arm_r.size = Vector2(10, 3)
+	arm_r.position = Vector2(-5, 0)
+	arm_r.rotation = -2.356  # -135도
+	_direction_indicator.add_child(arm_r)
+	_direction_indicator.position = Vector2(16, 24)  # 유닛 중앙 아래
+	_direction_indicator.z_index = 10
+	_direction_indicator.z_as_relative = false
+	add_child(_direction_indicator)
+
+
+## 마지막 이동 방향에 맞춰 방향 표시기 업데이트.
+func update_facing_direction(dir: Vector2) -> void:
+	if dir == Vector2.ZERO:
+		return
+	facing_direction = dir
+	if _direction_indicator:
+		_direction_indicator.rotation = dir.angle()
 
 
 func reset_actions() -> void:

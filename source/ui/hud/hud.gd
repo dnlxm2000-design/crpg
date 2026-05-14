@@ -16,6 +16,7 @@ var _gold_label: Label = null  # Gold display in top-left
 var _center_prompt: Label = null  # Center-screen prompt (AP 0, etc.)
 var _action_bar: Panel = null     # Combat action bar (Attack/Item/Wait)
 var _targeting: Node = null       # Targeting system
+var _target_info: Panel = null    # Target info panel (name, HP, distance)
 
 
 func _ready() -> void:
@@ -105,6 +106,52 @@ func _ready() -> void:
 	_action_bar.item_pressed.connect(_on_action_item)
 	_action_bar.wait_pressed.connect(_on_action_wait)
 	add_child(_action_bar)
+
+	# ── Target info panel (right side, shows current target details) ──
+	_target_info = Panel.new()
+	_target_info.name = "TargetInfo"
+	_target_info.size = Vector2(200, 80)
+	_target_info.position = Vector2(1064, 300)  # 우측 상단
+	_target_info.visible = false
+	var ti_bg := StyleBoxFlat.new()
+	ti_bg.bg_color = Color(0.05, 0.05, 0.1, 0.8)
+	ti_bg.corner_radius_top_left = 4
+	ti_bg.corner_radius_top_right = 4
+	ti_bg.corner_radius_bottom_left = 4
+	ti_bg.corner_radius_bottom_right = 4
+	_target_info.add_theme_stylebox_override("panel", ti_bg)
+
+	# Target name
+	var ti_name = Label.new()
+	ti_name.name = "TargetName"
+	ti_name.add_theme_font_size_override("font_size", 16)
+	ti_name.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
+	ti_name.position = Vector2(8, 6)
+	ti_name.size = Vector2(184, 22)
+	_target_info.add_child(ti_name)
+
+	# Target HP
+	var ti_hp = Label.new()
+	ti_hp.name = "TargetHP"
+	ti_hp.add_theme_font_size_override("font_size", 14)
+	ti_hp.add_theme_color_override("font_color", Color(0.8, 0.8, 0.9))
+	ti_hp.position = Vector2(8, 30)
+	ti_hp.size = Vector2(184, 20)
+	_target_info.add_child(ti_hp)
+
+	# Target distance
+	var ti_dist = Label.new()
+	ti_dist.name = "TargetDist"
+	ti_dist.add_theme_font_size_override("font_size", 12)
+	ti_dist.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
+	ti_dist.position = Vector2(8, 52)
+	ti_dist.size = Vector2(184, 18)
+	_target_info.add_child(ti_dist)
+
+	add_child(_target_info)
+
+	# Listen to targeting changes
+	_targeting.target_changed.connect(_on_target_changed)
 
 	# Find player after scene tree is ready
 	await get_tree().process_frame
@@ -234,6 +281,8 @@ func _on_combat_ended() -> void:
 	turn_indicator.text = ""
 	ap_label.text = ""
 	_clear_enemy_bars()
+	if _target_info:
+		_target_info.visible = false
 	# After combat, player may have been replaced — find again
 	_find_player()
 
@@ -398,6 +447,41 @@ func _on_action_item() -> void:
 func _on_action_wait() -> void:
 	if _player and is_instance_valid(_player):
 		EventBus.player_ended_turn.emit(_player)
+
+
+## ─── Targeting Panel ───
+
+## 타겟 변경 시 정보 패널 업데이트.
+func _on_target_changed(target: Node) -> void:
+	if not _target_info:
+		return
+	if not target or not is_instance_valid(target):
+		_target_info.visible = false
+		return
+
+	var name_label = _target_info.get_node_or_null("TargetName")
+	var hp_label = _target_info.get_node_or_null("TargetHP")
+	var dist_label = _target_info.get_node_or_null("TargetDist")
+
+	if name_label:
+		var unit_name = target.get("unit_name") if "unit_name" in target else "Unknown"
+		name_label.text = "▶ " + unit_name
+
+	if hp_label:
+		var cur_hp = target.get("current_hp") if "current_hp" in target else 0
+		var max_hp = target.get("max_hp") if "max_hp" in target else 100
+		hp_label.text = "HP: %d / %d" % [cur_hp, max_hp]
+
+	if dist_label:
+		if _player and is_instance_valid(_player):
+			var grid_world = get_node_or_null("/root/Main/GameLoop/GridWorld")
+			if grid_world:
+				var player_gp = grid_world.world_to_grid(_player.global_position)
+				var target_gp = grid_world.world_to_grid(target.global_position)
+				var dist = max(abs(target_gp.x - player_gp.x), abs(target_gp.y - player_gp.y))
+				dist_label.text = "거리: %d" % dist
+
+	_target_info.visible = true
 
 
 func _update_gold_label() -> void:
