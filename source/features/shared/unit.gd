@@ -107,21 +107,27 @@ func _ready() -> void:
 	add_child(_direction_indicator)
 
 
-## 실시간 모드 흔들림(Bobbing) 효과.
-## 이동 중일 때 스프라이트가 위아래로 미세하게 흔들린다.
+## 실시간 모드 흔들림(Bobbing) + 스프라이트 반전.
 func _process(_delta: float) -> void:
 	if not is_alive:
 		return
 
-	var is_moving = movement.get("is_moving") if movement else false
-	var in_realtime = (GameState.current_mode == GameState.GameMode.REALTIME) or (GameState.current_mode == GameState.GameMode.MENU)
+	var is_moving_flag: bool = false
+	if movement:
+		is_moving_flag = movement.get("is_moving") or movement.get("is_keyboard_moving")
 
-	# Bobbing: 이동 중에만
-	if is_moving and in_realtime:
-		var bob_offset: float = sin(Time.get_ticks_msec() * 0.008) * 1.5
+	var in_realtime: bool = (GameState.current_mode == GameState.GameMode.REALTIME) or \
+		(GameState.current_mode == GameState.GameMode.MENU)
+
+	# Bobbing
+	if is_moving_flag and in_realtime:
+		var bob_offset: float = sin(Time.get_ticks_msec() * 0.01) * 2.0
 		_sprite_position_y(bob_offset)
 	else:
 		_sprite_position_y(0.0)
+
+	# Flip-H: 가로 이동 방향에 따라 스프라이트 반전
+	_sprite_flip_h(facing_direction.x < 0 if in_realtime else false)
 
 
 ## Sprite2D의 y 위치 설정 (bobbing용)
@@ -130,6 +136,14 @@ func _sprite_position_y(offset: float) -> void:
 	for child in get_children():
 		if child is Sprite2D and child.name == "UnitSprite":
 			child.position.y = -4 + offset  # -4는 기본 오프셋 (타일 위에 서기)
+			return
+
+
+## UnitSprite의 flip_h 설정.
+func _sprite_flip_h(flip: bool) -> void:
+	for child in get_children():
+		if child is Sprite2D and child.name == "UnitSprite":
+			child.flip_h = flip
 			return
 
 

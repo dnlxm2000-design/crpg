@@ -11,13 +11,15 @@ const ZocController = preload("res://source/features/turnbased/zoc_controller.gd
 @export var grid_world_path: NodePath = NodePath("/root/Main/GameLoop/GridWorld")
 
 ## Movement speed in pixels/second (real-time).
-@export var move_speed: float = 120.0
+@export var move_speed: float = 200.0
 
 ## Turn-based AP cost per tile.
 @export var ap_cost_per_tile: int = 1
 
 ## Is this unit currently moving along a path?
 var is_moving: bool = false
+## 키보드 연속 이동 중인가? (실시간 모드 WASD)
+var is_keyboard_moving: bool = false
 ## Current path (grid positions) to follow.
 var path: Array = []
 ## Current target grid position for this step.
@@ -217,17 +219,15 @@ func skip_turn() -> bool:
 func _process(delta: float) -> void:
 	# ── 실시간 모드 키보드 이동 (isometric smooth) ──
 	if not _is_turn_mode():
-		# 키보드 입력이 있으면 경로 이동 취소하고 연속 이동
 		var input_dir := Vector2(
 			Input.get_axis("move_left", "move_right"),
 			Input.get_axis("move_up", "move_down")
 		)
 		if input_dir.length() > 0.1:
-			stop_moving()
+			is_keyboard_moving = true
+			stop_moving()  # 경로 이동 취소
 
-			# 아이소메트릭 변환: 화면 입력 → 그리드 방향
-			# 화면 ↑=W(-1,-1), 화면 →=D(1,-1), 화면 ←=A(-1,1), 화면 ↓=S(1,1)
-			# grid = (input.x + input.y, -input.x + input.y)
+			# 아이소메트릭 변환: grid = (x+y, -x+y)
 			var iso_dir := Vector2(
 				input_dir.x + input_dir.y,
 				-input_dir.x + input_dir.y
@@ -240,11 +240,14 @@ func _process(delta: float) -> void:
 			if _unit.has_method("move_and_slide"):
 				_unit.move_and_slide()
 
-			# 이동 중 그리드 점유 갱신
 			if _grid_world:
 				var current_grid: Vector2i = _grid_world.world_to_grid(_unit.global_position)
 				_grid_world.set_occupied(current_grid, _unit)
 			return
+		else:
+			is_keyboard_moving = false
+			if _unit.has_method("move_and_slide"):
+				_unit.velocity = Vector2.ZERO
 		# 키보드 입력 없으면 기존 경로 이동 처리로 폴스루
 
 	# ── 실시간 경로 이동 (click-to-move) ──
