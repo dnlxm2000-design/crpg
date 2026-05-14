@@ -218,14 +218,19 @@ func _process(delta: float) -> void:
 	# ── 실시간 모드 키보드 이동 (isometric smooth) ──
 	if not _is_turn_mode():
 		# 키보드 입력이 있으면 경로 이동 취소하고 연속 이동
-		var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+		var input_dir := Vector2(
+			Input.get_axis("move_left", "move_right"),
+			Input.get_axis("move_up", "move_down")
+		)
 		if input_dir.length() > 0.1:
 			stop_moving()
 
-			# 아이소메트릭 속도 변환 (64×32 다이아몬드 그리드)
+			# 아이소메트릭 변환: 화면 입력 → 그리드 방향
+			# 화면 ↑=W(-1,-1), 화면 →=D(1,-1), 화면 ←=A(-1,1), 화면 ↓=S(1,1)
+			# grid = (input.x + input.y, -input.x + input.y)
 			var iso_dir := Vector2(
-				input_dir.x - input_dir.y,
-				(input_dir.x + input_dir.y) * 0.5
+				input_dir.x + input_dir.y,
+				-input_dir.x + input_dir.y
 			).normalized()
 
 			if "update_facing_direction" in _unit:
