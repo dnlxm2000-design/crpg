@@ -24,7 +24,7 @@ func _ready() -> void:
 
 	# ── 제목 표시줄 ──
 	var title := Label.new()
-	title.text = "LOG"
+	title.text = "로그"
 	title.add_theme_font_size_override("font_size", 12)
 	title.add_theme_color_override("font_color", Color(0.7, 0.7, 0.8))
 	title.position = Vector2(6, 4)
@@ -131,34 +131,34 @@ func _on_combat_started(participants: Array) -> void:
 	var names = PackedStringArray()
 	for u in participants:
 		names.append(_get_name(u))
-	add_entry("⚔ COMBAT! Participants: %s" % ", ".join(names), Color(1.0, 0.9, 0.4))
+	add_entry("⚔ 전투! 참가자: %s" % ", ".join(names), Color(1.0, 0.9, 0.4))
 
 
 func _on_combat_ended() -> void:
-	add_entry("Combat ended", Color(0.6, 0.6, 0.7))
+	add_entry("전투 종료", Color(0.6, 0.6, 0.7))
 
 
 func _on_combat_victory() -> void:
-	add_entry("★ VICTORY", Color(0.3, 1.0, 0.3))
+	add_entry("★ 승리", Color(0.3, 1.0, 0.3))
 
 
 func _on_combat_defeat() -> void:
-	add_entry("★ DEFEAT", Color(1.0, 0.3, 0.3))
+	add_entry("★ 패배", Color(1.0, 0.3, 0.3))
 
 
 func _on_round_started(round_num: int) -> void:
-	add_entry("── Round %d ──" % round_num, Color(1.0, 0.85, 0.4))
+	add_entry("── %d라운드 ──" % round_num, Color(1.0, 0.85, 0.4))
 
 
 func _on_round_ended(round_num: int) -> void:
-	add_entry("   Round %d end" % round_num, Color(0.5, 0.5, 0.5))
+	add_entry("   %d라운드 종료" % round_num, Color(0.5, 0.5, 0.5))
 
 
 func _on_turn_started(unit: Node) -> void:
 	if not unit or not is_instance_valid(unit):
 		return
 	var name = _get_name(unit)
-	add_entry("%s's Turn" % name, Color(0.9, 0.9, 0.95))
+	add_entry("%s의 턴" % name, Color(0.9, 0.9, 0.95))
 
 
 func _on_unit_damaged(unit: Node, amount: int, source: Node) -> void:
@@ -171,14 +171,14 @@ func _on_unit_damaged(unit: Node, amount: int, source: Node) -> void:
 	var is_player_source: bool = (source == _player_unit)
 
 	if is_player_target:
-		# Player took damage → red
-		add_entry("%s hit %s for %d damage" % [src_name, unit_name, amount], Color(1.0, 0.4, 0.4))
+		# 플레이어가 피해를 입음 → 빨강
+		add_entry("%s→%s %d 피해" % [src_name, unit_name, amount], Color(1.0, 0.4, 0.4))
 	elif is_player_source:
-		# Player dealt damage → orange
-		add_entry("%s attacks %s for %d damage" % [src_name, unit_name, amount], Color(1.0, 0.7, 0.3))
+		# 플레이어가 피해를 줌 → 주황
+		add_entry("%s→%s %d 피해" % [src_name, unit_name, amount], Color(1.0, 0.7, 0.3))
 	else:
-		# Enemy vs Enemy → gray
-		add_entry("%s hits %s for %d" % [src_name, unit_name, amount], Color(0.6, 0.6, 0.7))
+		# 적 vs 적 → 회색
+		add_entry("%s→%s %d 피해" % [src_name, unit_name, amount], Color(0.6, 0.6, 0.7))
 
 
 func _on_unit_destroyed(unit: Node) -> void:
@@ -186,18 +186,18 @@ func _on_unit_destroyed(unit: Node) -> void:
 		return
 	var name = _get_name(unit)
 	if unit == _player_unit:
-		add_entry("★ %s defeated!" % name, Color(1.0, 0.3, 0.3))
+		add_entry("★ %s 사망!" % name, Color(1.0, 0.3, 0.3))
 	else:
-		add_entry("%s defeated!" % name, Color(0.3, 1.0, 0.3))
+		add_entry("%s 쓰러짐!" % name, Color(0.3, 1.0, 0.3))
 
 
 func _on_player_ended_turn(unit: Node) -> void:
 	var name = _get_name(unit)
-	add_entry("  %s ended their turn" % name, Color(0.55, 0.55, 0.6))
+	add_entry("  %s 턴 종료" % name, Color(0.55, 0.55, 0.6))
 
 
 func _on_game_mode_changed(mode: String) -> void:
-	add_entry("Mode: %s" % mode.to_upper(), Color(0.5, 0.5, 0.6))
+	add_entry("모드: %s" % mode.to_upper(), Color(0.5, 0.5, 0.6))
 
 
 func _on_turn_mode_entered() -> void:
@@ -212,14 +212,14 @@ func _log_unit_moved(unit: Node) -> void:
 	if not unit or not is_instance_valid(unit):
 		return
 	var name = _get_name(unit)
-	add_entry("  %s moved" % name, Color(0.5, 0.7, 0.9))
+	add_entry("  %s 이동" % name, Color(0.5, 0.7, 0.9))
 
 
 func _on_ap_changed(unit: Node) -> void:
 	if unit == _player_unit and unit and is_instance_valid(unit):
 		var ap = unit.get("current_action_points") if "current_action_points" in unit else 0
 		if ap <= 0:
-			add_entry("  AP depleted", Color(0.6, 0.5, 0.3))
+			add_entry("  AP 소진", Color(0.6, 0.5, 0.3))
 
 
 ## Toggle between full and minimized height.
