@@ -68,23 +68,44 @@ func _ready() -> void:
 	# 방향 표시 삼각형 생성
 	_direction_indicator = Node2D.new()
 	_direction_indicator.name = "DirectionIndicator"
-	# 삼각형 (2개의 ColorRect로 V자형 화살표)
 	var arm_l := ColorRect.new()
 	arm_l.color = Color(1.0, 1.0, 1.0, 0.7)
 	arm_l.size = Vector2(10, 3)
 	arm_l.position = Vector2(-5, 0)
-	arm_l.rotation = 2.356  # 135도
+	arm_l.rotation = 2.356
 	_direction_indicator.add_child(arm_l)
 	var arm_r := ColorRect.new()
 	arm_r.color = Color(1.0, 1.0, 1.0, 0.7)
 	arm_r.size = Vector2(10, 3)
 	arm_r.position = Vector2(-5, 0)
-	arm_r.rotation = -2.356  # -135도
+	arm_r.rotation = -2.356
 	_direction_indicator.add_child(arm_r)
-	_direction_indicator.position = Vector2(16, 24)  # 유닛 중앙 아래
+	_direction_indicator.position = Vector2(16, 24)
 	_direction_indicator.z_index = 10
 	_direction_indicator.z_as_relative = false
 	add_child(_direction_indicator)
+
+
+## Placeholder 시각 요소 설정 (사각형).
+## 나중에 SpriteSheet로 교체: 이 함수 내용을 Sprite2D → AnimatedSprite2D 로 변경.
+func setup_placeholder_visual(body_color: Color, collision_size: Vector2i = Vector2i(28, 20), sprite_size: Vector2i = Vector2i(32, 48)) -> void:
+	# ── CollisionShape (클릭/물리 영역) ──
+	var collision := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = Vector2(collision_size.x, collision_size.y)
+	collision.shape = shape
+	add_child(collision)
+
+	# ── Sprite (Placeholder 사각형) ──
+	# TODO: SpriteSheet 교체 시 아래 블록을 AnimatedSprite2D 로 대체
+	var sprite := Sprite2D.new()
+	sprite.name = "UnitSprite"
+	var img := Image.create(sprite_size.x, sprite_size.y, false, Image.FORMAT_RGBA8)
+	img.fill(body_color)
+	sprite.texture = ImageTexture.create_from_image(img)
+	# 아이소메트릭 타일(64×32) 위에 서 있는 모양으로 위치 보정
+	sprite.position = Vector2(0, -sprite_size.y / 2.0 - 4)
+	add_child(sprite)
 
 
 ## 마지막 이동 방향에 맞춰 방향 표시기 업데이트.

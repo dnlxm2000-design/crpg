@@ -136,19 +136,9 @@ func _spawn_test_enemies(player: Node, grid: Node) -> Array:
 		ai.name = "EnemyAI"
 		enemy.add_child(ai)
 		
-		# Visual: CollisionShape (clickable) + colored square (no art assets)
-		var collision := CollisionShape2D.new()
-		var shape := RectangleShape2D.new()
-		shape.size = Vector2(28, 28)
-		collision.shape = shape
-		enemy.add_child(collision)
-		
-		var sprite := Sprite2D.new()
-		var color_img := Image.create(32, 32, false, Image.FORMAT_RGBA8)
-		color_img.fill(data.color)
-		sprite.texture = ImageTexture.create_from_image(color_img)
-		enemy.add_child(sprite)
-		
+		# Visual: Placeholder 사각형 (나중에 SpriteSheet로 교체)
+		enemy.setup_placeholder_visual(data.color)
+
 		# Register on grid
 		if grid.has_method("set_occupied"):
 			grid.set_occupied(spawn_gp, enemy)
