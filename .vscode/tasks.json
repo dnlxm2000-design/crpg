@@ -1,0 +1,56 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Godot: Run Project",
+			"type": "shell",
+			"command": "\"C:\\Users\\rotjd\\Downloads\\Godot_v4.6.2-stable_win64.exe\\Godot_v4.6.2-stable_win64.exe\"",
+			"args": ["--path", "${workspaceFolder}"],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "new"
+			}
+		},
+		{
+			"label": "Godot: Run Headless (Debug Console)",
+			"type": "shell",
+			"command": "\"C:\\Users\\rotjd\\Downloads\\Godot_v4.6.2-stable_win64.exe\\Godot_v4.6.2-stable_win64_console.exe\"",
+			"args": ["--headless", "--path", "${workspaceFolder}"],
+			"group": "build",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			}
+		},
+		{
+			"label": "Godot: Run Tests (combat_transition)",
+			"type": "shell",
+			"command": "\"C:\\Users\\rotjd\\Downloads\\Godot_v4.6.2-stable_win64.exe\\Godot_v4.6.2-stable_win64_console.exe\"",
+			"args": ["--headless", "--path", "${workspaceFolder}", "test_combat_transition.tscn"],
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			}
+		},
+		{
+			"label": "Godot: Run All Headless Tests",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"$tests = @('test_combat_transition.tscn', 'test_combat_end.tscn', 'test_combat_inventory.tscn', 'test_enemy_ai.tscn', 'test_equipment.tscn'); $godot = 'C:\\Users\\rotjd\\Downloads\\Godot_v4.6.2-stable_win64.exe\\Godot_v4.6.2-stable_win64_console.exe'; $passed = 0; $failed = 0; foreach ($t in $tests) { Write-Host '=== Running' $t '==='; & $godot --headless --path '${workspaceFolder}' $t; if ($LASTEXITCODE -eq 0) { $passed++ } else { $failed++ } }; Write-Host \"=== Done: $passed passed, $failed failed ===\""
+			],
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			}
+		}
+	]
+}

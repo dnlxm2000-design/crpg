@@ -1,0 +1,19 @@
+{
+	"godot_tools.editor_path": "C:\\Users\\rotjd\\Downloads\\Godot_v4.6.2-stable_win64.exe\\Godot_v4.6.2-stable_win64.exe",
+	"godot_tools.console_path": "C:\\Users\\rotjd\\Downloads\\Godot_v4.6.2-stable_win64.exe\\Godot_v4.6.2-stable_win64_console.exe",
+	"godot_tools.gdscript_lsp_server_port": 6005,
+	"editor.formatOnSave": true,
+	"files.associations": {
+		"*.gd": "gdscript",
+		"*.tres": "gdresource",
+		"*.tscn": "gdscene"
+	},
+	"search.exclude": {
+		"graphify-out/": true,
+		".godot/": true
+	},
+	"files.exclude": {
+		".godot/": true,
+		"graphify-out/": true
+	}
+}
