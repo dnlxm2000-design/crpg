@@ -13,7 +13,7 @@ var _targets: Array[Node] = []
 var _current_index: int = -1
 
 ## 타겟 하이라이트를 위한 ColorRect (그리드 타일 위에 표시).
-var _highlight: ColorRect = null
+var _highlight: Node2D = null
 ## 타겟 이름/HP 표시 레이블.
 var _target_label: Label = null
 
@@ -22,11 +22,16 @@ var _grid_world = null
 
 
 func _ready() -> void:
-	# 타겟 하이라이트 생성 (빨강 테두리)
-	_highlight = ColorRect.new()
+	# 타겟 하이라이트 (아이소메트릭 다이아몬드)
+	_highlight = Polygon2D.new()
 	_highlight.name = "TargetHighlight"
+	_highlight.polygon = PackedVector2Array([
+		Vector2(0, -16),    # top
+		Vector2(32, 0),     # right
+		Vector2(0, 16),     # bottom
+		Vector2(-32, 0),    # left
+	])
 	_highlight.color = Color(1.0, 0.2, 0.2, 0.3)
-	_highlight.size = Vector2(30, 30)
 	_highlight.visible = false
 	_highlight.z_index = 50
 	add_child(_highlight)
@@ -185,7 +190,7 @@ func _update_highlight() -> void:
 	var grid_pos: Vector2i = _grid_world.world_to_grid(current_target.global_position)
 	var world_pos: Vector2 = _grid_world.grid_to_world(grid_pos)
 
-	_highlight.position = world_pos - Vector2(15, 15)  # Center on tile
+	_highlight.position = world_pos
 	_highlight.visible = true
 
 	# 타겟 정보 레이블 (하이라이트 위에 표시)

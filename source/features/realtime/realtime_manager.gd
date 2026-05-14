@@ -77,18 +77,28 @@ func spawn_player(at_position: Vector2) -> Node:
 	inventory.name = "Inventory"
 	player.add_child(inventory)
 
-	# Visual: CollisionShape + Sprite
+	# Visual: 다이아몬드 Sprite + CollisionShape
 	var collision := CollisionShape2D.new()
 	var shape := RectangleShape2D.new()
-	shape.size = Vector2(28, 28)
+	shape.size = Vector2(56, 24)  # 다이아몬드와 유사한 충돌 영역
 	collision.shape = shape
 	player.add_child(collision)
 
 	var sprite := Sprite2D.new()
-	var img := Image.create(32, 32, false, Image.FORMAT_RGBA8)
-	img.fill(Color(0.2, 0.6, 1.0))
+	var img := Image.create(48, 48, false, Image.FORMAT_RGBA8)
+	img.fill(Color.TRANSPARENT)
+	# 다이아몬드 모양으로 픽셀 채우기
+	var color := Color(0.2, 0.6, 1.0)
+	for px in 48:
+		for py in 48:
+			# 다이아몬드 경계: |x-24|/24 + |y-36|/12 <= 1 (y 기준점을 아래로)
+			var nx: float = (px - 24) / 24.0
+			var ny: float = (py - 36) / 12.0
+			if abs(nx) + abs(ny) <= 1.0:
+				img.set_pixel(px, py, color)
 	var tex := ImageTexture.create_from_image(img)
 	sprite.texture = tex
+	sprite.position = Vector2(0, -2)  # 타일 중앙 기준 위치 보정
 	player.add_child(sprite)
 
 	# Camera2D (follows player)

@@ -38,8 +38,6 @@ func _draw() -> void:
 	if _path.is_empty() or not _grid_world:
 		return
 
-	var tile_size: int = _grid_world.tile_size if "tile_size" in _grid_world else 32
-
 	# Draw semi-transparent dots at each step
 	for point in _path:
 		var world_pos: Vector2 = _grid_world.grid_to_world(point)
@@ -55,9 +53,13 @@ func _draw() -> void:
 		for i in range(pts.size() - 1):
 			draw_line(pts[i], pts[i + 1], Color(1.0, 1.0, 1.0, 0.35), 2.0)
 
-	# Highlight destination tile
+	# Highlight destination tile (isometric diamond)
 	var dest: Vector2 = _grid_world.grid_to_world(_path[_path.size() - 1])
-	var half: float = tile_size / 2.0
-	var rect := Rect2(dest.x - half, dest.y - half, tile_size, tile_size)
-	draw_rect(rect, Color(1.0, 1.0, 0.3, 0.25), true)
-	draw_rect(rect, Color(1.0, 1.0, 0.3, 0.6), false, 1.5)
+	var diamond := PackedVector2Array([
+		Vector2(dest.x,     dest.y - 16),
+		Vector2(dest.x + 32, dest.y),
+		Vector2(dest.x,     dest.y + 16),
+		Vector2(dest.x - 32, dest.y),
+	])
+	draw_colored_polygon(diamond, Color(1.0, 1.0, 0.3, 0.25))
+	draw_polyline(diamond, Color(1.0, 1.0, 0.3, 0.6), 1.5, true)

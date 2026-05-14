@@ -113,14 +113,15 @@ func _draw() -> void:
 	if _reachable_tiles.is_empty() or not _grid_world:
 		return
 
-	var tile_size: int = _grid_world.tile_size if "tile_size" in _grid_world else 32
-
+	# 아이소메트릭 다이아몬드 타일 (64×32)
 	for tile in _reachable_tiles:
-		var world_pos: Vector2 = _grid_world.grid_to_world(tile)
-		var half: float = tile_size / 2.0
-		var rect := Rect2(world_pos.x - half, world_pos.y - half, tile_size, tile_size)
+		var c: Vector2 = _grid_world.grid_to_world(tile)
 
-		# Filled semi-transparent green
-		draw_rect(rect, Color(0.3, 0.8, 0.3, 0.3), true)
-		# Border
-		draw_rect(rect, Color(0.3, 0.8, 0.3, 0.6), false, 1.5)
+		var diamond := PackedVector2Array([
+			Vector2(c.x,     c.y - 16),
+			Vector2(c.x + 32, c.y),
+			Vector2(c.x,     c.y + 16),
+			Vector2(c.x - 32, c.y),
+		])
+		draw_colored_polygon(diamond, Color(0.3, 0.8, 0.3, 0.3))
+		draw_polyline(diamond, Color(0.3, 0.8, 0.3, 0.6), 1.5, true)
