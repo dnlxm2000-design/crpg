@@ -5,17 +5,18 @@ extends Node
 const CombatResolver = preload("res://source/features/turnbased/combat_resolver.gd")
 
 # 이동 키 → 그리드 방향 벡터 매핑 (아이소메트릭 8방향).
-# WASD = 화면 상하좌우, QEZC = 화면 대각선.
+# WASD = 화면 상하좌우, Numpad 7/9/1/3/Q/Z = 화면 대각선.
 # 화면 ↑ = 그리드 (-1,-1), 화면 → = 그리드 (1,-1), 등.
+# ※ E(공격), C(전투진입)는 액션 키와 별도이므로 대각선에서 제외함.
 const DIRECTION_MAP: Dictionary = {
-	"move_up": Vector2i(-1, -1),        # W → 화면 위
-	"move_down": Vector2i(1, 1),        # S → 화면 아래
-	"move_left": Vector2i(-1, 1),       # A → 화면 왼쪽
-	"move_right": Vector2i(1, -1),      # D → 화면 오른쪽
-	"move_up_left": Vector2i(-1, 0),    # Q → 화면 왼쪽 위
-	"move_up_right": Vector2i(0, -1),   # E → 화면 오른쪽 위
-	"move_down_left": Vector2i(0, 1),   # Z → 화면 왼쪽 아래
-	"move_down_right": Vector2i(1, 0),  # C → 화면 오른쪽 아래
+	"move_up": Vector2i(-1, -1),        # W / ↑ → 화면 위
+	"move_down": Vector2i(1, 1),        # S / ↓ → 화면 아래
+	"move_left": Vector2i(-1, 1),       # A / ← → 화면 왼쪽
+	"move_right": Vector2i(1, -1),      # D / → → 화면 오른쪽
+	"move_up_left": Vector2i(-1, 0),    # Q / Numpad7 → 화면 왼쪽 위
+	"move_up_right": Vector2i(0, -1),   # Numpad9 → 화면 오른쪽 위
+	"move_down_left": Vector2i(0, 1),   # Z / Numpad1 → 화면 왼쪽 아래
+	"move_down_right": Vector2i(1, 0),  # Numpad3 → 화면 오른쪽 아래
 }
 
 var _movement = null   # UnitMovement 컴포넌트 (경로 탐색 + 이동)
