@@ -1,0 +1,16 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "silver_ring"
+item_name = "Silver Ring"
+description = "An elegant silver ring. +2 defense."
+item_type = 8
+value = 50
+heal_amount = 0
+ap_cost = 0
+stackable = false
+damage_bonus = 0
+defense_bonus = 2

@@ -1,0 +1,27 @@
+# graphify output + cache
+graphify-out/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Godot Engine
+.godot/
+*.import
+*.translation
+export/
+exports/
+
+# Handoff / session context
+HANDOFF.md
+
+# OS generated
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
