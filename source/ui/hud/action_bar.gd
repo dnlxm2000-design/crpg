@@ -1,18 +1,19 @@
-# action_bar.gd — 전투 액션 바 (공격/아이템/대기).
+# action_bar.gd — 전투 액션 바 (Attack/Push/Item/Wait).
 # 전투 모드에서 하단 중앙에 표시된다.
 extends Panel
 
 signal attack_pressed()
+signal push_pressed()
 signal item_pressed()
 signal wait_pressed()
-signal end_turn_pressed()
 
-const BAR_W: int = 480
+const BAR_W: int = 620
 const BAR_H: int = 60
-const BTN_W: int = 140
+const BTN_W: int = 135
 const BTN_H: int = 44
 
 var _attack_btn: Button = null
+var _push_btn: Button = null
 var _item_btn: Button = null
 var _wait_btn: Button = null
 var _container: HBoxContainer = null
@@ -20,7 +21,7 @@ var _container: HBoxContainer = null
 
 func _ready() -> void:
 	size = Vector2(BAR_W, BAR_H)
-	position = Vector2(400, 690)  # Bottom center (1280/2 - 480/2 = 400)
+	position = Vector2(330, 690)  # Bottom center (1280/2 - 620/2 = 330)
 
 	# Background style
 	var bg := StyleBoxFlat.new()
@@ -35,12 +36,16 @@ func _ready() -> void:
 	_container = HBoxContainer.new()
 	_container.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_container.anchors_preset = Control.PRESET_FULL_RECT
-	_container.add_theme_constant_override("separation", 12)
+	_container.add_theme_constant_override("separation", 10)
 	add_child(_container)
 
 	# Attack button
 	_attack_btn = _make_button("⚔ Attack", Color(1.0, 0.4, 0.3))
 	_attack_btn.pressed.connect(_on_attack_pressed)
+
+	# Push button
+	_push_btn = _make_button("Push", Color(0.6, 0.8, 0.4))
+	_push_btn.pressed.connect(_on_push_pressed)
 
 	# Item button
 	_item_btn = _make_button("🎒 Item", Color(0.4, 0.6, 1.0))
@@ -66,7 +71,6 @@ func _make_button(text: String, color: Color) -> Button:
 	btn.custom_minimum_size = Vector2(BTN_W, BTN_H)
 	btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 
-	# Normal style
 	var normal := StyleBoxFlat.new()
 	normal.bg_color = Color(0.15, 0.15, 0.25, 0.9)
 	normal.border_width_top = 1
@@ -81,7 +85,6 @@ func _make_button(text: String, color: Color) -> Button:
 	normal.corner_radius_bottom_right = 4
 	btn.add_theme_stylebox_override("normal", normal)
 
-	# Hover style
 	var hover := StyleBoxFlat.new()
 	hover.bg_color = Color(0.25, 0.25, 0.4, 0.95)
 	hover.border_width_top = 2
@@ -96,7 +99,6 @@ func _make_button(text: String, color: Color) -> Button:
 	hover.corner_radius_bottom_right = 4
 	btn.add_theme_stylebox_override("hover", hover)
 
-	# Disabled style
 	var disabled := StyleBoxFlat.new()
 	disabled.bg_color = Color(0.08, 0.08, 0.12, 0.6)
 	disabled.border_width_top = 1
@@ -124,7 +126,6 @@ func _on_combat_ended() -> void:
 
 
 func _on_turn_started(unit: Node) -> void:
-	# Enable buttons when it's the player's turn
 	if unit.get("is_player") == true:
 		_update_button_states()
 	else:
@@ -137,7 +138,7 @@ func _on_ap_changed(unit: Node) -> void:
 
 
 func _update_button_states() -> void:
-	if not _attack_btn or not _item_btn or not _wait_btn:
+	if not _attack_btn or not _push_btn or not _item_btn or not _wait_btn:
 		return
 
 	var player = _find_player()
@@ -145,28 +146,24 @@ func _update_button_states() -> void:
 		return
 
 	var ap = player.get("current_action_points") if "current_action_points" in player else 0
-	var has_ap = ap > 0
 
-	_attack_btn.disabled = not has_ap
-	_item_btn.disabled = not has_ap
-	# Wait is always available (even with 0 AP, ends turn)
+	_attack_btn.disabled = ap < 1
+	_push_btn.disabled = ap < 2  # Push costs 2 AP
+	_item_btn.disabled = ap < 1
 	_wait_btn.disabled = false
 
 
 func _set_buttons_enabled(enabled: bool) -> void:
-	if _attack_btn:
-		_attack_btn.disabled = not enabled
-	if _item_btn:
-		_item_btn.disabled = not enabled
-	if _wait_btn:
-		_wait_btn.disabled = not enabled
+	_attack_btn.disabled = not enabled
+	_push_btn.disabled = not enabled
+	_item_btn.disabled = not enabled
+	_wait_btn.disabled = not enabled
 
 
 func _find_player() -> Node:
 	var hud = get_parent()
 	if hud and "get_player" in hud:
 		return hud.get_player()
-	# Fallback
 	var rt = get_node_or_null("/root/Main/RealTimeManager")
 	if rt and rt.get("player_ref"):
 		return rt.player_ref
@@ -177,12 +174,15 @@ func _on_attack_pressed() -> void:
 	attack_pressed.emit()
 
 
+func _on_push_pressed() -> void:
+	push_pressed.emit()
+
+
 func _on_item_pressed() -> void:
 	item_pressed.emit()
 
 
 func _on_wait_pressed() -> void:
-	# Wait: if AP > 0, skip remaining AP; if AP == 0, end turn
 	var player = _find_player()
 	if player and "current_action_points" in player:
 		if player.current_action_points > 0:

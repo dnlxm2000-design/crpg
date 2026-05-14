@@ -98,12 +98,6 @@ func move_one_tile(direction: Vector2i, unit_node = null) -> bool:
 	if "update_facing_direction" in _unit:
 		_unit.update_facing_direction(dir_vec)
 
-	# ── 밀치기(Push): 적이 점유한 타일로 이동 시도 ──
-	if unit_node:
-		var occupant = _grid_world.get_occupant(target_grid)
-		if occupant and occupant != _unit and occupant.get("is_alive", false) == true:
-			return _try_push(unit_node, occupant, current_grid, direction, dir_vec)
-
 	# 일반 이동 (걸어갈 수 있는 타일)
 	if not _grid_world.is_walkable(target_grid):
 		return false
@@ -138,13 +132,36 @@ func move_one_tile(direction: Vector2i, unit_node = null) -> bool:
 	return true
 
 
-## 밀치기: 적이 있는 타일로 이동 시 적을 한 칸 뒤로 밀고 그 자리로 이동.
-## 비용: AP 2 (기본 이동 1 + 밀치기 1)
-func _try_push(pusher: Node, pushed: Node, from_grid: Vector2i, direction: Vector2i, dir_vec: Vector2) -> bool:
+## 바라보는 방향으로 밀치기 시도 (액션 바 Push 버튼용).
+## 방향은 유닛의 facing_direction 사용.
+## 비용: AP 2 (이동 1 + 밀치기 1)
+func try_push_facing(unit_node: Node) -> bool:
+	if is_locked or not _grid_world or not unit_node:
+		return false
+
+	# facing_direction 읽기
+	var facing_dir: Vector2 = unit_node.get("facing_direction") if "facing_direction" in unit_node else Vector2.DOWN
+	var dir_vec: Vector2 = facing_dir.normalized()
+	var direction: Vector2i = Vector2i(roundi(dir_vec.x), roundi(dir_vec.y))
+	if direction == Vector2i.ZERO:
+		return false
+
+	var from_grid: Vector2i = _grid_world.world_to_grid(_unit.global_position)
+	var target_grid: Vector2i = from_grid + direction
+
+	# 대상 타일에 적이 있는지 확인
+	var occupant = _grid_world.get_occupant(target_grid)
+	if not occupant or occupant == _unit or occupant.get("is_alive", false) != true:
+		return false
+
+	return _execute_push(unit_node, occupant, from_grid, direction, dir_vec)
+
+
+## 밀치기 실행 (내부).
+func _execute_push(pusher: Node, pushed: Node, from_grid: Vector2i, direction: Vector2i, dir_vec: Vector2) -> bool:
 	# 밀려날 위치
 	var push_target: Vector2i = from_grid + direction + direction
 
-	# 밀려날 위치가 걸어갈 수 있고 비어있는지 확인
 	if not _grid_world.is_walkable(push_target):
 		return false
 	var push_occupant = _grid_world.get_occupant(push_target)
@@ -162,12 +179,9 @@ func _try_push(pusher: Node, pushed: Node, from_grid: Vector2i, direction: Vecto
 	# 밀려난 적 이동
 	if "update_facing_direction" in pushed:
 		pushed.update_facing_direction(-dir_vec)
-	if pushed.has_method("get") and pushed.get("movement"):
-		pushed.global_position = _grid_world.grid_to_world(push_target)
-	else:
-		pushed.global_position = _grid_world.grid_to_world(push_target)
+	pushed.global_position = _grid_world.grid_to_world(push_target)
 
-	# 점유 갱신: 밀려난 적 → push_target, 밀친 유닛 → from_grid + direction
+	# 점유 갱신
 	_grid_world.set_occupied(from_grid, null)
 	var enemy_old_grid: Vector2i = from_grid + direction
 	_grid_world.set_occupied(enemy_old_grid, null)

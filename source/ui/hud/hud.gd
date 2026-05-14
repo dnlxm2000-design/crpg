@@ -103,6 +103,7 @@ func _ready() -> void:
 	_action_bar = load("res://source/ui/hud/action_bar.gd").new()
 	_action_bar.name = "ActionBar"
 	_action_bar.attack_pressed.connect(_on_action_attack)
+	_action_bar.push_pressed.connect(_on_action_push)
 	_action_bar.item_pressed.connect(_on_action_item)
 	_action_bar.wait_pressed.connect(_on_action_wait)
 	add_child(_action_bar)
@@ -424,6 +425,18 @@ func _on_gold_changed(_unit: Node, _amount: int) -> void:
 
 
 ## ─── Action Bar Handlers ───
+
+## Push button: push enemy in facing direction.
+func _on_action_push() -> void:
+	if not _player or not is_instance_valid(_player):
+		return
+	var movement = _player.get_node_or_null("UnitMovement")
+	if movement and movement.has_method("try_push_facing"):
+		if movement.try_push_facing(_player):
+			_update_ap_label()
+		else:
+			print("[HUD] Push failed — no enemy in front or not enough AP / space")
+
 
 ## Attack button: perform melee attack on current target or nearest enemy.
 func _on_action_attack() -> void:
