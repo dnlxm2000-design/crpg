@@ -9,8 +9,8 @@ const TILE_HEIGHT_ISO: int = 32
 ## 레거시 호환용 타일 크기 (참조용).
 const CELL_SIZE: int = 32
 ## Grid dimensions (tiles).
-@export var grid_width: int = 64
-@export var grid_height: int = 64
+@export var grid_width: int = 63
+@export var grid_height: int = 126
 ## Enable 8-directional movement (diagonals).
 @export var enable_diagonal: bool = true
 
@@ -131,6 +131,12 @@ func get_elevation(grid_pos: Vector2i) -> int:
 ## 두 타일 간 고도 차이 반환 (양수 = from이 더 높음).
 func get_elevation_difference(from_pos: Vector2i, to_pos: Vector2i) -> int:
 	return get_elevation(from_pos) - get_elevation(to_pos)
+
+
+## 특정 타일의 고도 설정.
+func set_elevation(grid_pos: Vector2i, value: int) -> void:
+	var key: String = "%d,%d" % [grid_pos.x, grid_pos.y]
+	elevation[key] = value
 
 
 ## Check if a grid position is within bounds and walkable.

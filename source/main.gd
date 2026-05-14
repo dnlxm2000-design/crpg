@@ -48,7 +48,7 @@ func _ready() -> void:
 	if _game_loop:
 		var rt_manager: Node = $RealTimeManager
 		if rt_manager and rt_manager.has_method("spawn_player"):
-			var spawn_grid := Vector2i(10, 10)
+			var spawn_grid := Vector2i(30, 55)
 			var spawn_pos: Vector2 = _grid_world.grid_to_world(spawn_grid) if _grid_world else Vector2(0, 320)
 			var player = rt_manager.spawn_player(spawn_pos)
 			print("[Main] Player spawned at iso grid %s → world %s" % [str(spawn_grid), str(spawn_pos)])

@@ -81,9 +81,15 @@ func spawn_player(at_position: Vector2) -> Node:
 	# TODO: setup_placeholder_visual 대신 AnimatedSprite2D + SpriteSheet 로 교체
 	player.setup_placeholder_visual(Color(0.2, 0.6, 1.0))
 
-	# Camera2D (follows player)
+	# Camera2D (follows player with bounds)
 	var camera := Camera2D.new()
 	camera.enabled = true
+	camera.limit_left = 0
+	camera.limit_top = 0
+	camera.limit_right = 4032
+	camera.limit_bottom = 2016
+	camera.position_smoothing_enabled = true
+	camera.position_smoothing_speed = 5.0
 	player.add_child(camera)
 
 	player.name = "PlayerUnit"

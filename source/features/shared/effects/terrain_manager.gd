@@ -1,154 +1,174 @@
-# terrain_manager.gd — 아이소메트릭 지형 렌더러 (TileMapLayer 기반).
-# noise 고도 데이터로 3D 입체 지형 생성. TileMapLayer + 절차적 TileSet 사용.
-extends TileMapLayer
+# terrain_manager.gd — 아이소메트릭 입체 지형 (TileMapLayer 스택).
+# 높이 레벨별로 TileMapLayer를 쌓아 3D-like 지형 + 절벽 표현.
+extends Node2D
 
-## 지형 종류 (고도 기준)
-enum TerrainType { WATER, LOWLAND, PLAIN, HILL }
+## 타일셋 색상
+const COLOR_GRASS_TOP := Color("#99C27C")
+const COLOR_DIRT_SIDE := Color("#6D5545")
+const COLOR_PATH_TOP := Color("#D1B48C")
+const COLOR_MOUNTAIN := Color("#A0A0A0")
+const COLOR_MOUNTAIN_SIDE := Color("#6B6B6B")
 
-## 지형별 색상 (윗면)
-const TERRAIN_COLORS := {
-	TerrainType.WATER: Color("#7fb3d5"),
-	TerrainType.LOWLAND: Color("#a8d08d"),
-	TerrainType.PLAIN: Color("#8dbe6d"),
-	TerrainType.HILL: Color("#6b9e4a"),
-}
-
-## 타일셋 내 타일 인덱스 (atlas 좌표)
-enum TileAtlas { TOP_0, TOP_1, TOP_2, TOP_3, SIDE_0, SIDE_1, SIDE_2, SIDE_3 }
+# 아틀라스 좌표 (4열 × 2행)
+const T_GRASS := Vector2i(0, 0)
+const T_DIRT := Vector2i(1, 0)
+const T_PATH := Vector2i(2, 0)
+const T_MOUNTAIN := Vector2i(3, 0)
+const T_GRASS_SIDE := Vector2i(0, 1)
+const T_DIRT_SIDE := Vector2i(1, 1)
+const T_PATH_SIDE := Vector2i(2, 1)
+const T_MOUNTAIN_SIDE := Vector2i(3, 1)
 
 const TILE_W: int = 64
 const TILE_H: int = 32
+const MAX_H: int = 5
 
+var _layers: Array[TileMapLayer] = []
+var _noise: FastNoiseLite = null
 var _grid_world: Node = null
-var _source_id: int = 0
+var _world_size := Vector2i(63, 126)
+var _sid: int = 0
 
 
 func _ready() -> void:
 	_grid_world = get_node_or_null("/root/Main/GameLoop/GridWorld")
+	if _grid_world:
+		_world_size = Vector2i(_grid_world.grid_width, _grid_world.grid_height)
+
+	_noise = FastNoiseLite.new()
+	_noise.seed = 42
+	_noise.frequency = 0.04
+	_noise.fractal_type = FastNoiseLite.FRACTAL_FBM
+	_noise.fractal_octaves = 3
+
 	_build_tileset()
-	generate_terrain()
+	_generate_and_render()
 
 
-## ─── TileSet 생성 ───
-
-## 절차적 타일셋 생성. 각 지형마다 윗면/옆면 타일을 만든다.
-## 2행 × 4열 아틀라스: 1행=윗면, 2행=옆면
 func _build_tileset() -> void:
-	var atlas_img := Image.create(TILE_W * 4, TILE_H * 2, false, Image.FORMAT_RGBA8)
-	atlas_img.fill(Color.TRANSPARENT)
+	var img := Image.create(TILE_W * 4, TILE_H * 2, false, Image.FORMAT_RGBA8)
+	img.fill(Color.TRANSPARENT)
+	# 1행: 윗면
+	_draw_diamond(img, 0, COLOR_GRASS_TOP)
+	_draw_diamond(img, 1, COLOR_DIRT_SIDE)
+	_draw_diamond(img, 2, COLOR_PATH_TOP)
+	_draw_diamond(img, 3, COLOR_MOUNTAIN)
+	# 2행: 옆면
+	_draw_side(img, 0, COLOR_GRASS_TOP.darkened(0.4))
+	_draw_side(img, 1, COLOR_DIRT_SIDE)
+	_draw_side(img, 2, COLOR_PATH_TOP.darkened(0.35))
+	_draw_side(img, 3, COLOR_MOUNTAIN_SIDE)
 
-	# 각 타일별 텍스처를 아틀라스에 그림
-	for type in range(TerrainType.size()):
-		var top_color: Color = _get_color(type)
-		var side_color: Color = top_color.darkened(0.4)
+	var tex := ImageTexture.create_from_image(img)
+	var ts := TileSet.new()
+	ts.tile_shape = TileSet.TILE_SHAPE_ISOMETRIC
+	ts.tile_layout = TileSet.TILE_LAYOUT_DIAMOND_DOWN
+	ts.tile_offset_axis = TileSet.TILE_OFFSET_AXIS_HORIZONTAL
+	var src := TileSetAtlasSource.new()
+	src.texture = tex
+	src.texture_region_size = Vector2i(TILE_W, TILE_H)
+	for row in 2:
+		for col in 4:
+			src.create_tile(Vector2i(col, row), Vector2i(1, 1))
+	ts.add_source(src)
+	_sid = ts.get_source_id(0)
 
-		# 윗면 (1행): 다이아몬드
-		_draw_diamond(atlas_img, type * TILE_W + TILE_W / 2, TILE_H / 2, top_color)
-		# 옆면 (2행): 절반 높이의 어두운 다이아몬드
-		_draw_side(atlas_img, type * TILE_W + TILE_W / 2, TILE_H + TILE_H / 2, side_color)
-
-	var atlas_tex := ImageTexture.create_from_image(atlas_img)
-
-	# TileSet 구성
-	var tileset := TileSet.new()
-	tileset.tile_shape = TileSet.TILE_SHAPE_ISOMETRIC
-	tileset.tile_layout = TileSet.TILE_LAYOUT_DIAMOND_DOWN
-	tileset.tile_offset_axis = TileSet.TILE_OFFSET_AXIS_HORIZONTAL
-
-	var source := TileSetAtlasSource.new()
-	source.texture = atlas_tex
-	source.texture_region_size = Vector2i(TILE_W, TILE_H)
-
-	# 윗면 타일 (atlas 좌표 1행)
-	for type in range(TerrainType.size()):
-		source.create_tile(Vector2i(type, 0), Vector2i(1, 1))
-
-	# 옆면 타일 (atlas 좌표 2행)
-	for type in range(TerrainType.size()):
-		source.create_tile(Vector2i(type, 1), Vector2i(1, 1))
-
-	tileset.add_source(source)
-
-	# source_id 확인 (첫 번째 source = 0)
-	for i in tileset.get_source_count():
-		_source_id = tileset.get_source_id(i)
-		break
-
-	self.tile_set = tileset
+	# 높이 레이어 생성 (0=물, 1~5=지형)
+	for level in range(MAX_H + 1):
+		var layer := TileMapLayer.new()
+		layer.name = "H%d" % level
+		layer.tile_set = ts
+		layer.position = Vector2(0, -level * TILE_H / 2)
+		layer.y_sort_enabled = true
+		add_child(layer)
+		_layers.append(layer)
 
 
-## 타일 아틀라스에 다이아몬드 그리기
-func _draw_diamond(img: Image, cx: int, cy: int, color: Color) -> void:
-	for py in range(TILE_H):
-		for px in range(TILE_W):
+func _generate_and_render() -> void:
+	var hmap: Dictionary = {}
+
+	# 노이즈 높이맵
+	for x: int in range(_world_size.x):
+		for y: int in range(_world_size.y):
+			var raw: float = _noise.get_noise_2d(x, y)
+			hmap["%d,%d" % [x, y]] = clampi(roundi(abs(raw) * 5), 0, MAX_H)
+
+	# 십자형 길 (고도 1로 고정)
+	var cy: int = _world_size.y / 2 - 2
+	for x: int in range(10, 50):
+		for yy: int in range(cy, cy + 3):
+			hmap["%d,%d" % [x, yy]] = 1
+	var cx: int = _world_size.x / 2 - 1
+	for y: int in range(20, 90):
+		for xx: int in range(cx, cx + 2):
+			hmap["%d,%d" % [xx, y]] = 1
+
+	# 렌더링
+	for layer in _layers:
+		layer.clear()
+
+	for x: int in range(_world_size.x):
+		for y: int in range(_world_size.y):
+			var h: int = hmap.get("%d,%d" % [x, y], 0)
+			if h <= 0:
+				continue
+			var pos: Vector2i = Vector2i(x, y)
+
+			# 윗면 (h 레이어에)
+			_layers[h].set_cell(pos, _sid, _get_top(x, y, hmap))
+
+			# 옆면: 아래(y+1)의 높이가 더 낮으면 절벽 표시
+			for lev: int in range(1, h + 1):
+				var bh: int = hmap.get("%d,%d" % [x, y + 1], 0)
+				if bh < lev:
+					_layers[lev].set_cell(pos, _sid, T_DIRT_SIDE)
+
+	# GridWorld elevation 동기화
+	if _grid_world and _grid_world.has_method("set_elevation"):
+		for x: int in range(_world_size.x):
+			for y: int in range(_world_size.y):
+				var h: int = hmap.get("%d,%d" % [x, y], 0)
+				_grid_world.set_elevation(Vector2i(x, y), clampi(h, 0, 2))
+
+
+func _get_top(x: int, y: int, hm: Dictionary) -> Vector2i:
+	var h: int = hm.get("%d,%d" % [x, y], 0)
+	if h >= 4:
+		return T_MOUNTAIN
+	if _is_path(x, y):
+		return T_PATH
+	return T_GRASS
+
+
+func _is_path(x: int, y: int) -> bool:
+	var cy: int = _world_size.y / 2 - 2
+	var cx: int = _world_size.x / 2 - 1
+	if x >= 10 and x < 50 and y >= cy and y < cy + 3:
+		return true
+	if y >= 20 and y < 90 and x >= cx and x < cx + 2:
+		return true
+	return false
+
+
+# ─── 도우미 ───
+
+func _draw_diamond(img: Image, col: int, color: Color) -> void:
+	var cx: int = col * TILE_W + TILE_W / 2
+	var cy: int = TILE_H / 2
+	for py: int in range(TILE_H):
+		for px: int in range(TILE_W):
 			var nx: float = (px - TILE_W / 2.0) / (TILE_W / 2.0)
 			var ny: float = (py - TILE_H / 2.0) / (TILE_H / 2.0)
 			if abs(nx) + abs(ny) <= 1.0:
-				img.set_pixel(px, py, color)
+				img.set_pixel(cx - TILE_W / 2 + px, cy - TILE_H / 2 + py, color)
 
 
-## 타일 아틀라스에 옆면(절반 높이 아래쪽 절반) 그리기
-func _draw_side(img: Image, cx: int, cy: int, color: Color) -> void:
-	for py in range(TILE_H / 2, TILE_H):
-		for px in range(TILE_W):
+func _draw_side(img: Image, col: int, color: Color) -> void:
+	var cx: int = col * TILE_W + TILE_W / 2
+	var cy: int = TILE_H + TILE_H / 2
+	for py: int in range(TILE_H / 2, TILE_H):
+		for px: int in range(TILE_W):
 			var nx: float = (px - TILE_W / 2.0) / (TILE_W / 2.0)
 			var ny: float = (py - TILE_H / 2.0) / (TILE_H / 2.0)
 			if abs(nx) + abs(ny) <= 1.0:
-				img.set_pixel(px, py, color)
-
-
-## 지형 타입에 따른 색상 반환 (고도 기반)
-func _get_color(type: int) -> Color:
-	match type:
-		TerrainType.WATER:   return TERRAIN_COLORS[TerrainType.WATER]
-		TerrainType.LOWLAND: return TERRAIN_COLORS[TerrainType.LOWLAND]
-		TerrainType.PLAIN:   return TERRAIN_COLORS[TerrainType.PLAIN]
-		TerrainType.HILL:    return TERRAIN_COLORS[TerrainType.HILL]
-	return Color.WHITE
-
-
-## 고도값(0~2) → TerrainType 변환
-func _height_to_type(h: int) -> int:
-	match h:
-		0: return TerrainType.WATER
-		1: return TerrainType.LOWLAND
-		2: return TerrainType.PLAIN
-		_: return TerrainType.HILL
-
-
-## 윗면 타일 ID
-func _top_tile_id(type: int) -> Vector2i:
-	return Vector2i(type, 0)
-
-
-## 옆면 타일 ID  
-func _side_tile_id(type: int) -> Vector2i:
-	return Vector2i(type, 1)
-
-
-## ─── 지형 생성 ───
-
-func generate_terrain() -> void:
-	if not tile_set or not _grid_world:
-		return
-
-	clear()
-
-	var gw := _grid_world
-	var w: int = gw.grid_width if "grid_width" in gw else 0
-	var h: int = gw.grid_height if "grid_height" in gw else 0
-
-	for y in range(h):
-		for x in range(w):
-			var pos := Vector2i(x, y)
-			var elevation: int = gw.get_elevation(pos)
-			var type: int = _height_to_type(elevation)
-
-			# 윗면
-			if elevation > 0:
-				set_cell(pos, _source_id, _top_tile_id(type))
-
-			# 옆면: 아래 타일(y+1)보다 높이가 높으면 절벽면
-			var below_pos := Vector2i(x, y + 1)
-			if gw.get_elevation(below_pos) < elevation:
-				set_cell(below_pos, _source_id, _side_tile_id(type))
+				img.set_pixel(cx - TILE_W / 2 + px, cy - TILE_H / 2 + py, color)
