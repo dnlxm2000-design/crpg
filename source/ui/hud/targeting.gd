@@ -159,6 +159,13 @@ func select_target(index: int) -> void:
 	target_changed.emit(current_target)
 
 
+## 노드로 타겟 선택 (마우스 클릭 등).
+func select_target_by_node(node: Node) -> void:
+	var idx = _targets.find(node)
+	if idx >= 0:
+		select_target(idx)
+
+
 ## 첫 번째 타겟 선택.
 func select_first_target() -> void:
 	if _targets.is_empty():

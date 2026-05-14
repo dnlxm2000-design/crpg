@@ -351,6 +351,23 @@ func _do_key_move(dir: Vector2i, is_turn: bool) -> void:
 
 
 func _handle_turn_input(event: InputEvent) -> void:
+	# ── 마우스 클릭 처리 (전투 중 이동/공격) ──
+	if event is InputEventMouseButton and event.pressed:
+		get_viewport().set_input_as_handled()
+		match event.button_index:
+			MOUSE_BUTTON_LEFT:
+				_handle_turn_click()
+				return
+			MOUSE_BUTTON_RIGHT:
+				_cancel_preview()
+				# 타겟 해제
+				var hud = get_node_or_null("/root/Main/HUD")
+				if hud:
+					var tgt = hud.get_node_or_null("Targeting")
+					if tgt and tgt.has_method("clear_target"):
+						tgt.clear_target()
+				return
+
 	# E → attack adjacent enemy, or loot corpse if none nearby
 	if event.is_action_pressed("attack_action"):
 		_reset_turn_confirm()
@@ -406,6 +423,71 @@ func _handle_turn_input(event: InputEvent) -> void:
 			return
 
 
+## ─── Turn-based mouse click ───
+
+## 전투 중 좌클릭 처리: 적 클릭 → 타겟+공격, 빈 타일 클릭 → 경로 이동.
+func _handle_turn_click() -> void:
+	if not _movement or not _movement.get_grid_world():
+		return
+
+	var grid_world = _movement.get_grid_world()
+	var mouse_world = _unit.get_global_mouse_position()
+	var mouse_grid: Vector2i = grid_world.world_to_grid(mouse_world)
+
+	_reset_turn_confirm()
+
+	# 1. 적 클릭 → 타겟 설정 + 인접 시 공격
+	var occupant = grid_world.get_occupant(mouse_grid)
+	if occupant and occupant != _unit \
+			and occupant.get("is_player") == false \
+			and occupant.get("is_alive"):
+		_select_target_node(occupant)
+
+		var my_pos: Vector2i = grid_world.world_to_grid(_unit.global_position)
+		var dist: int = max(abs(mouse_grid.x - my_pos.x), abs(mouse_grid.y - my_pos.y))
+		if dist <= 1:
+			_try_attack_adjacent()
+		return
+
+	# 2. 빈 타일 클릭 → 경로 탐색 + 이동
+	var ap = _unit.get("current_action_points") if "current_action_points" in _unit else 0
+	if ap <= 0 or not grid_world.is_walkable(mouse_grid):
+		return
+
+	var from_grid: Vector2i = grid_world.world_to_grid(_unit.global_position)
+	var path: Array = grid_world.find_path_grid(from_grid, mouse_grid)
+	if path.is_empty():
+		return
+
+	_move_along_path(path)
+
+
+## 경로를 따라 한 칸씩 이동 (AP 소모).
+func _move_along_path(path: Array) -> void:
+	for step in path:
+		var from: Vector2i = _movement.get_grid_world().world_to_grid(_unit.global_position)
+		var dir: Vector2i = step - from
+		if dir == Vector2i.ZERO:
+			continue
+		if not _movement.move_one_tile(dir, _unit):
+			break
+		if not _auto_end_turn_if_ap_empty():
+			break
+
+
+## HUD Targeting 시스템에서 특정 노드를 타겟으로 선택.
+func _select_target_node(node: Node) -> void:
+	var hud = get_node_or_null("/root/Main/HUD")
+	if not hud:
+		return
+	var targeting = hud.get_node_or_null("Targeting")
+	if not targeting or not targeting.has_method("refresh_targets"):
+		return
+	targeting.refresh_targets()
+	if targeting.has_method("select_target_by_node"):
+		targeting.select_target_by_node(node)
+
+
 ## Update the turn indicator label in HUD (if available).
 func turn_indicator_set(text: String) -> void:
 	var hud = get_node_or_null("/root/Main/HUD")
@@ -437,12 +519,16 @@ func _end_player_turn() -> void:
 
 
 ## Ask if player wants to end turn when AP = 0 (instead of auto-ending).
-func _auto_end_turn_if_ap_empty() -> void:
+## Returns false if AP is empty (movement should stop).
+func _auto_end_turn_if_ap_empty() -> bool:
 	var ap = _unit.get("current_action_points") if "current_action_points" in _unit else 0
-	if ap <= 0 and not _turn_end_confirm:
-		_turn_end_confirm = true
-		_show_center_prompt("AP 0 — Press SPACE to end turn")
-		get_viewport().set_input_as_handled()
+	if ap <= 0:
+		if not _turn_end_confirm:
+			_turn_end_confirm = true
+			_show_center_prompt("AP 0 — Press SPACE to end turn")
+			get_viewport().set_input_as_handled()
+		return false  # AP depleted, stop moving
+	return true  # AP remains, can continue
 
 
 ## ─── Attack ───
