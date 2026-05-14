@@ -1,0 +1,23 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Godot: Run Project (F5)",
+			"type": "godot-tools",
+			"request": "launch",
+			"mode": "executable",
+			"executable": "C:\\Users\\rotjd\\Downloads\\Godot_v4.6.2-stable_win64.exe\\Godot_v4.6.2-stable_win64.exe",
+			"arguments": ["--path", "${workspaceFolder}"],
+			"console": "internalConsole"
+		},
+		{
+			"name": "Godot: Debug Current Scene",
+			"type": "godot-tools",
+			"request": "launch",
+			"mode": "executable",
+			"executable": "C:\\Users\\rotjd\\Downloads\\Godot_v4.6.2-stable_win64.exe\\Godot_v4.6.2-stable_win64.exe",
+			"arguments": ["--path", "${workspaceFolder}", "${file}"],
+			"console": "internalConsole"
+		}
+	]
+}

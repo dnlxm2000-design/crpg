@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crpg_project"
+version = "0.1.0"
+description = "CRPG_PROJECT - knowledge-graph-driven development"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.urls]
+Homepage = ""
+
+[tool.setuptools]
+packages = ["crpg_project"]
+
+[tool.graphify]
+# graphify configuration
+graphify-out = "graphify-out"
+
