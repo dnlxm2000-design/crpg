@@ -1,0 +1,479 @@
+# player_controller.gd — 플레이어 입력 처리기 (Stoneshard 스타일).
+# _input(이벤트 기반) + _process(폴링) 이중 방식으로 안정적인 입력 캡처.
+extends Node
+
+# 이동 키 → 방향 벡터 매핑 (8방향, Stoneshard 숫자패드 스타일)
+const DIRECTION_MAP: Dictionary = {
+	"move_up": Vector2i(0, -1),
+	"move_down": Vector2i(0, 1),
+	"move_left": Vector2i(-1, 0),
+	"move_right": Vector2i(1, 0),
+	"move_up_left": Vector2i(-1, -1),
+	"move_up_right": Vector2i(1, -1),
+	"move_down_left": Vector2i(-1, 1),
+	"move_down_right": Vector2i(1, 1),
+}
+
+var _movement = null   # UnitMovement 컴포넌트 (경로 탐색 + 이동)
+var _unit = null       # 부모 유닛 노드
+
+# 턴 종료 확인: 첫 Space는 대기, 두 번째 Space가 턴 종료 확정
+var _turn_end_confirm: bool = false
+
+# 두 번 클릭 프리뷰: 첫 클릭 미리보기, 두 번째 클릭 이동 실행
+var _preview_active: bool = false
+var _preview_target_world: Vector2 = Vector2.ZERO
+var _preview_target_grid: Vector2i = Vector2i(-1, -1)
+var _path_preview: Node = null
+
+
+func _ready() -> void:
+	_movement = get_node("../UnitMovement")
+	_unit = get_parent()
+	if _movement:
+		print("[PlayerController] Found UnitMovement, parent=", _unit.name)
+	else:
+		push_error("[PlayerController] UnitMovement not found at ../UnitMovement")
+	_path_preview = get_node_or_null("/root/Main/PathPreview")   # 이동 경로 시각화 노드
+
+
+func _input(event: InputEvent) -> void:
+	if not _movement or _movement.is_locked:
+		return
+
+	# I키: 인벤토리 토글 (모드 무관, 전투/탐험 모두 동작)
+	if event.is_action_pressed("toggle_inventory"):
+		_toggle_inventory()
+		get_viewport().set_input_as_handled()
+		return
+
+	# U키: 장비 패널 토글 (모드 무관)
+	if event.is_action_pressed("ui_focus_next") or (event is InputEventKey and event.keycode == KEY_U and event.pressed and not event.echo):
+		_toggle_equipment()
+		get_viewport().set_input_as_handled()
+		return
+
+	# 턴 기반 모드: 이벤트 기반 입력 처리
+	if GameState.current_mode == GameState.GameMode.TURNBASED:
+		_handle_turn_input(event)
+		return
+
+	# 실시간 모드: 마우스 클릭 처리 (이동 경로 지정 + 아이템 클릭)
+	_handle_realtime_input(event)
+
+
+func _process(_delta: float) -> void:
+	if not _movement or _movement.is_locked:
+		return
+
+	var is_turn: bool = (GameState.current_mode == GameState.GameMode.TURNBASED)
+
+	# Keyboard movement (works in both modes)
+	if Input.is_action_just_pressed("move_up"):
+		_do_key_move(Vector2i(0, -1), is_turn)
+	if Input.is_action_just_pressed("move_down"):
+		_do_key_move(Vector2i(0, 1), is_turn)
+	if Input.is_action_just_pressed("move_left"):
+		_do_key_move(Vector2i(-1, 0), is_turn)
+	if Input.is_action_just_pressed("move_right"):
+		_do_key_move(Vector2i(1, 0), is_turn)
+	if Input.is_action_just_pressed("move_up_left"):
+		_do_key_move(Vector2i(-1, -1), is_turn)
+	if Input.is_action_just_pressed("move_up_right"):
+		_do_key_move(Vector2i(1, -1), is_turn)
+	if Input.is_action_just_pressed("move_down_left"):
+		_do_key_move(Vector2i(-1, 1), is_turn)
+	if Input.is_action_just_pressed("move_down_right"):
+		_do_key_move(Vector2i(1, 1), is_turn)
+
+	if not is_turn:
+		# E키: 가장 가까운 아이템 집기 (탐험/조사 중심 RPG — 자동 줍기 없음)
+		if Input.is_action_just_pressed("attack_action"):
+			_pickup_nearest_item()
+
+		# C키: 전투 진입 (주변에 적이 있을 때만 동작)
+		if Input.is_action_just_pressed("enter_combat"):
+			_cancel_preview()
+			var gl = get_node("/root/Main/GameLoop")
+			if gl and gl.has_method("request_combat_entry"):
+				gl.request_combat_entry(_unit)
+
+
+## ─── Real-time two-click preview system ───
+
+## HUD 패널(인벤토리/장비)이 열려 있고 클릭이 그 위에 있으면 true.
+func _is_click_on_hud_panel() -> bool:
+	var hud = get_node_or_null("/root/Main/HUD")
+	if not hud:
+		return false
+	var mouse_pos: Vector2 = get_viewport().get_mouse_position()
+	for panel_name in ["InventoryPanel", "EquipmentPanel"]:
+		var panel = hud.get_node_or_null(panel_name)
+		if panel and panel.visible and panel.get_global_rect().has_point(mouse_pos):
+			return true
+	return false
+
+
+## Handle mouse input events for real-time mode (left click, right click).
+func _handle_realtime_input(event: InputEvent) -> void:
+	if not event is InputEventMouseButton or not event.pressed:
+		return
+
+	# HUD 패널 위 클릭은 게임 이동/액션으로 소비하지 않음 (닫기 버튼 등 UI 동작 보장)
+	if _is_click_on_hud_panel():
+		return
+
+	match event.button_index:
+		MOUSE_BUTTON_LEFT:
+			_click_preview_or_move()
+			get_viewport().set_input_as_handled()
+		MOUSE_BUTTON_RIGHT:
+			if _preview_active:
+				_cancel_preview()
+				get_viewport().set_input_as_handled()
+
+
+## First click previews, second click on SAME tile confirms and moves.
+## Clicking a DIFFERENT tile updates the preview.
+## If there is a MapItem at the clicked tile, picks it up instead.
+func _click_preview_or_move() -> void:
+	if _movement.is_moving:
+		return
+
+	var mouse_world: Vector2 = _unit.get_global_mouse_position()
+	var grid_world = _movement.get_grid_world()
+	if not grid_world:
+		return
+	var mouse_grid: Vector2i = grid_world.world_to_grid(mouse_world)
+
+	# Check if there is a pickable MapItem at the clicked tile
+	if _click_pickup_at(mouse_grid):
+		_cancel_preview()
+		return
+
+	if not _preview_active:
+		# First click: show preview path
+		_preview_active = true
+		_preview_target_world = grid_world.grid_to_world(mouse_grid)
+		_preview_target_grid = mouse_grid
+		if _path_preview and _path_preview.has_method("preview_to"):
+			_path_preview.preview_to(mouse_grid)
+	elif mouse_grid == _preview_target_grid:
+		# Second click on the SAME tile: confirm and move
+		_preview_active = false
+		if _path_preview and _path_preview.has_method("clear"):
+			_path_preview.clear()
+		_movement.navigate_to(_preview_target_world)
+	else:
+		# Click on a DIFFERENT tile: update preview
+		_preview_target_world = grid_world.grid_to_world(mouse_grid)
+		_preview_target_grid = mouse_grid
+		if _path_preview and _path_preview.has_method("preview_to"):
+			_path_preview.preview_to(mouse_grid)
+
+
+## Cancel active preview without moving.
+func _cancel_preview() -> void:
+	_preview_active = false
+	if _path_preview and _path_preview.has_method("clear"):
+		_path_preview.clear()
+
+
+## ─── Inventory & Equipment ───
+
+## Toggle the inventory panel visibility.
+func _toggle_inventory() -> void:
+	"""I키: HUD 아래 InventoryPanel의 toggle()을 호출하여 표시/숨김 전환."""
+	var hud = get_node_or_null("/root/Main/HUD")
+	if hud:
+		var inv_panel = hud.get_node_or_null("InventoryPanel")
+		if inv_panel and inv_panel.has_method("toggle"):
+			inv_panel.toggle()
+
+
+## U키: 장비 패널 표시/숨김 전환.
+func _toggle_equipment() -> void:
+	var hud = get_node_or_null("/root/Main/HUD")
+	if hud:
+		var eq_panel = hud.get_node_or_null("EquipmentPanel")
+		if eq_panel and eq_panel.has_method("toggle"):
+			eq_panel.toggle()
+
+
+## E키로 호출: 바닥에 있는 아이템 또는 시체 중 가장 가까운(거리 ≤1) 것을 처리.
+## 탐험 모드: 아이템 우선, 없으면 시체 수색.
+func _pickup_nearest_item() -> void:
+	var grid_world = _movement.get_grid_world() if _movement else null
+	if not grid_world:
+		return
+
+	var inv = _unit.get_node_or_null("Inventory")
+	if not inv:
+		return
+
+	var player_gp: Vector2i = grid_world.world_to_grid(_unit.global_position)
+
+	# 1. Try picking up a MapItem first
+	var map_items: Array[Node] = get_tree().get_nodes_in_group("map_items")
+	var nearest_item: Node = null
+	var nearest_item_dist: int = 999
+	for mi in map_items:
+		if not is_instance_valid(mi):
+			continue
+		var mi_gp = mi.get("grid_position") if "grid_position" in mi else Vector2i(-1, -1)
+		if mi_gp == Vector2i(-1, -1):
+			continue
+		var dist: int = max(abs(mi_gp.x - player_gp.x), abs(mi_gp.y - player_gp.y))
+		if dist <= 1 and dist < nearest_item_dist:
+			nearest_item = mi
+			nearest_item_dist = dist
+
+	if nearest_item:
+		_do_pickup_item(nearest_item)
+		return
+
+	# 2. No MapItem — try looting a nearby corpse
+	_try_loot_corpse(player_gp, grid_world, inv)
+
+
+## Try to pick up a MapItem at a specific grid position.
+## Returns true if an item was found and picked up at that position.
+## 좌클릭으로 호출: grid_pos 위치에 MapItem이 있으면 획득한다.
+## 거리 ≤1 (플레이어 타일 또는 인접 8방향)인 경우에만 가능.
+## 반환값: 아이템을 집었으면 true, 아니면 false.
+func _click_pickup_at(grid_pos: Vector2i) -> bool:
+	var grid_world = _movement.get_grid_world() if _movement else null
+	if not grid_world:
+		return false
+
+	var inv = _unit.get_node_or_null("Inventory")
+	if not inv:
+		return false
+
+	var player_gp: Vector2i = grid_world.world_to_grid(_unit.global_position)
+	var pickup_dist: int = max(abs(grid_pos.x - player_gp.x), abs(grid_pos.y - player_gp.y))
+	if pickup_dist > 1:
+		return false                                       # 거리 초과 → 무시
+
+	# 해당 타일에 있는 MapItem 찾기
+	var map_items_grp: Array[Node] = get_tree().get_nodes_in_group("map_items")
+	for mi in map_items_grp:
+		if not is_instance_valid(mi):
+			continue
+		var mi_gp = mi.get("grid_position") if "grid_position" in mi else Vector2i(-1, -1)
+		var mi_item_name = ""
+		var mi_item = mi.get("item")
+		if mi_item and typeof(mi_item) == TYPE_OBJECT and "item_name" in mi_item:
+			mi_item_name = mi_item.item_name
+		print("[Pickup] Found map item '%s' at grid %s (item at grid_pos=%s)" % [mi_item_name, str(mi_gp), str(grid_pos)])
+		if mi_gp == grid_pos:
+			_do_pickup_item(mi)
+			return true
+
+	print("[Pickup] No MapItem at grid %s (dist=%d, player=%s, map_items_in_group=%d)" % [str(grid_pos), pickup_dist, str(player_gp), map_items_grp.size()])
+	return false
+
+
+## 아이템을 인벤토리에 추가하고, 픽업 애니메이션 재생, 로그에 기록한다.
+## E키와 좌클릭 모두 이 함수를 통해 처리된다.
+func _do_pickup_item(map_node: Node) -> void:
+	if not is_instance_valid(map_node):
+		return
+
+	var item = map_node.get("item")
+	if not item or typeof(item) != TYPE_OBJECT or not ("id" in item) or not ("item_name" in item):
+		return
+
+	# Gold → directly add to wallet
+	if "item_type" in item and item.item_type == 4:  # GOLD
+		var amount = item.value  # value = gold amount
+		if "gold" in _unit:
+			_unit.gold += amount
+			EventBus.gold_changed.emit(_unit, amount)
+			print("[PlayerController] Collected %d gold (total: %d)" % [amount, _unit.gold])
+			if map_node.has_method("animate_pickup"):
+				map_node.animate_pickup()
+			else:
+				map_node.queue_free()
+			var event_log = get_node_or_null("/root/Main/HUD/EventLog")
+			if event_log and event_log.has_method("add_entry"):
+				event_log.add_entry("+%d gold" % amount, Color(1.0, 0.8, 0.0))
+			return
+
+	# Normal item → add to inventory
+	var inv = _unit.get_node_or_null("Inventory")
+	if not inv:
+		return
+
+	if inv.has_method("add_item") and inv.add_item(item):
+		print("[PlayerController] Picked up: %s" % item.item_name)
+		if map_node.has_method("animate_pickup"):
+			map_node.animate_pickup()
+		else:
+			map_node.queue_free()
+		# Log the pickup
+		var event_log = get_node_or_null("/root/Main/HUD/EventLog")
+		if event_log and event_log.has_method("add_entry"):
+			event_log.add_entry("Picked up %s" % item.item_name, Color(0.4, 1.0, 0.4))
+
+
+## E키/좌클릭에서 호출: 인접한(거리 ≤1) 시체를 찾아 수색한다.
+## 시체가 있으면 gold/items를 플레이어 인벤토리로 이동시키고 시체 제거.
+## 반환값: 시체를 수색했으면 true, 없으면 false.
+func _try_loot_corpse(player_gp: Vector2i, grid_world, inv: Node) -> bool:
+	var corpses: Array[Node] = get_tree().get_nodes_in_group("corpses")
+	if corpses.is_empty():
+		return false
+
+	for c in corpses:
+		if not is_instance_valid(c):
+			continue
+		if not c.has_method("loot"):
+			continue
+		var c_gp = c.get("grid_position") if "grid_position" in c else Vector2i(-1, -1)
+		if c_gp == Vector2i(-1, -1):
+			continue
+		var dist: int = max(abs(c_gp.x - player_gp.x), abs(c_gp.y - player_gp.y))
+		if dist <= 1:
+			c.loot(_unit, inv)
+			return true
+
+	return false
+
+
+## ─── Turn-based input ───
+
+## Clear end-turn confirmation and hide any center prompt.
+func _reset_turn_confirm() -> void:
+	_turn_end_confirm = false
+	_hide_center_prompt()
+
+
+func _do_key_move(dir: Vector2i, is_turn: bool) -> void:
+	if is_turn:
+		_reset_turn_confirm()
+		if _movement.move_one_tile(dir, _unit):
+			_auto_end_turn_if_ap_empty()
+	else:
+		_movement.move_one_tile(dir)
+		_cancel_preview()
+
+
+func _handle_turn_input(event: InputEvent) -> void:
+	# E → attack adjacent enemy, or loot corpse if none nearby
+	if event.is_action_pressed("attack_action"):
+		_reset_turn_confirm()
+		if _try_attack_adjacent():
+			_auto_end_turn_if_ap_empty()
+			return
+		# No adjacent enemy — try looting a corpse instead
+		var g = _movement.get_grid_world() if _movement else null
+		if g:
+			var pg: Vector2i = g.world_to_grid(_unit.global_position)
+			var inv = _unit.get_node_or_null("Inventory")
+			if inv and _try_loot_corpse(pg, g, inv):
+				_auto_end_turn_if_ap_empty()
+		return
+
+	# Space → confirm-once if AP remains, else instant
+	if event.is_action_pressed("ui_accept") or event.is_action_pressed("skip_turn"):
+		var ap = _unit.get("current_action_points") if "current_action_points" in _unit else 0
+		if ap > 0:
+			if not _turn_end_confirm:
+				# First Space: show warning, set confirm flag
+				_turn_end_confirm = true
+				turn_indicator_set("Press Space again to end turn")
+				get_viewport().set_input_as_handled()
+				return
+			# Second Space: confirm end turn
+		_turn_end_confirm = false
+		turn_indicator_set("")
+		_end_player_turn()
+		return
+
+	# Directional movement
+	for action_name in DIRECTION_MAP:
+		if event.is_action_pressed(action_name):
+			_reset_turn_confirm()
+			var dir: Vector2i = DIRECTION_MAP[action_name]
+			if _movement.move_one_tile(dir, _unit):
+				get_viewport().set_input_as_handled()
+				_auto_end_turn_if_ap_empty()
+			return
+
+
+## Update the turn indicator label in HUD (if available).
+func turn_indicator_set(text: String) -> void:
+	var hud = get_node_or_null("/root/Main/HUD")
+	if hud and hud.has_method("set_turn_indicator"):
+		hud.set_turn_indicator(text)
+
+
+## Show center-screen prompt (AP 0 message, etc.).
+func _show_center_prompt(text: String) -> void:
+	var hud = get_node_or_null("/root/Main/HUD")
+	if hud and hud.has_method("show_center_prompt"):
+		hud.show_center_prompt(text)
+
+
+## Hide center-screen prompt.
+func _hide_center_prompt() -> void:
+	var hud = get_node_or_null("/root/Main/HUD")
+	if hud and hud.has_method("hide_center_prompt"):
+		hud.hide_center_prompt()
+
+
+## ─── Turn management ───
+
+## End the player's turn explicitly.
+func _end_player_turn() -> void:
+	get_viewport().set_input_as_handled()
+	_hide_center_prompt()
+	EventBus.player_ended_turn.emit(_unit)
+
+
+## Ask if player wants to end turn when AP = 0 (instead of auto-ending).
+func _auto_end_turn_if_ap_empty() -> void:
+	var ap = _unit.get("current_action_points") if "current_action_points" in _unit else 0
+	if ap <= 0 and not _turn_end_confirm:
+		_turn_end_confirm = true
+		_show_center_prompt("AP 0 — Press SPACE to end turn")
+		get_viewport().set_input_as_handled()
+
+
+## ─── Attack ───
+
+## Try to attack an adjacent enemy. Returns true if attack happened.
+func _try_attack_adjacent() -> bool:
+	if not _movement:
+		return false
+
+	var grid_world = _movement.get_grid_world()
+	if not grid_world:
+		return false
+
+	# Check AP
+	var ap = _unit.get("current_action_points") if "current_action_points" in _unit else 0
+	if ap < 1:
+		return false
+
+	var my_pos: Vector2i = grid_world.world_to_grid(_unit.global_position)
+	var neighbors: Array[Vector2i] = [
+		my_pos + Vector2i(0, -1), my_pos + Vector2i(1, 0),
+		my_pos + Vector2i(0, 1), my_pos + Vector2i(-1, 0),
+		my_pos + Vector2i(-1, -1), my_pos + Vector2i(1, -1),
+		my_pos + Vector2i(-1, 1), my_pos + Vector2i(1, 1),
+	]
+
+	for n in neighbors:
+		var occupant = grid_world.get_occupant(n)
+		if occupant and occupant != _unit \
+				and occupant.get("is_player") == false \
+				and occupant.get("is_alive"):
+			var atk = _unit.get_attack()
+			occupant.take_damage(atk, _unit)
+			_unit.current_action_points -= 1
+			EventBus.ap_changed.emit(_unit)
+			return true
+
+	return false
