@@ -14,6 +14,8 @@ var _combat_announce: Label = null
 var _announce_tween: Tween = null
 var _gold_label: Label = null  # Gold display in top-left
 var _center_prompt: Label = null  # Center-screen prompt (AP 0, etc.)
+var _action_bar: Panel = null     # Combat action bar (Attack/Item/Wait)
+var _targeting: Node = null       # Targeting system
 
 
 func _ready() -> void:
@@ -91,9 +93,27 @@ func _ready() -> void:
 	_gold_label.size = Vector2(150, 20)
 	add_child(_gold_label)
 
+	# ── Targeting system (target highlight, cycling) ──
+	_targeting = load("res://source/ui/hud/targeting.gd").new()
+	_targeting.name = "Targeting"
+	add_child(_targeting)
+
+	# ── Action bar (bottom center combat buttons) ──
+	_action_bar = load("res://source/ui/hud/action_bar.gd").new()
+	_action_bar.name = "ActionBar"
+	_action_bar.attack_pressed.connect(_on_action_attack)
+	_action_bar.item_pressed.connect(_on_action_item)
+	_action_bar.wait_pressed.connect(_on_action_wait)
+	add_child(_action_bar)
+
 	# Find player after scene tree is ready
 	await get_tree().process_frame
 	_find_player()
+
+
+## Return the tracked player unit (used by action_bar).
+func get_player() -> Node:
+	return _player
 
 
 ## Locate the player unit via RealTimeManager.
@@ -352,6 +372,32 @@ func _on_unit_destroyed(unit: Node) -> void:
 
 func _on_gold_changed(_unit: Node, _amount: int) -> void:
 	_update_gold_label()
+
+
+## ─── Action Bar Handlers ───
+
+## Attack button: perform melee attack on current target or nearest enemy.
+func _on_action_attack() -> void:
+	var player = _player
+	if not player:
+		return
+	var controller = player.get_node_or_null("PlayerController")
+	if controller and controller.has_method("_try_attack_adjacent"):
+		controller._try_attack_adjacent()
+	_update_ap_label()
+
+
+## Item button: toggle inventory panel.
+func _on_action_item() -> void:
+	var inv_panel = get_node_or_null("InventoryPanel")
+	if inv_panel and inv_panel.has_method("toggle"):
+		inv_panel.toggle()
+
+
+## Wait/End Turn button: end the current turn.
+func _on_action_wait() -> void:
+	if _player and is_instance_valid(_player):
+		EventBus.player_ended_turn.emit(_player)
 
 
 func _update_gold_label() -> void:

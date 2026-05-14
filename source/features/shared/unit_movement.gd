@@ -5,6 +5,8 @@
 # Turn-based mode: move one tile per action, costs AP, snaps to grid.
 extends Node
 
+const ZocController = preload("res://source/features/turnbased/zoc_controller.gd")
+
 ## Reference to GridWorld (injected via parent Unit or set manually).
 @export var grid_world_path: NodePath = NodePath("/root/Main/GameLoop/GridWorld")
 
@@ -96,10 +98,20 @@ func move_one_tile(direction: Vector2i, unit_node = null) -> bool:
 	if unit_node:
 		if not _can_spend_ap(unit_node):
 			return false
+		
+		# ZOC: 적 영역 진입 시 추가 AP 비용
+		var combatants = _get_combatants()
+		var zoc_extra: int = ZocController.get_extra_ap_cost(unit_node, target_grid, combatants, _grid_world)
+		var ap_available: int = unit_node.get("current_action_points") if "current_action_points" in unit_node else 0
+		if ap_available < ap_cost_per_tile + zoc_extra:
+			return false
+		
 		_spend_ap(unit_node)
+		_zoc_spend_extra_ap(unit_node, zoc_extra)
 
 	# Snap to grid
 	var target_world: Vector2 = _grid_world.grid_to_world(target_grid)
+	var from_grid: Vector2i = current_grid  # Save for AoO check
 
 	# Update occupancy
 	_grid_world.set_occupied(current_grid, null)
@@ -110,6 +122,11 @@ func move_one_tile(direction: Vector2i, unit_node = null) -> bool:
 
 	# Notify
 	EventBus.unit_moved.emit(_unit, _grid_world.grid_to_world(current_grid), target_world)
+
+	# ZOC: Attack of Opportunity (적 ZOC 이탈 시)
+	if unit_node:
+		_trigger_attack_of_opportunity(unit_node, from_grid, target_grid)
+
 	return true
 
 
@@ -171,3 +188,40 @@ func _spend_ap(unit_node: Node) -> void:
 	if "current_action_points" in unit_node:
 		unit_node.current_action_points -= ap_cost_per_tile
 		EventBus.ap_changed.emit(unit_node)
+
+
+## TurnManager에서 현재 전투원 목록을 가져온다.
+func _get_combatants() -> Array:
+	# Production path
+	var tm = get_node_or_null("/root/Main/GameLoop/TurnManager")
+	# Test fallback: search scene tree
+	if not tm:
+		var scene_root = get_tree().current_scene
+		if scene_root:
+			tm = scene_root.find_child("TurnManager", true, false)
+	return tm.combatants if tm else []
+
+
+## ZOC 추가 AP 소모 처리.
+func _zoc_spend_extra_ap(unit_node: Node, amount: int) -> void:
+	if amount <= 0:
+		return
+	if "current_action_points" in unit_node:
+		unit_node.current_action_points -= amount
+		EventBus.ap_changed.emit(unit_node)
+
+
+## ZOC Attack of Opportunity 확인 및 실행.
+## 적 ZOC 타일에서 일반 타일로 이동했을 때, 그 ZOC를 통제하는 적들의 AoO 발동.
+func _trigger_attack_of_opportunity(unit_node: Node, from_tile: Vector2i, to_tile: Vector2i) -> void:
+	var combatants = _get_combatants()
+	if combatants.is_empty():
+		return
+
+	var attackers = ZocController.get_attack_of_opportunity_attackers(
+		unit_node, from_tile, to_tile, combatants, _grid_world
+	)
+	for attacker in attackers:
+		var a_alive: bool = attacker.get("is_alive") if "is_alive" in attacker else true
+		if is_instance_valid(attacker) and a_alive:
+			ZocController.execute_attack_of_opportunity(attacker, unit_node)

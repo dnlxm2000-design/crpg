@@ -13,6 +13,9 @@ extends CharacterBody2D
 @export var evasion: int = 10       # Base dodge chance (%) — reduces attacker's hit
 @export var is_player: bool = false  # Stoneshard: player vs NPC distinction
 @export var attack_range: int = 1    # 1=melee, 2+=ranged
+@export var zoc_range: int = 1       # 0=none, 1=adjacent 8 tiles, 2+=larger zone
+@export var crit_chance: float = 0.05   # 치명타 확률 (0.0~1.0)
+@export var crit_multiplier: float = 2.0  # 치명타 데미지 배율
 
 ## Runtime state
 var current_hp: int = 100

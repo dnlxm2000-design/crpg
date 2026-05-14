@@ -2,6 +2,8 @@
 # _input(이벤트 기반) + _process(폴링) 이중 방식으로 안정적인 입력 캡처.
 extends Node
 
+const CombatResolver = preload("res://source/features/turnbased/combat_resolver.gd")
+
 # 이동 키 → 방향 벡터 매핑 (8방향, Stoneshard 숫자패드 스타일)
 const DIRECTION_MAP: Dictionary = {
 	"move_up": Vector2i(0, -1),
@@ -391,6 +393,19 @@ func _handle_turn_input(event: InputEvent) -> void:
 		_end_player_turn()
 		return
 
+	# Tab → cycle through targets
+	if event is InputEventKey and event.keycode == KEY_TAB and event.pressed and not event.echo:
+		var hud = get_node_or_null("/root/Main/HUD")
+		if hud:
+			var targeting = hud.get_node_or_null("Targeting")
+			if targeting and targeting.has_method("cycle_next"):
+				if event.shift_pressed:
+					targeting.cycle_prev()
+				else:
+					targeting.cycle_next()
+		get_viewport().set_input_as_handled()
+		return
+
 	# Directional movement
 	for action_name in DIRECTION_MAP:
 		if event.is_action_pressed(action_name):
@@ -472,9 +487,12 @@ func _try_attack_adjacent() -> bool:
 				and occupant.get("is_alive"):
 			_unit.current_action_points -= 1
 			EventBus.ap_changed.emit(_unit)
-			if Unit.check_hit(_unit, occupant):
-				var atk = _unit.get_attack()
-				occupant.take_damage(atk, _unit)
+			var result = CombatResolver.resolve_attack(_unit, occupant, 1)
+			if result[CombatResolver.KEY_HIT]:
+				if result[CombatResolver.KEY_CRIT]:
+					print("[Combat] CRIT! %s -> %s (%d dmg)" % [_unit.unit_name, occupant.unit_name, result[CombatResolver.KEY_DAMAGE]])
+				elif result[CombatResolver.KEY_GRAZE]:
+					print("[Combat] Graze %s -> %s (%d dmg)" % [_unit.unit_name, occupant.unit_name, result[CombatResolver.KEY_DAMAGE]])
 			else:
 				EventBus.unit_evaded.emit(occupant, _unit)
 			return true

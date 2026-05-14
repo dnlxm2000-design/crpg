@@ -42,5 +42,8 @@ signal unit_skipped_turn(unit: Node)
 signal player_ended_turn(unit: Node)
 signal path_computed(unit: Node, path: Array)
 
+## ZOC signals
+signal attack_of_opportunity(attacker: Node, target: Node, damage: int, hit: bool)
+
 ## Economy signals
 signal gold_changed(unit: Node, amount: int)

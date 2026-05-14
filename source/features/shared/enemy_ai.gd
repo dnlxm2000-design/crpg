@@ -2,6 +2,9 @@
 # Attach as child of any enemy Unit. Auto-acts when turn_started fires for its parent.
 extends Node
 
+const CombatResolver = preload("res://source/features/turnbased/combat_resolver.gd")
+const ZocController = preload("res://source/features/turnbased/zoc_controller.gd")
+
 ## Maximum tiles the enemy will pathfind to reach target.
 @export var aggro_range: int = 20
 ## Tiles the enemy can move per turn (separate from AP).
@@ -206,9 +209,29 @@ func _pick_flank_position(my_pos: Vector2i, target_pos: Vector2i) -> Vector2i:
 		target_pos + Vector2i(0, -1),
 	]
 
+	# ZOC-aware flank: prefer tiles NOT in player's ZOC
+	var combatants = _get_combatants()
+	var non_zoc_best: Vector2i = target_pos
+	var non_zoc_dist: int = 999999
+
+	for n in neighbors:
+		if not _grid_world.is_walkable(n, true):
+			continue
+		var occupant = _grid_world.get_occupant(n)
+		if occupant and occupant != _parent:
+			continue
+		if not ZocController.is_in_enemy_zoc(n, _parent, combatants, _grid_world):
+			var d: int = max(abs(n.x - my_pos.x), abs(n.y - my_pos.y))
+			if d < non_zoc_dist:
+				non_zoc_dist = d
+				non_zoc_best = n
+
+	if non_zoc_best != target_pos:
+		return non_zoc_best
+
+	# Fallback: allow ZOC tiles
 	var best: Vector2i = target_pos
 	var best_dist: int = 999999
-
 	for n in neighbors:
 		if not _grid_world.is_walkable(n, true):
 			continue
@@ -233,11 +256,14 @@ func _find_alive_players_recursive(node: Node) -> Array:
 
 
 func _attack_target(target: Node) -> void:
-	if not Unit.check_hit(_parent, target):
+	var result = CombatResolver.resolve_attack(_parent, target, 1)
+	if not result[CombatResolver.KEY_HIT]:
 		EventBus.unit_evaded.emit(target, _parent)
 		return
-	var atk: int = _parent.get_attack()
-	target.take_damage(atk, _parent)
+	if result[CombatResolver.KEY_CRIT]:
+		var e_name = _parent.get("unit_name") if "unit_name" in _parent else "Enemy"
+		var t_name = target.get("unit_name") if "unit_name" in target else "Target"
+		print("[Combat] Enemy CRIT! %s -> %s (%d dmg)" % [e_name, t_name, result[CombatResolver.KEY_DAMAGE]])
 
 
 func _ranged_attack(target: Node) -> void:
@@ -246,12 +272,19 @@ func _ranged_attack(target: Node) -> void:
 	if not _parent or not is_instance_valid(_parent):
 		return
 
-	if not Unit.check_hit(_parent, target):
+	# 거리 계산
+	var my_pos: Vector2i = _grid_world.world_to_grid(_parent.global_position) if _grid_world else Vector2i(0, 0)
+	var tgt_pos: Vector2i = _grid_world.world_to_grid(target.global_position) if _grid_world else Vector2i(0, 0)
+	var dist: int = max(abs(tgt_pos.x - my_pos.x), abs(tgt_pos.y - my_pos.y))
+
+	var result = CombatResolver.resolve_attack(_parent, target, max(dist, 1))
+	if not result[CombatResolver.KEY_HIT]:
 		EventBus.unit_evaded.emit(target, _parent)
 		return
-
-	var atk: int = _parent.get_attack()
-	target.take_damage(atk, _parent)
+	if result[CombatResolver.KEY_CRIT]:
+		var e_name = _parent.get("unit_name") if "unit_name" in _parent else "Enemy"
+		var t_name = target.get("unit_name") if "unit_name" in target else "Target"
+		print("[Combat] Enemy CRIT! %s -> %s (%d dmg at range %d)" % [e_name, t_name, result[CombatResolver.KEY_DAMAGE], dist])
 
 	var parent_pos: Vector2 = _parent.global_position
 	var target_pos: Vector2 = target.global_position
@@ -266,7 +299,13 @@ func _ranged_attack(target: Node) -> void:
 	print("[EnemyAI] %s ranged attacks %s for %d damage (range=%d)" % [
 		_parent.get("unit_name") if "unit_name" in _parent else "Enemy",
 		target.get("unit_name") if "unit_name" in target else "Target",
-		atk, _parent_range])
+		result[CombatResolver.KEY_DAMAGE], _parent_range])
+
+
+## TurnManager에서 전투원 목록을 가져온다.
+func _get_combatants() -> Array:
+	var tm = _parent.get_node_or_null("/root/Main/GameLoop/TurnManager")
+	return tm.combatants if tm else []
 
 
 func _end_turn() -> void:
