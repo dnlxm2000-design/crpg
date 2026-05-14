@@ -474,6 +474,22 @@ func _try_attack_adjacent() -> bool:
 
 	var my_pos: Vector2i = grid_world.world_to_grid(_unit.global_position)
 
+	# 공격 헬퍼: elevation + back attack 포함 resolve 후 attack 수행
+	var _do_attack = func(occupant: Node, occ_pos: Vector2i) -> void:
+		_unit.current_action_points -= 1
+		EventBus.ap_changed.emit(_unit)
+		var elv_diff: int = grid_world.get_elevation(my_pos) - grid_world.get_elevation(occ_pos) if grid_world.has_method("get_elevation") else 0
+		var back: bool = CombatResolver.is_back_attack(my_pos, occupant)
+		var result = CombatResolver.resolve_attack(_unit, occupant, 1, elv_diff, back)
+		var hit = result[CombatResolver.KEY_HIT]
+		if hit:
+			if result[CombatResolver.KEY_CRIT]:
+				print("[Combat] CRIT! %s -> %s (%d dmg)" % [_unit.unit_name, occupant.unit_name, result[CombatResolver.KEY_DAMAGE]])
+			elif result[CombatResolver.KEY_GRAZE]:
+				print("[Combat] Graze %s -> %s (%d dmg)" % [_unit.unit_name, occupant.unit_name, result[CombatResolver.KEY_DAMAGE]])
+		else:
+			EventBus.unit_evaded.emit(occupant, _unit)
+
 	# 1. 바라보는 방향 우선 공격
 	var facing_dir: Vector2 = _unit.get("facing_direction") if "facing_direction" in _unit else Vector2.DOWN
 	var facing_tile: Vector2i = my_pos + Vector2i(roundi(facing_dir.x), roundi(facing_dir.y))
@@ -481,16 +497,7 @@ func _try_attack_adjacent() -> bool:
 	if facing_occ and facing_occ != _unit \
 			and facing_occ.get("is_player") == false \
 			and facing_occ.get("is_alive"):
-		_unit.current_action_points -= 1
-		EventBus.ap_changed.emit(_unit)
-		var result = CombatResolver.resolve_attack(_unit, facing_occ, 1)
-		if result[CombatResolver.KEY_HIT]:
-			if result[CombatResolver.KEY_CRIT]:
-				print("[Combat] CRIT! %s -> %s (%d dmg)" % [_unit.unit_name, facing_occ.unit_name, result[CombatResolver.KEY_DAMAGE]])
-			elif result[CombatResolver.KEY_GRAZE]:
-				print("[Combat] Graze %s -> %s (%d dmg)" % [_unit.unit_name, facing_occ.unit_name, result[CombatResolver.KEY_DAMAGE]])
-		else:
-			EventBus.unit_evaded.emit(facing_occ, _unit)
+		_do_attack.call(facing_occ, facing_tile)
 		return true
 
 	# 2. 없으면 모든 인접 적 중 첫 번째 공격
@@ -506,16 +513,7 @@ func _try_attack_adjacent() -> bool:
 		if occupant and occupant != _unit \
 				and occupant.get("is_player") == false \
 				and occupant.get("is_alive"):
-			_unit.current_action_points -= 1
-			EventBus.ap_changed.emit(_unit)
-			var result = CombatResolver.resolve_attack(_unit, occupant, 1)
-			if result[CombatResolver.KEY_HIT]:
-				if result[CombatResolver.KEY_CRIT]:
-					print("[Combat] CRIT! %s -> %s (%d dmg)" % [_unit.unit_name, occupant.unit_name, result[CombatResolver.KEY_DAMAGE]])
-				elif result[CombatResolver.KEY_GRAZE]:
-					print("[Combat] Graze %s -> %s (%d dmg)" % [_unit.unit_name, occupant.unit_name, result[CombatResolver.KEY_DAMAGE]])
-			else:
-				EventBus.unit_evaded.emit(occupant, _unit)
+			_do_attack.call(occupant, n)
 			return true
 
 	return false

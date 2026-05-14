@@ -256,7 +256,12 @@ func _find_alive_players_recursive(node: Node) -> Array:
 
 
 func _attack_target(target: Node) -> void:
-	var result = CombatResolver.resolve_attack(_parent, target, 1)
+	var atk_pos: Vector2i = _grid_world.world_to_grid(_parent.global_position) if _grid_world else Vector2i(0, 0)
+	var tgt_pos: Vector2i = _grid_world.world_to_grid(target.global_position) if _grid_world else Vector2i(0, 0)
+	var elv: int = _grid_world.get_elevation(atk_pos) - _grid_world.get_elevation(tgt_pos) if _grid_world and _grid_world.has_method("get_elevation") else 0
+	var back: bool = CombatResolver.is_back_attack(atk_pos, target)
+
+	var result = CombatResolver.resolve_attack(_parent, target, 1, elv, back)
 	if not result[CombatResolver.KEY_HIT]:
 		EventBus.unit_evaded.emit(target, _parent)
 		return
@@ -277,7 +282,10 @@ func _ranged_attack(target: Node) -> void:
 	var tgt_pos: Vector2i = _grid_world.world_to_grid(target.global_position) if _grid_world else Vector2i(0, 0)
 	var dist: int = max(abs(tgt_pos.x - my_pos.x), abs(tgt_pos.y - my_pos.y))
 
-	var result = CombatResolver.resolve_attack(_parent, target, max(dist, 1))
+	var elv: int = _grid_world.get_elevation(my_pos) - _grid_world.get_elevation(tgt_pos) if _grid_world and _grid_world.has_method("get_elevation") else 0
+	var back: bool = CombatResolver.is_back_attack(my_pos, target)
+
+	var result = CombatResolver.resolve_attack(_parent, target, max(dist, 1), elv, back)
 	if not result[CombatResolver.KEY_HIT]:
 		EventBus.unit_evaded.emit(target, _parent)
 		return

@@ -17,6 +17,12 @@ extends CharacterBody2D
 @export var crit_chance: float = 0.05   # 치명타 확률 (0.0~1.0)
 @export var crit_multiplier: float = 2.0  # 치명타 데미지 배율
 
+## RPG 기본 스탯
+@export var strength: int = 5       # 근접 데미지 보너스
+@export var agility: int = 5        # 선제권(initiative), 회피
+@export var intelligence: int = 5   # 마법 데미지, 저항
+@export var constitution: int = 5   # HP 보너스
+
 ## Runtime state
 var current_hp: int = 100
 var current_action_points: int = 3
@@ -120,6 +126,12 @@ func get_accuracy() -> int:
 		if slot_item and "accuracy_bonus" in slot_item:
 			bonus += slot_item.accuracy_bonus
 	return accuracy + bonus
+
+
+## 선제권 계산 (턴 순서 결정).
+## agility * 2 + speed. 기본 민첩=5, 속도=10 → initiative=20.
+func get_initiative() -> int:
+	return agility * 2 + speed
 
 
 ## 장비를 포함한 최종 회피율 반환.

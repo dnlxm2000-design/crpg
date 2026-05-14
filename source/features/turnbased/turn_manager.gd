@@ -74,13 +74,17 @@ func _start_new_round() -> void:
 
 
 func _calculate_turn_order() -> void:
-	# Sort by speed descending. Speed-based initiative per round.
+	# Agility-based initiative로 정렬.
 	turn_order = combatants.duplicate()
 	turn_order.sort_custom(
 		func(a: Node, b: Node) -> bool:
-			var spd_a = a.get("speed") if "speed" in a else 0
-			var spd_b = b.get("speed") if "speed" in b else 0
-			return spd_a > spd_b
+			var init_a: int = a.get_initiative() if a.has_method("get_initiative") else (a.get("speed") if "speed" in a else 0)
+			var init_b: int = b.get_initiative() if b.has_method("get_initiative") else (b.get("speed") if "speed" in b else 0)
+			if init_a == init_b:
+				var agi_a: int = a.get("agility") if "agility" in a else 0
+				var agi_b: int = b.get("agility") if "agility" in b else 0
+				return agi_a > agi_b
+			return init_a > init_b
 	)
 	EventBus.turn_order_changed.emit(turn_order)
 

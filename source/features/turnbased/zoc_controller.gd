@@ -101,8 +101,17 @@ static func execute_attack_of_opportunity(attacker: Node, target: Node) -> void:
 	if not a_alive or not t_alive:
 		return
 
-	# CombatResolver로 통합 판정 (AoO는 항상 근접 = distance 1)
-	var result = CombatResolver.resolve_attack(attacker, target, 1)
+	# CombatResolver 통합 판정 (AoO = 근접, elevation + back attack 포함)
+	var gw = attacker.get_node_or_null("/root/Main/GameLoop/GridWorld")
+	var elv: int = 0
+	var back: bool = false
+	if gw and gw.has_method("get_elevation"):
+		var atk_pos: Vector2i = gw.world_to_grid(attacker.global_position) if is_instance_valid(attacker) else Vector2i(0, 0)
+		var tgt_pos: Vector2i = gw.world_to_grid(target.global_position) if is_instance_valid(target) else Vector2i(0, 0)
+		elv = gw.get_elevation(atk_pos) - gw.get_elevation(tgt_pos)
+		back = CombatResolver.is_back_attack(atk_pos, target)
+
+	var result = CombatResolver.resolve_attack(attacker, target, 1, elv, back)
 	var hit: bool = result[CombatResolver.KEY_HIT]
 	var damage: int = result[CombatResolver.KEY_ACTUAL_DAMAGE]
 

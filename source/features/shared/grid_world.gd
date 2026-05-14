@@ -20,6 +20,10 @@ var astar: AStar2D
 var blocked: Dictionary = {}
 ## Set of occupied grid positions.
 var occupied: Dictionary = {}
+## 고도 데이터 ("x,y" → 0=물, 1=저지대, 2=고지대).
+var elevation: Dictionary = {}
+## 노이즈 기반 지형 생성기
+var _noise: FastNoiseLite = null
 
 ## Cardinal direction offsets (pre-typed to avoid inference issues).
 const DIRS_CARDINAL: Array = [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)]
@@ -29,6 +33,7 @@ const DIRS_DIAGONAL: Array = [Vector2i(1, -1), Vector2i(1, 1), Vector2i(-1, 1), 
 
 func _ready() -> void:
 	_build_grid()
+	_generate_elevation()
 
 
 ## Build the A* graph and connect neighbors.
@@ -94,6 +99,38 @@ func world_to_grid(world_pos: Vector2) -> Vector2i:
 ## Convert grid coordinate to world position — center of isometric diamond.
 func grid_to_world(grid_pos: Vector2i) -> Vector2:
 	return _grid_to_world_iso(grid_pos)
+
+
+## ─── Elevation / Heightmap ───
+
+## 노이즈 기반 고도 생성. _ready()에서 자동 호출.
+func _generate_elevation() -> void:
+	_noise = FastNoiseLite.new()
+	_noise.seed = randi()
+	_noise.frequency = 0.05
+	for x in grid_width:
+		for y in grid_height:
+			var v: float = _noise.get_noise_2d(x, y)
+			var h: int = 0
+			if v < -0.2:
+				h = 0  # 물/낮은 지대
+			elif v < 0.3:
+				h = 1  # 평원
+			else:
+				h = 2  # 언덕
+			var key: String = "%d,%d" % [x, y]
+			elevation[key] = h
+
+
+## 특정 타일의 고도 반환 (기본 1 = 평원).
+func get_elevation(grid_pos: Vector2i) -> int:
+	var key: String = "%d,%d" % [grid_pos.x, grid_pos.y]
+	return elevation.get(key, 1)
+
+
+## 두 타일 간 고도 차이 반환 (양수 = from이 더 높음).
+func get_elevation_difference(from_pos: Vector2i, to_pos: Vector2i) -> int:
+	return get_elevation(from_pos) - get_elevation(to_pos)
 
 
 ## Check if a grid position is within bounds and walkable.
