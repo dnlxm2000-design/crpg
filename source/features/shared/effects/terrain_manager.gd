@@ -110,11 +110,11 @@ func _generate_and_render() -> void:
 			hm["%d,%d" % [x, y]] = clampi(roundi(abs(raw) * 5), 0, MAX_H)
 
 	# 십자형 길
-	var cy: int = _world_size.y / 2 - 2
+	var cy: int = _world_size.y / 2 - 2  # 126/2=63 → 63-2=61
 	for x: int in range(10, 50):
 		for yy: int in range(cy, cy + 3):
 			hm["%d,%d" % [x, yy]] = 1
-	var cx: int = _world_size.x / 2 - 1
+	var cx: int = _world_size.x / 2 - 1  # 63/2=31 → 31-1=30
 	for y: int in range(20, 90):
 		for xx: int in range(cx, cx + 2):
 			hm["%d,%d" % [xx, y]] = 1
