@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "health_potion"
+item_name = "Health Potion"
+description = "Restores 25 HP."
+item_type = 0
+value = 10
+heal_amount = 25
+ap_cost = 1
+stackable = true

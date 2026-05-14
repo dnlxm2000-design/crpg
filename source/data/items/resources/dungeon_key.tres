@@ -1,0 +1,16 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "dungeon_key"
+item_name = "Dungeon Key"
+description = "An old iron key. It might open something important."
+item_type = 3
+value = 0
+heal_amount = 0
+ap_cost = 0
+stackable = false
+damage_bonus = 0
+defense_bonus = 0

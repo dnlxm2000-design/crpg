@@ -1,0 +1,16 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "iron_sword"
+item_name = "Iron Sword"
+description = "A basic iron longsword. +5 attack."
+item_type = 1
+value = 50
+heal_amount = 0
+ap_cost = 0
+stackable = false
+damage_bonus = 5
+defense_bonus = 0
