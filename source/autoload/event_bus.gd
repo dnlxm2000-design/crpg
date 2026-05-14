@@ -34,13 +34,9 @@ signal combat_defeat()
 ## Mode switch signal
 signal game_mode_changed(mode: String)  # "realtime" | "turnbased" | "menu"
 
-## Input signals
-signal action_issued(unit: Node, action: String, target: Variant)
-
 ## Movement signals
 signal unit_skipped_turn(unit: Node)
 signal player_ended_turn(unit: Node)
-signal path_computed(unit: Node, path: Array)
 
 ## ZOC signals
 signal attack_of_opportunity(attacker: Node, target: Node, damage: int, hit: bool)
