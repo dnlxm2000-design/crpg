@@ -473,6 +473,27 @@ func _try_attack_adjacent() -> bool:
 		return false
 
 	var my_pos: Vector2i = grid_world.world_to_grid(_unit.global_position)
+
+	# 1. 바라보는 방향 우선 공격
+	var facing_dir: Vector2 = _unit.get("facing_direction") if "facing_direction" in _unit else Vector2.DOWN
+	var facing_tile: Vector2i = my_pos + Vector2i(roundi(facing_dir.x), roundi(facing_dir.y))
+	var facing_occ = grid_world.get_occupant(facing_tile)
+	if facing_occ and facing_occ != _unit \
+			and facing_occ.get("is_player") == false \
+			and facing_occ.get("is_alive"):
+		_unit.current_action_points -= 1
+		EventBus.ap_changed.emit(_unit)
+		var result = CombatResolver.resolve_attack(_unit, facing_occ, 1)
+		if result[CombatResolver.KEY_HIT]:
+			if result[CombatResolver.KEY_CRIT]:
+				print("[Combat] CRIT! %s -> %s (%d dmg)" % [_unit.unit_name, facing_occ.unit_name, result[CombatResolver.KEY_DAMAGE]])
+			elif result[CombatResolver.KEY_GRAZE]:
+				print("[Combat] Graze %s -> %s (%d dmg)" % [_unit.unit_name, facing_occ.unit_name, result[CombatResolver.KEY_DAMAGE]])
+		else:
+			EventBus.unit_evaded.emit(facing_occ, _unit)
+		return true
+
+	# 2. 없으면 모든 인접 적 중 첫 번째 공격
 	var neighbors: Array[Vector2i] = [
 		my_pos + Vector2i(0, -1), my_pos + Vector2i(1, 0),
 		my_pos + Vector2i(0, 1), my_pos + Vector2i(-1, 0),

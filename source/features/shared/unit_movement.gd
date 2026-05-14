@@ -84,22 +84,35 @@ func stop_moving() -> void:
 
 ## Move one tile in a direction (turn-based, costs AP).
 ## Returns true if movement happened.
+## 점유된 타일에 적이 있으면 밀치기(push) 시도.
+## 통과 불가 타일이어도 방향 전환은 수행.
 func move_one_tile(direction: Vector2i, unit_node = null) -> bool:
 	if is_locked or not _grid_world:
 		return false
 
 	var current_grid: Vector2i = _grid_world.world_to_grid(_unit.global_position)
 	var target_grid: Vector2i = current_grid + direction
+	var dir_vec: Vector2 = Vector2(direction).normalized()
 
+	# 항상 방향 전환 (이동 성공 여부와 무관)
+	if "update_facing_direction" in _unit:
+		_unit.update_facing_direction(dir_vec)
+
+	# ── 밀치기(Push): 적이 점유한 타일로 이동 시도 ──
+	if unit_node:
+		var occupant = _grid_world.get_occupant(target_grid)
+		if occupant and occupant != _unit and occupant.get("is_alive", false) == true:
+			return _try_push(unit_node, occupant, current_grid, direction, dir_vec)
+
+	# 일반 이동 (걸어갈 수 있는 타일)
 	if not _grid_world.is_walkable(target_grid):
 		return false
 
-	# Check AP cost (if caller provides AP-managed unit)
+	# AP 확인 (turn-based)
 	if unit_node:
 		if not _can_spend_ap(unit_node):
 			return false
 		
-		# ZOC: 적 영역 진입 시 추가 AP 비용
 		var combatants = _get_combatants()
 		var zoc_extra: int = ZocController.get_extra_ap_cost(unit_node, target_grid, combatants, _grid_world)
 		var ap_available: int = unit_node.get("current_action_points") if "current_action_points" in unit_node else 0
@@ -109,28 +122,69 @@ func move_one_tile(direction: Vector2i, unit_node = null) -> bool:
 		_spend_ap(unit_node)
 		_zoc_spend_extra_ap(unit_node, zoc_extra)
 
-	# Snap to grid
+	# 이동 실행
 	var target_world: Vector2 = _grid_world.grid_to_world(target_grid)
-	var from_grid: Vector2i = current_grid  # Save for AoO check
+	var from_grid: Vector2i = current_grid
 
-	# Update occupancy
 	_grid_world.set_occupied(current_grid, null)
 	_grid_world.set_occupied(target_grid, unit_node if unit_node else _unit)
-
-	# Instant snap for turn-based mode
 	_unit.global_position = target_world
 
-	# Update facing direction
-	if "update_facing_direction" in _unit:
-		var dir: Vector2 = Vector2(target_grid - current_grid)
-		_unit.update_facing_direction(dir.normalized())
-
-	# Notify
 	EventBus.unit_moved.emit(_unit, _grid_world.grid_to_world(current_grid), target_world)
 
-	# ZOC: Attack of Opportunity (적 ZOC 이탈 시)
 	if unit_node:
 		_trigger_attack_of_opportunity(unit_node, from_grid, target_grid)
+
+	return true
+
+
+## 밀치기: 적이 있는 타일로 이동 시 적을 한 칸 뒤로 밀고 그 자리로 이동.
+## 비용: AP 2 (기본 이동 1 + 밀치기 1)
+func _try_push(pusher: Node, pushed: Node, from_grid: Vector2i, direction: Vector2i, dir_vec: Vector2) -> bool:
+	# 밀려날 위치
+	var push_target: Vector2i = from_grid + direction + direction
+
+	# 밀려날 위치가 걸어갈 수 있고 비어있는지 확인
+	if not _grid_world.is_walkable(push_target):
+		return false
+	var push_occupant = _grid_world.get_occupant(push_target)
+	if push_occupant and push_occupant != _unit and push_occupant != pushed:
+		return false
+
+	# AP 확인 (기본 1 + 밀치기 추가 1)
+	var ap_cost: int = ap_cost_per_tile + 1
+	var ap = pusher.get("current_action_points") if "current_action_points" in pusher else 0
+	if ap < ap_cost:
+		return false
+	pusher.current_action_points -= ap_cost
+	EventBus.ap_changed.emit(pusher)
+
+	# 밀려난 적 이동
+	if "update_facing_direction" in pushed:
+		pushed.update_facing_direction(-dir_vec)
+	if pushed.has_method("get") and pushed.get("movement"):
+		pushed.global_position = _grid_world.grid_to_world(push_target)
+	else:
+		pushed.global_position = _grid_world.grid_to_world(push_target)
+
+	# 점유 갱신: 밀려난 적 → push_target, 밀친 유닛 → from_grid + direction
+	_grid_world.set_occupied(from_grid, null)
+	var enemy_old_grid: Vector2i = from_grid + direction
+	_grid_world.set_occupied(enemy_old_grid, null)
+	_grid_world.set_occupied(push_target, pushed)
+	_grid_world.set_occupied(enemy_old_grid, pusher)
+
+	# 밀친 유닛 이동
+	_unit.global_position = _grid_world.grid_to_world(enemy_old_grid)
+
+	# 이벤트
+	EventBus.unit_moved.emit(pusher, _grid_world.grid_to_world(from_grid), _grid_world.grid_to_world(enemy_old_grid))
+	EventBus.unit_moved.emit(pushed, _grid_world.grid_to_world(enemy_old_grid), _grid_world.grid_to_world(push_target))
+
+	print("[Push] %s pushes %s from %s to %s" % [
+		pusher.get("unit_name") if "unit_name" in pusher else "?",
+		pushed.get("unit_name") if "unit_name" in pushed else "?",
+		str(enemy_old_grid), str(push_target)])
 
 	return true
 
