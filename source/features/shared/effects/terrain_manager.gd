@@ -201,7 +201,7 @@ func _generate_and_render() -> void:
 			if parts.size() == 2:
 				var gx := int(parts[0])
 				var gy := int(parts[1])
-				var h_val := hm[key]
+				var h_val = hm[key]
 				_grid_world.set_elevation(Vector2i(gx, gy), clampi(h_val, 0, 2))
 				# 고도 0 = 물 = 통과 불가
 				if h_val <= 0 and _grid_world.has_method("set_blocked"):
