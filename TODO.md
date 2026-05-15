@@ -6,6 +6,33 @@
 
 ---
 
+## 🛠 개발 체크리스트 (문제 재발 방지)
+
+### GDScript 문법
+- [ ] `var x := dict[key]` 타입 추론 금지 → `var x = dict[key]`
+- [ ] `for i: int in 3` 금지 → `for i in range(3)`
+- [ ] `String.split()` 결과 `:=` 추론 금지 → `var parts = key.split(",")`
+- [ ] 외부 클래스 참조(`TerrainData` 등)는 `preload` 말고 `class_name` 의존
+
+### z-index / 렌더링
+- [ ] `z_as_relative = false` 설정 시 자식 Polygon2D가 z_index 상속 못 받음 → 기본 true 유지
+- [ ] Polygon2D winding 순서: 시계방향(clockwise)이 카메라 정면
+- [ ] 새 유닛/오브젝트 추가 시 `z_index = 100` 필수 (지형 z=1..6 위로)
+- [ ] TileMapLayer position offset은 그리드 좌표계와 불일치 유발
+
+### 입력 처리
+- [ ] `_input()`과 `_process()`에서 동일 키 중복 처리 금지 → 한쪽에서만
+- [ ] 턴모드 키보드 입력: `_input()` → `_handle_turn_input()` 전담
+- [ ] 실시간모드 키보드 입력: `_process()` 전담
+- [ ] 아이소메트릭 WASD = 화면 방향(그리드 대각선), QRZV = 그리드 직선
+
+### 지형 데이터
+- [ ] `hm` Dicionary 순회 시 `_moss` 키(bool 값) 필터링 필수
+- [ ] 높이 0 = 물 = `set_blocked()` 처리 필요
+- [ ] 큐브 생성 시 이웃 높이로 경사면/직벽 결정
+
+---
+
 ## ✅ 완료된 기능
 
 ### 0. 코어 시스템
