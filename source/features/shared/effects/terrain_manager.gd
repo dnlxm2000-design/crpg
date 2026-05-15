@@ -311,9 +311,9 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 	if wall_h > 0:
 		var side_l := Polygon2D.new()
 		if south_lower:
-			# 삼각형 경사: 중앙에서 왼쪽으로 갈수록 낮아짐
+			# 삼각형 경사: 중앙(높음)→왼쪽(낮음), 시계방향
 			side_l.polygon = PackedVector2Array([
-				Vector2(-28, 0), Vector2(0, top_y + 32), Vector2(0, 16),
+				Vector2(0, 16), Vector2(0, top_y + 32), Vector2(-28, 0),
 			])
 		else:
 			# 평행사변형: 전체 높이
@@ -329,9 +329,9 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 	if wall_h > 0:
 		var side_r := Polygon2D.new()
 		if east_lower:
-			# 삼각형 경사: 중앙에서 오른쪽으로 갈수록 낮아짐
+			# 삼각형 경사: 중앙(높음)→오른쪽(낮음), 시계방향
 			side_r.polygon = PackedVector2Array([
-				Vector2(28, 0), Vector2(0, top_y + 32), Vector2(0, 16),
+				Vector2(0, 16), Vector2(0, top_y + 32), Vector2(28, 0),
 			])
 		else:
 			# 평행사변형: 전체 높이
