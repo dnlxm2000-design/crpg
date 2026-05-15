@@ -130,21 +130,25 @@ func _process(_delta: float) -> void:
 	_sprite_flip_h(facing_direction.x < 0 if in_realtime else false)
 
 
-## Sprite2D의 y 위치 설정 (bobbing용)
+## Polygon2D 박스 전체의 y 위치 조정 (bobbing).
 func _sprite_position_y(offset: float) -> void:
-	# UnitSprite는 setup_placeholder_visual에서 생성한 Sprite2D
 	for child in get_children():
-		if child is Sprite2D and child.name == "UnitSprite":
-			child.position.y = -4 + offset  # -4는 기본 오프셋 (타일 위에 서기)
-			return
+		if child is Polygon2D and child.name.begins_with("UnitBox"):
+			# 기준 y 위치를 offset만큼 이동 (원래 위치 유지)
+			if not child.has_meta("base_y"):
+				child.set_meta("base_y", child.position.y if "position" in child else 0)
+			var base: float = child.get_meta("base_y", 0.0)
+			child.position.y = base + offset
 
 
-## UnitSprite의 flip_h 설정.
+## UnitSprite의 flip_h 설정 (사각형 → 박스 좌우 색상 반전).
 func _sprite_flip_h(flip: bool) -> void:
-	for child in get_children():
-		if child is Sprite2D and child.name == "UnitSprite":
-			child.flip_h = flip
-			return
+	var l: Polygon2D = get_node_or_null("UnitBoxSideL")
+	var r: Polygon2D = get_node_or_null("UnitBoxSideR")
+	if l and r:
+		var tmp := l.color
+		l.color = r.color
+		r.color = tmp
 
 
 func setup_placeholder_visual(body_color: Color, collision_size: Vector2i = Vector2i(28, 20), sprite_size: Vector2i = Vector2i(32, 48)) -> void:
@@ -155,16 +159,51 @@ func setup_placeholder_visual(body_color: Color, collision_size: Vector2i = Vect
 	collision.shape = shape
 	add_child(collision)
 
-	# ── Sprite (Placeholder 사각형) ──
-	# TODO: SpriteSheet 교체 시 아래 블록을 AnimatedSprite2D 로 대체
-	var sprite := Sprite2D.new()
-	sprite.name = "UnitSprite"
-	var img := Image.create(sprite_size.x, sprite_size.y, false, Image.FORMAT_RGBA8)
-	img.fill(body_color)
-	sprite.texture = ImageTexture.create_from_image(img)
-	# 아이소메트릭 타일(64×32) 위에 서 있는 모양으로 위치 보정
-	sprite.position = Vector2(0, -sprite_size.y / 2.0 - 4)
-	add_child(sprite)
+	# ── 3D 박스 (3단 육면체, 지형 타일 스택 방식) ──
+	# 육면체 구성: 아랫면 2단(옆면만) + 윗면 1단(윗면+옆면)
+	# 각 단: 다이아몬드 타일 1개 높이(16px)
+	var box_color: Color = body_color
+	var side_l_color: Color = body_color.darkened(0.35)
+	var side_r_color: Color = body_color.darkened(0.55)
+
+	# 윗면 (Top face) — level 2, y=-32
+	var top := Polygon2D.new()
+	top.polygon = PackedVector2Array([
+		Vector2(0, -48), Vector2(28, -32),
+		Vector2(0, -16), Vector2(-28, -32),
+	])
+	top.color = box_color
+	top.z_index = 3
+	top.name = "UnitBoxTop"
+	add_child(top)
+
+	# 왼쪽 옆면 (Left side) — 3단 연속
+	var side_l := Polygon2D.new()
+	side_l.polygon = PackedVector2Array([
+		Vector2(-28, -32), Vector2(0, -16),
+		Vector2(0, 24), Vector2(-28, 8),
+	])
+	side_l.color = side_l_color
+	side_l.z_index = 2
+	side_l.name = "UnitBoxSideL"
+	add_child(side_l)
+
+	# 오른쪽 옆면 (Right side) — 3단 연속
+	var side_r := Polygon2D.new()
+	side_r.polygon = PackedVector2Array([
+		Vector2(28, -32), Vector2(0, -16),
+		Vector2(0, 24), Vector2(28, 8),
+	])
+	side_r.color = side_r_color
+	side_r.z_index = 1
+	side_r.name = "UnitBoxSideR"
+	add_child(side_r)
+
+	# UnitSprite 참조용 더미 (flip_h 등 호환)
+	var _dummy := Sprite2D.new()
+	_dummy.name = "UnitSprite"
+	_dummy.visible = false
+	add_child(_dummy)
 
 
 ## 마지막 이동 방향에 맞춰 방향 표시기 업데이트.
