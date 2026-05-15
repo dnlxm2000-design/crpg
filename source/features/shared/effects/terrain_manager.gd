@@ -257,8 +257,12 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 	var top_y := -wall_h - 16
 
 	# 이웃 높이 확인: 남쪽(y+1)과 동쪽(x+1)이 낮으면 경사면
-	var south_lower: bool = hm.get("%d,%d" % [grid.x, grid.y + 1], 0) < h
-	var east_lower: bool = hm.get("%d,%d" % [grid.x + 1, grid.y], 0) < h
+	var nh_s = hm.get("%d,%d" % [grid.x, grid.y + 1], 0)
+	var nh_e = hm.get("%d,%d" % [grid.x + 1, grid.y], 0)
+	var south_lower: bool = nh_s < h
+	var east_lower: bool = nh_e < h
+	if south_lower or east_lower:
+		print("[Cube] h=", h, " at ", grid, " S=", nh_s, " E=", nh_e, " southL=", south_lower, " eastL=", east_lower)
 
 	# 높이별 색상
 	var top_color: Color
@@ -311,10 +315,11 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 	if wall_h > 0:
 		var side_l := Polygon2D.new()
 		if south_lower:
-			# 삼각형 경사: 중앙(높음)→왼쪽(낮음), 시계방향
+			# 디버그: 경사면 빨간색
 			side_l.polygon = PackedVector2Array([
 				Vector2(0, 16), Vector2(0, top_y + 32), Vector2(-28, 0),
 			])
+			side_l.color = Color.RED
 		else:
 			# 평행사변형: 전체 높이
 			side_l.polygon = PackedVector2Array([
@@ -329,10 +334,11 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 	if wall_h > 0:
 		var side_r := Polygon2D.new()
 		if east_lower:
-			# 삼각형 경사: 중앙(높음)→오른쪽(낮음), 시계방향
+			# 디버그: 경사면 빨간색
 			side_r.polygon = PackedVector2Array([
 				Vector2(0, 16), Vector2(0, top_y + 32), Vector2(28, 0),
 			])
+			side_r.color = Color.RED
 		else:
 			# 평행사변형: 전체 높이
 			side_r.polygon = PackedVector2Array([
