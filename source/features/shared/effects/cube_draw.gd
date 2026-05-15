@@ -11,6 +11,9 @@ var east_lower: bool = false
 
 
 func _draw() -> void:
+	# 테스트: 무조건 빨간 원 그림
+	draw_circle(Vector2.ZERO, 10, Color.RED)
+
 	# 그림자
 	var shadow_col := Color(0.0, 0.0, 0.0, 0.3)
 	draw_colored_polygon(PackedVector2Array([
