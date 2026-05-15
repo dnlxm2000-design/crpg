@@ -24,11 +24,12 @@ func _draw() -> void:
 		Vector2(0, top_y + 32), Vector2(-28, top_y + 16),
 	]), top_color)
 
-	# 왼쪽 벽면 (디버그: 빨간색)
+	# 왼쪽 벽면 (4각형으로 통일)
 	if wall_h > 0:
 		if south_lower:
 			draw_colored_polygon(PackedVector2Array([
-				Vector2(0, 16), Vector2(0, top_y + 32), Vector2(-28, 0),
+				Vector2(0, top_y + 32), Vector2(0, 16),
+				Vector2(-28, 0), Vector2(-28, 0),
 			]), Color.RED)
 		else:
 			draw_colored_polygon(PackedVector2Array([
@@ -36,11 +37,12 @@ func _draw() -> void:
 				Vector2(0, 16), Vector2(-28, 0),
 			]), Color.RED)
 
-	# 오른쪽 벽면 (디버그: 파란색)
+	# 오른쪽 벽면 (4각형으로 통일)
 	if wall_h > 0:
 		if east_lower:
 			draw_colored_polygon(PackedVector2Array([
-				Vector2(0, 16), Vector2(0, top_y + 32), Vector2(28, 0),
+				Vector2(0, top_y + 32), Vector2(0, 16),
+				Vector2(28, 0), Vector2(28, 0),
 			]), Color.BLUE)
 		else:
 			draw_colored_polygon(PackedVector2Array([
