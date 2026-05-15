@@ -247,6 +247,7 @@ func _build_cubes(hm: Dictionary) -> void:
 		_white_tex = ImageTexture.create_from_image(_img)
 	_cube_container = Node2D.new()
 	_cube_container.name = "CubeContainer"
+	_cube_container.y_sort_enabled = true
 	add_child(_cube_container)
 	if Engine.is_editor_hint():
 		_cube_container.owner = get_tree().edited_scene_root
@@ -294,16 +295,7 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 	cube.z_index = 50
 	_cube_container.add_child(cube)
 
-	# 윗면
-	var top := Polygon2D.new()
-	top.polygon = PackedVector2Array([
-		Vector2(0, top_y), Vector2(28, top_y + 16),
-		Vector2(0, top_y + 32), Vector2(-28, top_y + 16),
-	])
-	top.color = top_color
-	top.texture = _white_tex
-	cube.add_child(top)
-
+	# ── 벽면 (Wall) — top face보다 먼저 추가해서 아래에 렌더링 ──
 	# 왼쪽 벽면
 	if wall_h > 0:
 		var side_l := Polygon2D.new()
@@ -335,6 +327,16 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 		side_r.color = side_r_color
 		side_r.texture = _white_tex
 		cube.add_child(side_r)
+
+	# ── 윗면 (Top) — 벽면 위에 렌더링 ──
+	var top := Polygon2D.new()
+	top.polygon = PackedVector2Array([
+		Vector2(0, top_y), Vector2(28, top_y + 16),
+		Vector2(0, top_y + 32), Vector2(-28, top_y + 16),
+	])
+	top.color = top_color
+	top.texture = _white_tex
+	cube.add_child(top)
 
 
 func _grid_to_world(grid: Vector2i) -> Vector2:
