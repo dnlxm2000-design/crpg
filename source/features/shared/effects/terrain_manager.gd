@@ -44,9 +44,9 @@ var _sid: int = 0
 
 
 func _ready() -> void:
+	# Editor에서는 _generate_and_render 생략 (씬 저장 방지)
 	if Engine.is_editor_hint():
-		# Editor 모드: Inspector에서 값 바뀌면 자동 갱신
-		terrain_changed()
+		_build_tileset()
 		return
 
 	_grid_world = get_node_or_null("/root/Main/GameLoop/GridWorld")
@@ -61,60 +61,15 @@ func _ready() -> void:
 	_rng = RandomNumberGenerator.new()
 	_rng.seed = 123
 
-	_setup_layers()
 	_build_tileset()
 	_generate_and_render()
 
 
-## Editor에서 @export 변수가 바뀌면 자동 호출
-func _property_changed(_prop: String) -> void:
-	if Engine.is_editor_hint():
-		terrain_changed()
-
-
-## 강제 재생성 (Editor용)
-func terrain_changed() -> void:
-	_setup_layers()
+## 강제 재생성 (수동 호출용)
+func regenerate() -> void:
 	_build_tileset()
-	if Engine.is_editor_hint():
-		pass  # Editor에서는 _generate_and_render는 수동 호출
-	else:
+	if not Engine.is_editor_hint():
 		_generate_and_render()
-
-
-## 레이어 구조 설정 (Editor 안전)
-func _setup_layers() -> void:
-	# 워터 레이어
-	if not _water_layer or not is_instance_valid(_water_layer):
-		_water_layer = get_node_or_null("H_WATER") as TileMapLayer
-		if not _water_layer:
-			_water_layer = TileMapLayer.new()
-			_water_layer.name = "H_WATER"
-			_water_layer.z_index = 0
-			_water_layer.position = Vector2(0, 0)
-			_water_layer.y_sort_enabled = true
-			add_child(_water_layer)
-			if Engine.is_editor_hint():
-				_water_layer.owner = get_tree().edited_scene_root
-
-	# 높이 레이어 H0~H5
-	_layers.clear()
-	for i in range(MAX_H + 1):
-		var name_i: String = "H%d" % i
-		var layer := get_node_or_null(name_i) as TileMapLayer
-		if not layer:
-			layer = TileMapLayer.new()
-			layer.name = name_i
-			layer.z_index = i + 1
-			layer.position = Vector2(0, -i * 16)
-			layer.y_sort_enabled = true
-			add_child(layer)
-			if Engine.is_editor_hint():
-				layer.owner = get_tree().edited_scene_root
-		else:
-			layer.z_index = i + 1
-			layer.position = Vector2(0, -i * 16)
-		_layers.append(layer)
 
 
 func _build_tileset() -> void:
@@ -159,11 +114,38 @@ func _build_tileset() -> void:
 	ts.add_source(src)
 	_sid = ts.get_source_id(0)
 
-	# 생성한 TileSet을 모든 레이어에 할당
-	for layer in _layers:
+	# ── 레이어 생성 (TileSet 할당까지 여기서 한 번에) ──
+	# 기존 레이어 정리
+	for child in get_children():
+		if child is TileMapLayer:
+			remove_child(child)
+			child.queue_free()
+	_water_layer = null
+	_layers.clear()
+
+	# 워터 레이어
+	_water_layer = TileMapLayer.new()
+	_water_layer.name = "H_WATER"
+	_water_layer.tile_set = ts
+	_water_layer.z_index = 0
+	_water_layer.position = Vector2(0, 0)
+	_water_layer.y_sort_enabled = true
+	add_child(_water_layer)
+	if Engine.is_editor_hint():
+		_water_layer.owner = get_tree().edited_scene_root
+
+	# 높이 레이어 H0~H5
+	for i in range(MAX_H + 1):
+		var layer := TileMapLayer.new()
+		layer.name = "H%d" % i
 		layer.tile_set = ts
-	if _water_layer:
-		_water_layer.tile_set = ts
+		layer.z_index = i + 1
+		layer.position = Vector2(0, -i * 16)
+		layer.y_sort_enabled = true
+		add_child(layer)
+		if Engine.is_editor_hint():
+			layer.owner = get_tree().edited_scene_root
+		_layers.append(layer)
 
 
 # ─── 지형 생성 ───
