@@ -215,7 +215,13 @@ func _generate_and_render() -> void:
 	# ── Polygon2D 정육면체 생성 (산, 고도 ≥2) ──
 	_build_cubes(hm)
 
-	print("[Terrain] done, total cells=", _layers[0].get_used_cells().size())
+	var total_cells = 0
+	for li in _layers.size():
+		var c = _layers[li].get_used_cells().size()
+		total_cells += c
+		if c > 0:
+			print("[Terrain]   H", li, " cells=", c)
+	print("[Terrain] done, total cells=", total_cells, " cubes=", _cube_container.get_child_count() if _cube_container else 0)
 
 
 # ─── Polygon2D 정육면체 ───
