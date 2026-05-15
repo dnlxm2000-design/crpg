@@ -181,6 +181,12 @@ func _build_tileset() -> void:
 	ts.add_source(src)
 	_sid = ts.get_source_id(0)
 
+	# 생성한 TileSet을 모든 레이어에 할당
+	for layer in _layers:
+		layer.tile_set = ts
+	if _water_layer:
+		_water_layer.tile_set = ts
+
 	# 셰이더 적용 (동적 그림자)
 	_setup_shader(ts)
 	_setup_layer_materials(ts)
