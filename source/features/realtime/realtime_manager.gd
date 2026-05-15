@@ -80,6 +80,9 @@ func spawn_player(at_position: Vector2) -> Node:
 	# ── Placeholder 시각 요소 ──
 	# TODO: setup_placeholder_visual 대신 AnimatedSprite2D + SpriteSheet 로 교체
 	player.setup_placeholder_visual(Color(0.2, 0.6, 1.0))
+	# 지형(z=1..6) 위에 렌더링되도록 z_index 설정
+	player.z_index = 100
+	player.z_as_relative = false
 
 	# Camera2D (follows player with smooth isometric tracking)
 	var camera := Camera2D.new()
