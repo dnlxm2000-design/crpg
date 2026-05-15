@@ -104,6 +104,13 @@ func move_one_tile(direction: Vector2i, unit_node = null) -> bool:
 	if not _grid_world.is_walkable(target_grid):
 		return false
 
+	# 대각선 이동 시 모서리 차단 (corner blocking)
+	if direction.x != 0 and direction.y != 0:
+		if not _grid_world.is_walkable(Vector2i(current_grid.x + direction.x, current_grid.y)):
+			return false
+		if not _grid_world.is_walkable(Vector2i(current_grid.x, current_grid.y + direction.y)):
+			return false
+
 	# AP 확인 (turn-based)
 	if unit_node:
 		if not _can_spend_ap(unit_node):
@@ -274,6 +281,14 @@ func _process(delta: float) -> void:
 		motion = dir
 
 	_unit.global_position += motion
+
+	# 경로 이동 중 통과 불가 타일에 진입했는지 체크
+	if _grid_world and _grid_world.has_method("is_walkable"):
+		var current_grid: Vector2i = _grid_world.world_to_grid(_unit.global_position)
+		if not _grid_world.is_walkable(current_grid):
+			# 밀려났으면 원래 위치로 되돌리고 경로 중단
+			_unit.global_position -= motion
+			stop_moving()
 
 
 ## 현재 모드가 턴제인지 확인.
