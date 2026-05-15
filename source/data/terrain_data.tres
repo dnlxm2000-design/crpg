@@ -1,0 +1,65 @@
+[gd_resource type="Resource" format=3]
+[resource]
+script = ExtResource("1")
+terrain_types = [{
+"name": "GRASS",
+"id": 0,
+"atlas_top_col": 0,
+"atlas_side_col": 0,
+"is_water": false,
+"base_color": Color(0.6, 0.760784, 0.486275, 1)
+}, {
+"name": "DIRT",
+"id": 1,
+"atlas_top_col": 1,
+"atlas_side_col": 1,
+"is_water": false,
+"base_color": Color(0.427451, 0.333333, 0.270588, 1)
+}, {
+"name": "PATH",
+"id": 2,
+"atlas_top_col": 2,
+"atlas_side_col": 2,
+"is_water": false,
+"base_color": Color(0.819608, 0.705882, 0.54902, 1)
+}, {
+"name": "WATER",
+"id": 3,
+"atlas_top_col": -1,
+"atlas_side_col": -1,
+"is_water": true,
+"base_color": Color(0.2, 0.4, 0.7, 1)
+}, {
+"name": "STONE",
+"id": 4,
+"atlas_top_col": 4,
+"atlas_side_col": 4,
+"is_water": false,
+"base_color": Color(0.627451, 0.643137, 0.65098, 1)
+}, {
+"name": "MOSS",
+"id": 5,
+"atlas_top_col": 5,
+"atlas_side_col": 5,
+"is_water": false,
+"base_color": Color(0.419608, 0.556863, 0.301961, 1)
+}, {
+"name": "STONE_L",
+"id": 6,
+"atlas_top_col": -1,
+"atlas_side_col": 4,
+"is_water": false,
+"base_color": Color(0.439216, 0.454902, 0.462745, 1)
+}, {
+"name": "STONE_R",
+"id": 7,
+"atlas_top_col": -1,
+"atlas_side_col": 5,
+"is_water": false,
+"base_color": Color(0.301961, 0.317647, 0.32549, 1)
+}]
+height_darken = 0.12
+water_color = Color(0.2, 0.4, 0.7, 0.8)
+water_height = 0
+
+[ext_resource type="Script" path="res://source/data/terrain_data.gd" id="1"]
