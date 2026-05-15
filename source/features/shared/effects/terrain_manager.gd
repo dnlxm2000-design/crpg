@@ -207,7 +207,104 @@ func _generate_and_render() -> void:
 				if h_val <= 0 and _grid_world.has_method("set_blocked"):
 					_grid_world.set_blocked(Vector2i(gx, gy), true)
 
+	# ── Polygon2D 정육면체 생성 (산, 고도 ≥2) ──
+	_build_cubes(hm)
+
 	print("[Terrain] done, total cells=", _layers[0].get_used_cells().size())
+
+
+# ─── Polygon2D 정육면체 ───
+
+var _cube_container: Node2D = null
+
+## 높이 ≥2 타일을 Polygon2D 큐브로 렌더링 (플레이어와 동일한 방식).
+func _build_cubes(hm: Dictionary) -> void:
+	# 기존 큐브 정리
+	if _cube_container:
+		_cube_container.queue_free()
+	_cube_container = Node2D.new()
+	_cube_container.name = "CubeContainer"
+	add_child(_cube_container)
+	if Engine.is_editor_hint():
+		_cube_container.owner = get_tree().edited_scene_root
+
+	for x in range(_world_size.x):
+		for y in range(_world_size.y):
+			var h: int = hm.get("%d,%d" % [x, y], 0)
+			if h < 2:
+				continue
+			_create_cube_at(Vector2i(x, y), h)
+
+
+func _create_cube_at(grid: Vector2i, h: int) -> void:
+	var world := _grid_to_world(grid)
+	var wall_h := (h - 1) * 16  # 벽면 높이 (px)
+	var top_y := -wall_h - 16   # 윗면 Y (최상단)
+
+	# 높이별 색상
+	var top_color: Color
+	var side_l_color: Color
+	var side_r_color: Color
+	match h:
+		2:
+			top_color = Color(0.55, 0.65, 0.45)       # DARK_GRASS
+			side_l_color = Color(0.35, 0.45, 0.30)
+			side_r_color = Color(0.25, 0.35, 0.22)
+		3:
+			top_color = Color(0.6, 0.48, 0.38)        # ROCKY
+			side_l_color = Color(0.45, 0.35, 0.28)
+			side_r_color = Color(0.35, 0.28, 0.22)
+		_:  # h >= 4
+			top_color = Color(0.63, 0.64, 0.65)       # STONE
+			side_l_color = Color(0.44, 0.45, 0.46)
+			side_r_color = Color(0.30, 0.32, 0.33)
+
+	var cube := Node2D.new()
+	cube.name = "Cube_%d_%d" % [grid.x, grid.y]
+	cube.position = world
+	cube.z_index = 50
+	cube.z_as_relative = false
+	_cube_container.add_child(cube)
+
+	# 윗면 (Top)
+	var top := Polygon2D.new()
+	top.polygon = PackedVector2Array([
+		Vector2(0, top_y), Vector2(28, top_y + 16),
+		Vector2(0, top_y + 32), Vector2(-28, top_y + 16),
+	])
+	top.color = top_color
+	top.z_index = 3
+	cube.add_child(top)
+
+	# 왼쪽 옆면
+	if wall_h > 0:
+		var side_l := Polygon2D.new()
+		side_l.polygon = PackedVector2Array([
+			Vector2(-28, top_y + 16), Vector2(0, top_y + 32),
+			Vector2(0, 16), Vector2(-28, 0),
+		])
+		side_l.color = side_l_color
+		side_l.z_index = 2
+		cube.add_child(side_l)
+
+	# 오른쪽 옆면
+	if wall_h > 0:
+		var side_r := Polygon2D.new()
+		side_r.polygon = PackedVector2Array([
+			Vector2(28, top_y + 16), Vector2(0, top_y + 32),
+			Vector2(0, 16), Vector2(28, 0),
+		])
+		side_r.color = side_r_color
+		side_r.z_index = 1
+		cube.add_child(side_r)
+
+
+func _grid_to_world(grid: Vector2i) -> Vector2:
+	# 아이소메트릭: 타일 64×32 기준 (TILE_W/2=32, TILE_H/2=16)
+	return Vector2(
+		(grid.x - grid.y) * 32,
+		(grid.x + grid.y) * 16
+	)
 
 
 # ─── 유적지 생성 (Hollow Cube) ───
