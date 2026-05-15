@@ -295,29 +295,38 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 	cube.z_index = 50
 	_cube_container.add_child(cube)
 
-	# ── 윗면 (Top) — 벽면보다 먼저 추가 (아래에 렌더링) ──
-	var top_full := true
-	# 경사 방향에 따라 윗면을 반으로 잘라서 경사 시각화
-	if wall_h > 0 and south_lower and not east_lower:
-		# 남쪽 경사 → 오른쪽 반쪽만 (왼쪽 절반은 벽면으로 채움)
-		var top := Polygon2D.new()
-		top.polygon = PackedVector2Array([
-			Vector2(0, top_y), Vector2(28, top_y + 16), Vector2(0, top_y + 32),
-		])
-		top.color = top_color; top.texture = _white_tex; cube.add_child(top)
-		top_full = false
-	elif wall_h > 0 and east_lower and not south_lower:
-		# 동쪽 경사 → 왼쪽 반쪽만
-		var top := Polygon2D.new()
-		top.polygon = PackedVector2Array([
-			Vector2(0, top_y), Vector2(0, top_y + 32), Vector2(-28, top_y + 16),
-		])
-		top.color = top_color; top.texture = _white_tex; cube.add_child(top)
-		top_full = false
-	elif wall_h > 0 and south_lower and east_lower:
-		# 양쪽 경사 → 윗면 없음 (뾰족)
-		top_full = false
-	if top_full:
+	# ── 윗면 (Top) — 벽면보다 먼저 추가 ──
+	if wall_h > 0 and south_lower and east_lower:
+		# 양쪽 경사: 윗면 없음
+		pass
+	elif wall_h > 0 and (south_lower or east_lower):
+		# 한쪽 경사: 윗면을 반으로 자르고, 잘린 부분은 filler로 채움
+		if south_lower:
+			# 윗면 오른쪽 반쪽
+			var top := Polygon2D.new()
+			top.polygon = PackedVector2Array([
+				Vector2(0, top_y), Vector2(28, top_y + 16), Vector2(0, top_y + 32),
+			])
+			top.color = top_color; top.texture = _white_tex; cube.add_child(top)
+			# 필러: 왼쪽 다이아몬드 절반 (벽면 색상)
+			var fill := Polygon2D.new()
+			fill.polygon = PackedVector2Array([
+				Vector2(-28, top_y + 16), Vector2(0, top_y), Vector2(0, top_y + 32),
+			])
+			fill.color = side_l_color; fill.texture = _white_tex; cube.add_child(fill)
+		else:  # east_lower
+			var top := Polygon2D.new()
+			top.polygon = PackedVector2Array([
+				Vector2(0, top_y), Vector2(0, top_y + 32), Vector2(-28, top_y + 16),
+			])
+			top.color = top_color; top.texture = _white_tex; cube.add_child(top)
+			var fill := Polygon2D.new()
+			fill.polygon = PackedVector2Array([
+				Vector2(28, top_y + 16), Vector2(0, top_y), Vector2(0, top_y + 32),
+			])
+			fill.color = side_r_color; fill.texture = _white_tex; cube.add_child(fill)
+	else:
+		# 전체 다이아몬드 윗면
 		var top := Polygon2D.new()
 		top.polygon = PackedVector2Array([
 			Vector2(0, top_y), Vector2(28, top_y + 16),
@@ -325,9 +334,8 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 		])
 		top.color = top_color; top.texture = _white_tex; cube.add_child(top)
 
-	# ── 벽면 (Wall) — 윗면 위에 렌더링 (잘린 윗면 자리까지 채움) ──
+	# ── 벽면 (Wall) ──
 	if wall_h > 0:
-		# 왼쪽 벽: 항상 4각형으로 윗면 전체 모서리와 연결
 		var side_l := Polygon2D.new()
 		side_l.polygon = PackedVector2Array([
 			Vector2(-28, top_y + 16), Vector2(0, top_y + 32),
@@ -336,7 +344,6 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 		side_l.color = side_l_color; side_l.texture = _white_tex
 		cube.add_child(side_l)
 
-		# 오른쪽 벽: 항상 4각형
 		var side_r := Polygon2D.new()
 		side_r.polygon = PackedVector2Array([
 			Vector2(28, top_y + 16), Vector2(0, top_y + 32),
