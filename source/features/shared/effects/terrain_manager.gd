@@ -295,37 +295,55 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 	cube.z_index = 50
 	_cube_container.add_child(cube)
 
-	# ── 벽면 (Wall) — top face보다 먼저 추가 ──
-	# 항상 4각형으로 윗면 전체 모서리와 연결 (틈 방지)
+	# ── 윗면 (Top) — 벽면보다 먼저 추가 (아래에 렌더링) ──
+	var top_full := true
+	# 경사 방향에 따라 윗면을 반으로 잘라서 경사 시각화
+	if wall_h > 0 and south_lower and not east_lower:
+		# 남쪽 경사 → 오른쪽 반쪽만 (왼쪽 절반은 벽면으로 채움)
+		var top := Polygon2D.new()
+		top.polygon = PackedVector2Array([
+			Vector2(0, top_y), Vector2(28, top_y + 16), Vector2(0, top_y + 32),
+		])
+		top.color = top_color; top.texture = _white_tex; cube.add_child(top)
+		top_full = false
+	elif wall_h > 0 and east_lower and not south_lower:
+		# 동쪽 경사 → 왼쪽 반쪽만
+		var top := Polygon2D.new()
+		top.polygon = PackedVector2Array([
+			Vector2(0, top_y), Vector2(0, top_y + 32), Vector2(-28, top_y + 16),
+		])
+		top.color = top_color; top.texture = _white_tex; cube.add_child(top)
+		top_full = false
+	elif wall_h > 0 and south_lower and east_lower:
+		# 양쪽 경사 → 윗면 없음 (뾰족)
+		top_full = false
+	if top_full:
+		var top := Polygon2D.new()
+		top.polygon = PackedVector2Array([
+			Vector2(0, top_y), Vector2(28, top_y + 16),
+			Vector2(0, top_y + 32), Vector2(-28, top_y + 16),
+		])
+		top.color = top_color; top.texture = _white_tex; cube.add_child(top)
+
+	# ── 벽면 (Wall) — 윗면 위에 렌더링 (잘린 윗면 자리까지 채움) ──
 	if wall_h > 0:
+		# 왼쪽 벽: 항상 4각형으로 윗면 전체 모서리와 연결
 		var side_l := Polygon2D.new()
 		side_l.polygon = PackedVector2Array([
 			Vector2(-28, top_y + 16), Vector2(0, top_y + 32),
 			Vector2(0, 16), Vector2(-28, 0),
 		])
-		side_l.color = side_l_color
-		side_l.texture = _white_tex
+		side_l.color = side_l_color; side_l.texture = _white_tex
 		cube.add_child(side_l)
 
-	if wall_h > 0:
+		# 오른쪽 벽: 항상 4각형
 		var side_r := Polygon2D.new()
 		side_r.polygon = PackedVector2Array([
 			Vector2(28, top_y + 16), Vector2(0, top_y + 32),
 			Vector2(0, 16), Vector2(28, 0),
 		])
-		side_r.color = side_r_color
-		side_r.texture = _white_tex
+		side_r.color = side_r_color; side_r.texture = _white_tex
 		cube.add_child(side_r)
-
-	# ── 윗면 (Top) — 벽면 위에 렌더링 ──
-	var top := Polygon2D.new()
-	top.polygon = PackedVector2Array([
-		Vector2(0, top_y), Vector2(28, top_y + 16),
-		Vector2(0, top_y + 32), Vector2(-28, top_y + 16),
-	])
-	top.color = top_color
-	top.texture = _white_tex
-	cube.add_child(top)
 
 
 func _grid_to_world(grid: Vector2i) -> Vector2:
