@@ -257,12 +257,8 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 	var top_y := -wall_h - 16
 
 	# 이웃 높이 확인: 남쪽(y+1)과 동쪽(x+1)이 낮으면 경사면
-	var nh_s = hm.get("%d,%d" % [grid.x, grid.y + 1], 0)
-	var nh_e = hm.get("%d,%d" % [grid.x + 1, grid.y], 0)
-	var south_lower: bool = nh_s < h
-	var east_lower: bool = nh_e < h
-	if south_lower or east_lower:
-		print("[Cube] h=", h, " at ", grid, " S=", nh_s, " E=", nh_e, " southL=", south_lower, " eastL=", east_lower)
+	var south_lower: bool = hm.get("%d,%d" % [grid.x, grid.y + 1], 0) < h
+	var east_lower: bool = hm.get("%d,%d" % [grid.x + 1, grid.y], 0) < h
 
 	# 높이별 색상
 	var top_color: Color
@@ -282,72 +278,19 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 			side_l_color = Color(0.44, 0.45, 0.46)
 			side_r_color = Color(0.30, 0.32, 0.33)
 
-	# 그림자 투명도 (0.0=없음, 0.5=반투명, 1.0=완전불투명)
-	const SHADOW_ALPHA := 0.3
-
 	var cube := Node2D.new()
 	cube.name = "Cube_%d_%d" % [grid.x, grid.y]
 	cube.position = world
 	cube.z_index = 50
+	cube.set_script(preload("res://source/features/shared/effects/cube_draw.gd"))
+	cube.top_y = top_y
+	cube.wall_h = wall_h
+	cube.top_color = top_color
+	cube.side_l_color = side_l_color
+	cube.side_r_color = side_r_color
+	cube.south_lower = south_lower
+	cube.east_lower = east_lower
 	_cube_container.add_child(cube)
-
-	# ── 그림자 (Shadow) — 지면에 드리우는 그림자 ──
-	var shadow := Polygon2D.new()
-	shadow.polygon = PackedVector2Array([
-		Vector2(-30, 14), Vector2(0, 30),
-		Vector2(30, 14), Vector2(0, -2),
-	])
-	shadow.color = Color(0.0, 0.0, 0.0, SHADOW_ALPHA)
-	shadow.z_index = -48
-	cube.add_child(shadow)
-
-	# 윗면 (Top)
-	var top := Polygon2D.new()
-	top.polygon = PackedVector2Array([
-		Vector2(0, top_y), Vector2(28, top_y + 16),
-		Vector2(0, top_y + 32), Vector2(-28, top_y + 16),
-	])
-	top.color = top_color
-	top.z_index = 3
-	cube.add_child(top)
-
-	# 왼쪽 옆면 (남쪽 이웃이 낮으면 경사 삼각형)
-	if wall_h > 0:
-		var side_l := Polygon2D.new()
-		if south_lower:
-			# 디버그: 경사면 빨간색
-			side_l.polygon = PackedVector2Array([
-				Vector2(0, 16), Vector2(0, top_y + 32), Vector2(-28, 0),
-			])
-			side_l.color = Color.RED
-		else:
-			# 평행사변형: 전체 높이
-			side_l.polygon = PackedVector2Array([
-				Vector2(-28, top_y + 16), Vector2(0, top_y + 32),
-				Vector2(0, 16), Vector2(-28, 0),
-			])
-		side_l.color = side_l_color
-		side_l.z_index = 2
-		cube.add_child(side_l)
-
-	# 오른쪽 옆면 (동쪽 이웃이 낮으면 경사 삼각형)
-	if wall_h > 0:
-		var side_r := Polygon2D.new()
-		if east_lower:
-			# 디버그: 경사면 빨간색
-			side_r.polygon = PackedVector2Array([
-				Vector2(0, 16), Vector2(0, top_y + 32), Vector2(28, 0),
-			])
-			side_r.color = Color.RED
-		else:
-			# 평행사변형: 전체 높이
-			side_r.polygon = PackedVector2Array([
-				Vector2(28, top_y + 16), Vector2(0, top_y + 32),
-				Vector2(0, 16), Vector2(28, 0),
-			])
-		side_r.color = side_r_color
-		side_r.z_index = 1
-		cube.add_child(side_r)
 
 
 func _grid_to_world(grid: Vector2i) -> Vector2:
