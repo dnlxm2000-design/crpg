@@ -137,7 +137,9 @@ func _build_tileset() -> void:
 		layer.name = "H%d" % i
 		layer.tile_set = ts
 		layer.z_index = i + 1
-		layer.position = Vector2(0, -i * 16)
+		# 위치 오프셋 제거: 모든 레이어를 그리드 좌표계와 일치시킴
+		# (h≥2는 Polygon2D 큐브가 3D 시각 담당)
+		layer.position = Vector2(0, 0)
 		layer.y_sort_enabled = true
 		add_child(layer)
 		if Engine.is_editor_hint():
