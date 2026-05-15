@@ -72,20 +72,23 @@ func _build_tileset() -> void:
 	img.fill(Color.TRANSPARENT)
 
 	# 1행: 윗면 (col 0~7)
-	_draw_diamond(img, 0, C_GRASS)
-	_draw_diamond(img, 1, C_DIRT)
-	_draw_diamond(img, 2, C_PATH)
-	_draw_diamond_water(img, 3)           # col 3 = 물
-	_draw_diamond(img, 4, C_STONE)
-	_draw_diamond_moss(img, 5, C_STONE)   # col 5 = 이끼 석재
-	# col 6~7 = 비어있음 (예비)
+	_draw_diamond(img, 0, C_GRASS)                       # GRASS (h≤1)
+	_draw_diamond(img, 1, C_DIRT)                        # DIRT
+	_draw_diamond(img, 2, C_PATH)                        # PATH
+	_draw_diamond_water(img, 3)                          # WATER
+	_draw_diamond(img, 4, C_STONE)                       # STONE (h≥4)
+	_draw_diamond_moss(img, 5, C_STONE)                  # MOSS
+	_draw_diamond(img, 6, C_GRASS.darkened(0.25))        # DARK_GRASS (h=2)
+	_draw_diamond(img, 7, C_DIRT.darkened(0.3))          # ROCKY (h=3)
 
 	# 2행: 옆면 (col 0~7)
-	_draw_side(img, 0, C_GRASS.darkened(0.4))
-	_draw_side(img, 1, C_DIRT)
-	_draw_side(img, 2, C_PATH.darkened(0.35))
-	_draw_side(img, 4, C_STONE_L)
-	_draw_side(img, 5, C_STONE_R)
+	_draw_side(img, 0, C_GRASS.darkened(0.4))            # GRASS_SIDE
+	_draw_side(img, 1, C_DIRT)                           # DIRT_SIDE
+	_draw_side(img, 2, C_PATH.darkened(0.35))            # PATH_SIDE
+	_draw_side(img, 4, C_STONE_L)                        # STONE_L
+	_draw_side(img, 5, C_STONE_R)                        # STONE_R
+	_draw_side(img, 6, C_GRASS.darkened(0.55))           # DARK_GRASS_SIDE
+	_draw_side(img, 7, C_DIRT.darkened(0.5))             # ROCKY_SIDE
 
 	# 3행: 물 애니메이션 프레임 (col 0~1)
 	_draw_diamond_water(img, 0, 2, Color(0.15, 0.35, 0.65, 0.85))
@@ -172,7 +175,8 @@ func _generate_and_render() -> void:
 	# 유적지
 	_create_ruins(Vector2i(50, 20), 5, hm)
 
-	# 렌더링
+	# 렌더링 (4방향 벽면 = 정육면체 효과)
+	var dirs := [Vector2i(0, 1), Vector2i(1, 0), Vector2i(0, -1), Vector2i(-1, 0)]
 	for x in range(_world_size.x):
 		for y in range(_world_size.y):
 			var h: int = hm.get("%d,%d" % [x, y], 0)
@@ -183,10 +187,12 @@ func _generate_and_render() -> void:
 				continue
 			var pos := Vector2i(x, y)
 			_layers[h].set_cell(pos, _sid, _get_top(x, y, hm))
-			for lev in range(1, h + 1):
-				var bh: int = hm.get("%d,%d" % [x, y + 1], 0)
-				if bh < lev:
-					_layers[lev].set_cell(pos, _sid, _get_side(x, y, hm, lev if lev == h else 0))
+			# 4방향 벽면 (이웃 높이가 낮으면 측면 표시)
+			for d in dirs:
+				var nh: int = hm.get("%d,%d" % [x + d.x, y + d.y], 0)
+				for lev in range(1, h + 1):
+					if nh < lev:
+						_layers[lev].set_cell(pos, _sid, _get_side(x, y, hm, lev if lev == h else 0))
 
 	# GridWorld elevation 동기화
 	if _grid_world and _grid_world.has_method("set_elevation"):
@@ -413,9 +419,8 @@ func _get_top(x: int, y: int, hm: Dictionary) -> Vector2i:
 	var h: int = hm.get("%d,%d" % [x, y], 0)
 	var key: String = "%d,%d" % [x, y]
 
-	# 유적지 돌 (key prefix check: start + 크기 영역)
+	# 유적지 돌
 	if h >= 2 and _is_ruins_area(x, y):
-		# 이끼: 20% 확률
 		hm["%s_moss" % key] = hm.get("%s_moss" % key, false)
 		if hm.get("%s_moss" % key, _rng.randf() < 0.2):
 			return T_MOSS
@@ -423,6 +428,13 @@ func _get_top(x: int, y: int, hm: Dictionary) -> Vector2i:
 
 	if h >= 4:
 		return T_STONE  # 산 정상 = 돌
+
+	# 높이에 따라 윗면 색상 변화 (col 6=DARK_GRASS, col 7=ROCKY)
+	if h >= 3:
+		return Vector2i(7, 0)  # rocky top (col 7, 예비 슬롯 → DIRT 계열)
+	if h == 2:
+		return Vector2i(6, 0)  # darker grass (col 6, 예비 슬롯 → 어두운 녹색)
+
 	if _is_path(x, y):
 		return T_PATH
 	return T_GRASS
@@ -433,12 +445,18 @@ func _get_side(x: int, y: int, hm: Dictionary, _is_top_level: int) -> Vector2i:
 
 	# 유적지 돌 옆면
 	if _is_ruins_area(x, y) and h > 0:
-		# 좌측(L) vs 우측(R) 그림자: R이 더 어두움
 		if _rng.randf() < 0.5:
 			return T_STONE_L
 		return T_STONE_R
 
-	return T_DIRT_SIDE
+	# 높이별 옆면 색상
+	if h >= 4:
+		return Vector2i(4, 1)  # STONE_L
+	if h == 3:
+		return Vector2i(7, 1)  # ROCKY_SIDE
+	if h == 2:
+		return Vector2i(6, 1)  # DARK_GRASS_SIDE
+	return Vector2i(0, 1)  # GRASS_SIDE
 
 
 func _is_ruins_area(x: int, y: int) -> bool:
