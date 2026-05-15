@@ -1,6 +1,6 @@
 # CRPG_PROJECT — 작업 현황
 
-## 마지막 작업: 2026-05-14
+## 마지막 작업: 2026-05-15
 
 완료된 작업과 앞으로 할 일을 정리한다.
 
@@ -8,46 +8,135 @@
 
 ## ✅ 완료된 기능
 
-### 5. GameState.current_mode 버그 수정
-- **파일**: `source/core/game_loop.gd`
-- `enter_realtime()` / `enter_turn_mode()`에서 `GameState.current_mode`를 업데이트하지 않던 버그 수정
-- 이제 모드 전환 시 `GameState.current_mode`가 `REALTIME` / `TURNBASED`로 정상 변경됨
-- (이전에는 `MENU`에서 영원히 안 벗어나서 입/출력 처리에 문제가 있었음)
+### 0. 코어 시스템
+- 게임 루프 + FSM (realtime ↔ turnbased)
+- 턴 매니저 (속도 → Agility 기반 initiative)
+- Action Points 시스템
+- ZOC (Zone of Control) — 진입 AP+1, 이탈 AoO
+- CombatResolver — 명중/회피/치명타/빗맞힘/고도/후방공격
+- 캐릭터 스탯 (str/agi/int/con) + initiative
+- GameState.current_mode 버그 수정
 
-### 6. 방향 표시기 (Direction Indicator)
-- **파일**: `source/features/shared/unit.gd`
-- 유닛 아래에 흰색 V자 삼각형 화살표 표시
-- `facing_direction` 속성으로 마지막 이동 방향 추적
-- 턴제/실시간 모두 이동 시 자동 업데이트
-- `update_facing_direction(dir)` 호출로 회전
+### 1. 지형 시스템 (Isometric Terrain)
+- **63×126 타일** 맵, FastNoiseLite 기반 높이맵
+- **TileMapLayer** 6단 스택 (z_index로 깊이 정렬)
+- 지형 타입: GRASS, DIRT, PATH, STONE, MOSS
+- 절차적 타일셋 (8열 × 2행 아틀라스, 다이아몬드 텍스처)
+- 절벽면 자동 렌더링 (y+1 높이 차이 감지)
+- 십자형 길 (수동 레이아웃)
 
-### 7. 타겟 정보 패널
-- **파일**: `source/ui/hud/hud.gd`
-- 우측 상단에 현재 타겟 정보 표시: 이름, HP, 거리
-- Tab으로 타겟 변경 시 자동 갱신
-- 전투 종료 시 자동 숨김
+### 2. 유적지 (Ruins)
+- **5×5 Hollow Cube** at (50,20)
+- 벽 높이 1~3 랜덤 (무너진 효과)
+- Stone Top / Stone Side L+R (3톤 그림자)
+- 이끼 (8% 녹색 픽셀 혼합)
+- 입구 + 내부 바닥 + 그림자 데칼
 
-### 1. Zone of Control (ZOC)
-- **파일**: `source/features/turnbased/zoc_controller.gd`
-- 인접 8타일 통제, 진입 시 AP+1, 이탈 시 Attack of Opportunity
-- 유닛 속성: `zoc_range` (기본 1)
-- 적 AI: ZOC 인식 측면 접근
-- **테스트**: `test_zoc.gd` — 9개 통과
+### 3. 캐릭터 3D 박스
+- 3-Polygon2D 육면체 (top + left side + right side)
+- 지형 타일과 동일한 3단 스택 방식
+- flip_h → 좌우 옆면 색상 반전
+- 이동 시 Bobbing 효과
 
-### 2. Hit/Miss 시스템 (CombatResolver)
-- **파일**: `source/features/turnbased/combat_resolver.gd`
-- 명중 = `clamp(accuracy - evasion + 거리패널티, 5%, 95%)`
-- 치명타(Crit): 상위 5% 구간, 데미지 ×2
-- 빗맞힘(Graze): 상위 5~10% 구간, 데미지 ÷2
-- 거리 패널티: 최적 사거리 초과 시 타일당 -5%
-- 유닛 속성: `crit_chance`, `crit_multiplier`
-- **통합된 호출자**: player_controller (E공격), enemy_ai (근접/원거리), zoc_controller (AoO)
-- **테스트**: `test_combat_resolver.gd` — 31개 통과
+### 4. 실시간 이동
+- WASD + `move_and_slide()` 아이소메트릭 변환
+- grid = (x+y, -x+y) 변환식
+- 마우스 클릭 경로 이동 (A*) 병행
+- Shadow Sprite + idle bob
 
-### 3. 전투 UI (Action Bar + Targeting)
-- **파일**: `source/ui/hud/action_bar.gd` — 하단 중앙 [⚔Attack] [🎒Item] [⏳Wait]
-  - AP 인식 버튼 상태
-  - Attack → 인접 적 공격 (CombatResolver)
+### 5. 전투 시스템
+- Hit/Miss/Crit/Graze (CombatResolver)
+- 고도 우세/열세 ±10%
+- 후방 공격 +15% 명중, ×1.5 데미지
+- Push 액션 버튼 (AP 2)
+- ZOC + Attack of Opportunity
+- 적 AI (근접 + 원거리)
+
+### 6. 전투 UI
+- Action Bar: [Attack] [Push] [Item] [Wait]
+- 타겟팅 (Tab 순환 + 우클릭 해제)
+- HP bar / AP / 턴 표시 / 데미지 플로팅
+- 이벤트 로그 (한국어)
+
+### 7. 인풋 시스템
+- 8방향 키맵: WASD + Q/R/Z/V + Numpad
+- 전투 마우스 클릭 (이동 + 공격)
+- GameState.current_mode 연동
+
+### 8. VS Code / Godot 통합
+- Godot Tools 확장, 디버그 설정
+- 7개 headless 테스트 스위트
+
+---
+
+## 🔜 다음 할 일
+
+### 높은 우선순위
+- [ ] **지형 시각 확인** — 렌더링 버그 수정 (z_index, 전체맵 coverage)
+- [ ] **맵 생성 최적화** — 63×126 전체 맵 생성 시간 확인
+- [ ] **플레이어 시작 위치 조정** — 길 교차점 (30,61)
+
+### 전투 심화
+- [ ] 스킬/마법 시스템 (근접 외 다양한 액션)
+- [ ] 상태 이상 (독, 스턴, 버프/디버프)
+- [ ] 원거리/사거리 시스템 개선
+
+### AI / 콘텐츠
+- [ ] 실시간 패트롤 AI
+- [ ] 전리품 / 경험치 / 레벨업
+- [ ] 추가 유적지 및 맵 구조물
+
+### UI
+- [ ] 이동 가능 범위 하이라이트 (턴제)
+- [ ] 명중률 프리뷰
+- [ ] SpriteSheet 교체 (Blender AI)
+
+---
+
+## 🧪 테스트 스위트 (7/7 통과)
+모든 테스트는 headless Godot 4.6.2로 실행:
+
+| 테스트 | 파일 | 통과 |
+|---|---|---|
+| CombatResolver | `test_combat_resolver.tscn` | 31/31 |
+| ZOC | `test_zoc.tscn` | 9/9 |
+| 모드 전환 | `test_combat_transition.tscn` | 9/9 |
+| 승리/패배 | `test_combat_end.tscn` | 4/4 |
+| 전투 인벤토리 | `test_combat_inventory.tscn` | 6/6 |
+| 적 AI | `test_enemy_ai.tscn` | 7/7 |
+| 장비 | `test_equipment.tscn` | 9/9 |
+
+---
+
+## 🏗 프로젝트 구조
+
+```
+main.tscn (Main: Node2D)
+├── Terrain (Node2D)                    # 지형 렌더러
+│   ├── H0~H5 (TileMapLayer ×6)        # 높이 스택
+├── GameLoop
+│   ├── GridWorld (63×126 isometric)
+│   ├── ModeStateMachine → realtime/turnbased
+│   ├── TurnManager (initiative 정렬)
+│   └── ...
+├── RealTimeManager
+└── HUD (CanvasLayer)
+    ├── ActionBar / Targeting
+    ├── TurnOrderPanel / EventLog
+    └── InventoryPanel / EquipmentPanel
+
+Autoloads: EventBus, GameState
+
+New systems:
+├── source/features/turnbased/combat_resolver.gd
+├── source/features/turnbased/zoc_controller.gd
+└── source/features/shared/effects/terrain_manager.gd
+```
+
+## 🛠 빌드/실행
+- **Run**: `F5` (VS Code) 또는 Godot 에디터로 `source/main.tscn` 실행
+- **Headless 테스트**: 각 `.tscn`을 Godot `--headless` 플래그로 실행
+- **모든 테스트**: VS Code `Run All Headless Tests` 태스크
   - Item → 인벤토리 토글
   - Wait → AP 클리어 + 턴 종료
 - **파일**: `source/ui/hud/targeting.gd` — Tab 순환 + 적 하이라이트 + HP 표시
