@@ -100,8 +100,8 @@ func _build_tileset() -> void:
 	var src := TileSetAtlasSource.new()
 	src.texture = tex
 	src.texture_region_size = Vector2i(TILE_W, TILE_H)
-	for row: int in 3:
-		for col: int in ATLAS_COLS:
+	for row in range(3):
+		for col in range(ATLAS_COLS):
 			src.create_tile(Vector2i(col, row), Vector2i(1, 1))
 
 	ts.add_source(src)
@@ -152,8 +152,8 @@ func _generate_and_render() -> void:
 
 	# ── 체크타일 디버그: 기본 렌더링이 되는지 확인 ──
 	# H0 레이어에 10x10 체크무늬 타일 배치 (col 0=GRASS 녹색, col 1=DIRT 갈색)
-	for x in 10:
-		for y in 10:
+	for x in range(10):
+		for y in range(10):
 			var pos := Vector2i(x, y)
 			var atlas_col := 0 if (x + y) % 2 == 0 else 1
 			_layers[0].set_cell(pos, _sid, Vector2i(atlas_col, 0))
