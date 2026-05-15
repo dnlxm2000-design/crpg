@@ -248,13 +248,17 @@ func _build_cubes(hm: Dictionary) -> void:
 			var h: int = hm.get("%d,%d" % [x, y], 0)
 			if h < 2:
 				continue
-			_create_cube_at(Vector2i(x, y), h)
+			_create_cube_at(Vector2i(x, y), h, hm)
 
 
-func _create_cube_at(grid: Vector2i, h: int) -> void:
+func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 	var world := _grid_to_world(grid)
-	var wall_h := (h - 1) * 16  # 벽면 높이 (px)
-	var top_y := -wall_h - 16   # 윗면 Y (최상단)
+	var wall_h := (h - 1) * 16
+	var top_y := -wall_h - 16
+
+	# 이웃 높이 확인: 남쪽(y+1)과 동쪽(x+1)이 낮으면 경사면
+	var south_lower: bool = hm.get("%d,%d" % [grid.x, grid.y + 1], 0) < h
+	var east_lower: bool = hm.get("%d,%d" % [grid.x + 1, grid.y], 0) < h
 
 	# 높이별 색상
 	var top_color: Color
@@ -305,24 +309,38 @@ func _create_cube_at(grid: Vector2i, h: int) -> void:
 	top.z_index = 3
 	cube.add_child(top)
 
-	# 왼쪽 옆면
+	# 왼쪽 옆면 (남쪽 이웃이 낮으면 경사 삼각형)
 	if wall_h > 0:
 		var side_l := Polygon2D.new()
-		side_l.polygon = PackedVector2Array([
-			Vector2(-28, top_y + 16), Vector2(0, top_y + 32),
-			Vector2(0, 16), Vector2(-28, 0),
-		])
+		if south_lower:
+			# 삼각형 경사: 중앙에서 왼쪽으로 갈수록 낮아짐
+			side_l.polygon = PackedVector2Array([
+				Vector2(-28, 0), Vector2(0, top_y + 32), Vector2(0, 16),
+			])
+		else:
+			# 평행사변형: 전체 높이
+			side_l.polygon = PackedVector2Array([
+				Vector2(-28, top_y + 16), Vector2(0, top_y + 32),
+				Vector2(0, 16), Vector2(-28, 0),
+			])
 		side_l.color = side_l_color
 		side_l.z_index = 2
 		cube.add_child(side_l)
 
-	# 오른쪽 옆면
+	# 오른쪽 옆면 (동쪽 이웃이 낮으면 경사 삼각형)
 	if wall_h > 0:
 		var side_r := Polygon2D.new()
-		side_r.polygon = PackedVector2Array([
-			Vector2(28, top_y + 16), Vector2(0, top_y + 32),
-			Vector2(0, 16), Vector2(28, 0),
-		])
+		if east_lower:
+			# 삼각형 경사: 중앙에서 오른쪽으로 갈수록 낮아짐
+			side_r.polygon = PackedVector2Array([
+				Vector2(28, 0), Vector2(0, top_y + 32), Vector2(0, 16),
+			])
+		else:
+			# 평행사변형: 전체 높이
+			side_r.polygon = PackedVector2Array([
+				Vector2(28, top_y + 16), Vector2(0, top_y + 32),
+				Vector2(0, 16), Vector2(28, 0),
+			])
 		side_r.color = side_r_color
 		side_r.z_index = 1
 		cube.add_child(side_r)
