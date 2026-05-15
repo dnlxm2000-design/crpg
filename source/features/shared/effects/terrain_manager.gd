@@ -278,19 +278,57 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 			side_l_color = Color(0.44, 0.45, 0.46)
 			side_r_color = Color(0.30, 0.32, 0.33)
 
+	# 1픽셀 흰색 텍스처 (Polygon2D 호환성 보장)
+	var _tex: ImageTexture
+	_tex = ImageTexture.create_from_image(Image.create(1, 1, false, Image.FORMAT_RGBA8))
+
 	var cube := Node2D.new()
 	cube.name = "Cube_%d_%d" % [grid.x, grid.y]
 	cube.position = world
 	cube.z_index = 50
-	cube.set_script(preload("res://source/features/shared/effects/cube_draw.gd"))
-	cube.top_y = top_y
-	cube.wall_h = wall_h
-	cube.top_color = top_color
-	cube.side_l_color = side_l_color
-	cube.side_r_color = side_r_color
-	cube.south_lower = south_lower
-	cube.east_lower = east_lower
 	_cube_container.add_child(cube)
+
+	# 윗면
+	var top := Polygon2D.new()
+	top.polygon = PackedVector2Array([
+		Vector2(0, top_y), Vector2(28, top_y + 16),
+		Vector2(0, top_y + 32), Vector2(-28, top_y + 16),
+	])
+	top.color = top_color
+	top.texture = _tex
+	cube.add_child(top)
+
+	# 왼쪽 벽면
+	if wall_h > 0:
+		var side_l := Polygon2D.new()
+		if south_lower:
+			side_l.polygon = PackedVector2Array([
+				Vector2(0, top_y + 32), Vector2(0, 16), Vector2(-28, 0),
+			])
+		else:
+			side_l.polygon = PackedVector2Array([
+				Vector2(-28, top_y + 16), Vector2(0, top_y + 32),
+				Vector2(0, 16), Vector2(-28, 0),
+			])
+		side_l.color = side_l_color
+		side_l.texture = _tex
+		cube.add_child(side_l)
+
+	# 오른쪽 벽면
+	if wall_h > 0:
+		var side_r := Polygon2D.new()
+		if east_lower:
+			side_r.polygon = PackedVector2Array([
+				Vector2(0, top_y + 32), Vector2(0, 16), Vector2(28, 0),
+			])
+		else:
+			side_r.polygon = PackedVector2Array([
+				Vector2(28, top_y + 16), Vector2(0, top_y + 32),
+				Vector2(0, 16), Vector2(28, 0),
+			])
+		side_r.color = side_r_color
+		side_r.texture = _tex
+		cube.add_child(side_r)
 
 
 func _grid_to_world(grid: Vector2i) -> Vector2:
