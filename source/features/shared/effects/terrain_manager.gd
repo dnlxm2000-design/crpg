@@ -151,55 +151,20 @@ func _build_tileset() -> void:
 # ─── 지형 생성 ───
 
 func _generate_and_render() -> void:
-	var hm: Dictionary = {}
-
-	# 노이즈 높이맵
-	for x: int in range(_world_size.x):
-		for y: int in range(_world_size.y):
-			var raw: float = _noise.get_noise_2d(x, y)
-			hm["%d,%d" % [x, y]] = clampi(roundi(abs(raw) * 5), 0, MAX_H)
-
-	# 십자형 길
-	var cy: int = _world_size.y / 2 - 2  # 126/2=63 → 63-2=61
-	for x: int in range(10, 50):
-		for yy: int in range(cy, cy + 3):
-			hm["%d,%d" % [x, yy]] = 1
-	var cx: int = _world_size.x / 2 - 1  # 63/2=31 → 31-1=30
-	for y: int in range(20, 90):
-		for xx: int in range(cx, cx + 2):
-			hm["%d,%d" % [xx, y]] = 1
-
-	# 유적지 생성
-	_create_ruins(Vector2i(50, 20), 5, hm)
-
-	# 렌더링
+	print("[Terrain] _generate_and_render called, sid=", _sid, " layers=", _layers.size())
 	for layer in _layers:
 		layer.clear()
 	if _water_layer:
 		_water_layer.clear()
 
-	for x: int in range(_world_size.x):
-		for y: int in range(_world_size.y):
-			var h: int = hm.get("%d,%d" % [x, y], 0)
-			if h <= 0:
-				# 고도 0 = 물
-				if _water_layer:
-					var anim_frame: int = (x + y) % 2
-					_water_layer.set_cell(Vector2i(x, y), _sid, Vector2i(anim_frame, 2))
-				continue
-			var pos: Vector2i = Vector2i(x, y)
-			_layers[h].set_cell(pos, _sid, _get_top(x, y, hm))
-			for lev: int in range(1, h + 1):
-				var bh: int = hm.get("%d,%d" % [x, y + 1], 0)
-				if bh < lev:
-					_layers[lev].set_cell(pos, _sid, _get_side(x, y, hm, lev if lev == h else 0))
-
-	# GridWorld elevation 동기화
-	if _grid_world and _grid_world.has_method("set_elevation"):
-		for x: int in range(_world_size.x):
-			for y: int in range(_world_size.y):
-				var h: int = hm.get("%d,%d" % [x, y], 0)
-				_grid_world.set_elevation(Vector2i(x, y), clampi(h, 0, 2))
+	# ── 체크타일 디버그: 기본 렌더링이 되는지 확인 ──
+	# H0 레이어에 10x10 체크무늬 타일 배치 (col 0=GRASS 녹색, col 1=DIRT 갈색)
+	for x in 10:
+		for y in 10:
+			var pos := Vector2i(x, y)
+			var atlas_col := 0 if (x + y) % 2 == 0 else 1
+			_layers[0].set_cell(pos, _sid, Vector2i(atlas_col, 0))
+	print("[Terrain] Checkerboard placed, count=", _layers[0].get_used_cells().size())
 
 
 # ─── 유적지 생성 (Hollow Cube) ───
