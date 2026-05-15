@@ -96,6 +96,7 @@ func _build_tileset() -> void:
 	ts.tile_shape = TileSet.TILE_SHAPE_ISOMETRIC
 	ts.tile_layout = TileSet.TILE_LAYOUT_DIAMOND_DOWN
 	ts.tile_offset_axis = TileSet.TILE_OFFSET_AXIS_HORIZONTAL
+	ts.tile_size = Vector2i(TILE_W, TILE_H)
 
 	var src := TileSetAtlasSource.new()
 	src.texture = tex
@@ -150,15 +151,19 @@ func _generate_and_render() -> void:
 	if _water_layer:
 		_water_layer.clear()
 
-	# ── 체크타일 디버그: 플레이어 영역(30,61) 중심 60x80 ──
-	var ox := 0
-	var oy := 20
-	for x in range(60):
-		for y in range(80):
-			var pos := Vector2i(ox + x, oy + y)
-			var atlas_col := 0 if (x + y) % 2 == 0 else 1
+	# ── 단일 타일 디버그: 플레이어 위치 (30,61)에 GRASS 타일 ──
+	_layers[0].set_cell(Vector2i(30, 61), _sid, Vector2i(0, 0))
+	# 주변 8방향도 추가
+	for dx in [-1, 0, 1]:
+		for dy in [-1, 0, 1]:
+			var pos := Vector2i(30 + dx, 61 + dy)
+			var atlas_col := 0 if (dx + dy) % 2 == 0 else 1
 			_layers[0].set_cell(pos, _sid, Vector2i(atlas_col, 0))
-	print("[Terrain] Checkerboard placed, count=", _layers[0].get_used_cells().size())
+	print("[Terrain] Tiles at player pos, total=", _layers[0].get_used_cells().size())
+
+	# TileSet 설정 출력
+	print("[Terrain] tile_size=", _layers[0].tile_set.tile_size, " shape=", _layers[0].tile_set.tile_shape)
+	print("[Terrain] layout=", _layers[0].tile_set.tile_layout)
 
 
 # ─── 유적지 생성 (Hollow Cube) ───
