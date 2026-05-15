@@ -1,13 +1,8 @@
 # terrain_manager.gd — 아이소메트릭 입체 지형 + 유적지 생성기.
 # 높이 스택 TileMapLayer + 절차적 타일셋 + 유적지 Hollow Cube.
-# @tool 모드 지원: Editor에서 실시간 지형 편집 가능.
-@tool
 extends Node2D
 
-## TerrainData 리소스 (Editor에서 직접 연결 가능)
-@export var terrain_data: Resource = preload("res://source/data/terrain_data.tres")
-
-## 타일셋 색상 (호환용, TerrainData가 없을 때 fallback)
+## 타일셋 색상
 const C_GRASS := Color("#99C27C")
 const C_DIRT := Color("#6D5545")
 const C_PATH := Color("#D1B48C")
@@ -73,8 +68,6 @@ func regenerate() -> void:
 
 
 func _build_tileset() -> void:
-	var td: TerrainData = terrain_data if terrain_data is TerrainData else null
-
 	var img := Image.create(TILE_W * ATLAS_COLS, TILE_H * 3, false, Image.FORMAT_RGBA8)
 	img.fill(Color.TRANSPARENT)
 
