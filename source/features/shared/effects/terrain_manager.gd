@@ -34,8 +34,6 @@ const TILE_H: int = 32
 const MAX_H: int = 5
 const ATLAS_COLS: int = 8
 ## 물 레이어 인덱스 (H0보다 아래)
-const WATER_LAYER_IDX: int = -1
-
 var _layers: Array[TileMapLayer] = []
 var _water_layer: TileMapLayer = null
 var _noise: FastNoiseLite = null
@@ -43,8 +41,6 @@ var _grid_world: Node = null
 var _rng: RandomNumberGenerator = null
 var _world_size := Vector2i(63, 126)
 var _sid: int = 0
-## TerrainSet ID (타일 자동 연결용)
-var _terrain_set_id: int = -1
 
 
 func _ready() -> void:
@@ -153,30 +149,12 @@ func _build_tileset() -> void:
 	ts.tile_layout = TileSet.TILE_LAYOUT_DIAMOND_DOWN
 	ts.tile_offset_axis = TileSet.TILE_OFFSET_AXIS_HORIZONTAL
 
-	# ── TerrainSet (오토타일링) 설정 ──
-	# TerrainSet은 같은 레이어 내 타일 간 연결에 사용됨.
-	# 각 지형 타입을 하나의 Terrain으로 등록 → 타일 배치 시 자동 연결.
-	var terrain_names: Array[String] = ["GRASS", "DIRT", "PATH", "STONE"]
-	var terrain_ids: Array[int] = []
-	for tname in terrain_names:
-		var tid: int = ts.add_terrain()
-		ts.set_terrain_name(tid, tname)
-		# 3×3 비트마스크 모드 (주변 8방향 체크)
-		ts.set_terrain_peering_bit(tid, TileSet.CELL_NEIGHBOR_TOP_LEFT_SIDE, tid)
-		terrain_ids.append(tid)
-
 	var src := TileSetAtlasSource.new()
 	src.texture = tex
 	src.texture_region_size = Vector2i(TILE_W, TILE_H)
 	for row: int in 3:
 		for col: int in ATLAS_COLS:
-			var tile_id: Vector2i = Vector2i(col, row)
-			src.create_tile(tile_id, Vector2i(1, 1))
-			# Terrain 연결: 윗면(0행)만 Terrain 할당
-			if row == 0:
-				var t_idx: int = terrain_names.find(_col_to_terrain_name(col))
-				if t_idx >= 0 and t_idx < terrain_ids.size():
-					src.set_tile_terrain(tile_id, terrain_ids[t_idx], 0b111111111)  # 모든 방향 연결
+			src.create_tile(Vector2i(col, row), Vector2i(1, 1))
 
 	ts.add_source(src)
 	_sid = ts.get_source_id(0)
@@ -186,23 +164,6 @@ func _build_tileset() -> void:
 		layer.tile_set = ts
 	if _water_layer:
 		_water_layer.tile_set = ts
-
-	# 셰이더 적용 (동적 그림자)
-	_setup_shader(ts)
-	_setup_layer_materials(ts)
-
-	for level: int in range(MAX_H + 1):
-		var layer := TileMapLayer.new()
-		layer.name = "H%d" % level
-		layer.tile_set = ts
-		# Y 오프셋: 위로 쌓을수록 y값이 작아짐 (화면 위쪽)
-		layer.position = Vector2(0, -level * TILE_H / 2)
-		# z_index: 높은 레벨일수록 위에 그림 (y_sort 대신 사용)
-		layer.z_index = level + 1
-		# 같은 레벨 내 타일은 y_sort로 깊이 정렬
-		layer.y_sort_enabled = true
-		add_child(layer)
-		_layers.append(layer)
 
 
 # ─── 지형 생성 ───
@@ -468,68 +429,6 @@ static func example_map_data() -> Dictionary:
 		"height": hh,
 		"tiles": tiles,
 	}
-
-
-# ─── 셰이더 ───
-
-func _setup_shader(ts: TileSet) -> void:
-	# 각 레이어에 높이 기반 그림자 셰이더 적용
-	var shader_code := "shader_type canvas_item;\n"
-	shader_code += "uniform float height_level : hint_range(0.0, 5.0) = 0.0;\n"
-	shader_code += "uniform float height_darken : hint_range(0.0, 1.0) = 0.12;\n"
-	shader_code += "void fragment() {\n"
-	shader_code += "	COLOR = texture(TEXTURE, UV);\n"
-	shader_code += "	float dark = 1.0 - height_level * height_darken;\n"
-	shader_code += "	COLOR.rgb *= dark;\n"
-	shader_code += "}\n"
-
-	var mat := ShaderMaterial.new()
-	var shader := Shader.new()
-	shader.code = shader_code
-	mat.shader = shader
-
-	# TileSet material — 모든 레이어가 공유
-	ts.tile_material = mat
-	for i in range(MAX_H + 1):
-		mat.set_shader_parameter("height_level", float(i))
-
-
-func _setup_layer_materials(ts: TileSet) -> void:
-	for i in range(_layers.size()):
-		if ts and ts.tile_material:
-			var mat_copy := ShaderMaterial.new()
-			mat_copy.shader = ts.tile_material.shader
-			mat_copy.set_shader_parameter("height_level", float(i + 1))
-			mat_copy.set_shader_parameter("height_darken", 0.12)
-			_layers[i].material = mat_copy
-
-	# 물 레이어: 별도 셰이더 (애니메이션)
-	if _water_layer:
-		var water_mat := ShaderMaterial.new()
-		var water_shader := Shader.new()
-		water_shader.code = "shader_type canvas_item;\n"
-		water_shader.code += "uniform vec4 water_color : source_color = vec4(0.2, 0.4, 0.7, 0.8);\n"
-		water_shader.code += "uniform float wave_speed : hint_range(0.0, 5.0) = 1.0;\n"
-		water_shader.code += "void fragment() {\n"
-		water_shader.code += "	float wave = sin(UV.x * 6.28 + TIME * wave_speed) * 0.03;\n"
-		water_shader.code += "	vec4 c = water_color;\n"
-		water_shader.code += "	c.a += wave;\n"
-		water_shader.code += "	COLOR = c;\n"
-		water_shader.code += "}\n"
-		water_mat.shader = water_shader
-		_water_layer.material = water_mat
-
-
-## 아틀라스 열 → Terrain 이름 매핑
-static func _col_to_terrain_name(col: int) -> String:
-	match col:
-		0: return "GRASS"
-		1: return "DIRT"
-		2: return "PATH"
-		3: return "WATER"
-		4: return "STONE"
-		5: return "MOSS"
-		_: return "GRASS"
 
 
 func _get_top(x: int, y: int, hm: Dictionary) -> Vector2i:
