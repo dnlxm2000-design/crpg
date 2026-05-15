@@ -197,11 +197,16 @@ func _generate_and_render() -> void:
 	# GridWorld elevation 동기화 + 물 블록 처리
 	if _grid_world and _grid_world.has_method("set_elevation"):
 		for key in hm:
+			# _get_top()이 추가한 "x,y_moss" 키는 건너뜀
+			if "_moss" in key:
+				continue
 			var parts = key.split(",")
 			if parts.size() == 2:
 				var gx := int(parts[0])
 				var gy := int(parts[1])
 				var h_val = hm[key]
+				if typeof(h_val) != TYPE_INT:
+					continue
 				_grid_world.set_elevation(Vector2i(gx, gy), clampi(h_val, 0, 2))
 				# 고도 0 = 물 = 통과 불가
 				if h_val <= 0 and _grid_world.has_method("set_blocked"):
