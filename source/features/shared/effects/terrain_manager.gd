@@ -150,11 +150,12 @@ func _generate_and_render() -> void:
 	if _water_layer:
 		_water_layer.clear()
 
-	# ── 체크타일 디버그: 기본 렌더링이 되는지 확인 ──
-	# H0 레이어에 10x10 체크무늬 타일 배치 (col 0=GRASS 녹색, col 1=DIRT 갈색)
-	for x in range(10):
-		for y in range(10):
-			var pos := Vector2i(x, y)
+	# ── 체크타일 디버그: 플레이어 영역(30,61) 중심 60x80 ──
+	var ox := 0
+	var oy := 20
+	for x in range(60):
+		for y in range(80):
+			var pos := Vector2i(ox + x, oy + y)
 			var atlas_col := 0 if (x + y) % 2 == 0 else 1
 			_layers[0].set_cell(pos, _sid, Vector2i(atlas_col, 0))
 	print("[Terrain] Checkerboard placed, count=", _layers[0].get_used_cells().size())
