@@ -31,15 +31,15 @@ func _ready() -> void:
 	add_child(range_overlay)
 	if _grid_world and range_overlay.has_method("setup"):
 		range_overlay.setup(_grid_world)
-		# Draw below units but above the grid background
-		range_overlay.z_index = -1
+		# Draw above terrain (z=1..6) but below HUD
+		range_overlay.z_index = 10
 		range_overlay.z_as_relative = false
 
 	# ── Path Preview (real-time mouse path line) ──
 	var path_preview = load("res://source/features/shared/effects/path_preview.gd").new()
 	path_preview.name = "PathPreview"
 	add_child(path_preview)
-	path_preview.z_index = 1
+	path_preview.z_index = 11
 	path_preview.z_as_relative = false
 	# Wire references after player is spawned
 	path_preview.visible = false

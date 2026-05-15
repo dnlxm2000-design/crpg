@@ -186,6 +186,166 @@ func _create_ruins(start: Vector2i, size: int, hm: Dictionary) -> void:
 
 # ─── 타일 종류 결정 ───
 
+# ─── 공개 API ───
+
+## 지형 타입 → 아틀라스 윗면 좌표
+const TYPE_TOP: Dictionary = {
+	0: Vector2i(0, 0),  # GRASS
+	1: Vector2i(1, 0),  # DIRT
+	2: Vector2i(2, 0),  # PATH
+	4: Vector2i(4, 0),  # STONE
+	5: Vector2i(5, 0),  # MOSS
+}
+## 지형 타입 → 아틀라스 옆면 좌표
+const TYPE_SIDE: Dictionary = {
+	0: Vector2i(0, 1),  # GRASS_SIDE
+	1: Vector2i(1, 1),  # DIRT_SIDE
+	2: Vector2i(2, 1),  # PATH_SIDE
+	4: Vector2i(4, 1),  # STONE_L
+	5: Vector2i(5, 1),  # STONE_R
+}
+
+## 키 "x,y" → 높이 추출 헬퍼
+## tiles는 {"h": int, "t": int} Dict 또는 int (호환용) 를 값으로 가짐.
+static func _hm_h(key: String, tiles: Dictionary, default: int = 0) -> int:
+	var entry = tiles.get(key)
+	if entry is Dictionary:
+		return entry.get("h", default)
+	if typeof(entry) == TYPE_INT:
+		return entry
+	return default
+
+## (x, y) 위치에 고도 h, 지형 type의 타일 배치.
+## tiles: 전체 맵 딕셔너리 (이웃 높이 참조용, "x,y" → {h, t}).
+## 자동으로 4방향(남/동/북/서) 측면 벽면 + 고도 차이 필러 처리.
+func set_tile(x: int, y: int, h: int, type: int, tiles: Dictionary) -> void:
+	if h <= 0 or h > MAX_H:
+		return
+	var pos := Vector2i(x, y)
+	# 윗면
+	_layers[h].set_cell(pos, _sid, TYPE_TOP.get(type, T_GRASS))
+
+	# 4방향 측면 체크
+	var dirs := [Vector2i(0, 1), Vector2i(1, 0), Vector2i(0, -1), Vector2i(-1, 0)]
+	for d in dirs:
+		var nk: String = "%d,%d" % [x + d.x, y + d.y]
+		var nh: int = _hm_h(nk, tiles)
+		for lev in range(1, h + 1):
+			if nh < lev:
+				_layers[lev].set_cell(pos, _sid, TYPE_SIDE.get(type, T_DIRT_SIDE))
+
+
+## 맵 데이터로 일괄 지형 생성. 기존 타일을 모두 지우고 새로 그림.
+## map_data 구조:
+##   {
+##     "width": 63, "height": 126,
+##     "tiles": {
+##       "x,y": { "h": 1..5, "t": 0..5 }, ...
+##     }
+##   }
+func generate_from_map(map_data: Dictionary) -> void:
+	var w: int = map_data.get("width", _world_size.x)
+	var h: int = map_data.get("height", _world_size.y)
+	var tiles: Dictionary = map_data.get("tiles", {})
+
+	if w <= 0 or h <= 0 or tiles.is_empty():
+		push_warning("TerrainManager: generate_from_map got empty map_data")
+		return
+
+	# 모든 레이어 클리어
+	for layer in _layers:
+		layer.clear()
+
+	# 타일 배치 (키 순서 중요: 위→아래 방향으로 그리기 위해)
+	var sorted_keys := tiles.keys()
+	sorted_keys.sort()
+	for key in sorted_keys:
+		var parts := key.split(",")
+		if parts.size() != 2:
+			continue
+		var tx := int(parts[0])
+		var ty := int(parts[1])
+		if tx < 0 or tx >= w or ty < 0 or ty >= h:
+			continue
+		var info := tiles[key]
+		var tile_h := info.get("h", 0) if info is Dictionary else info
+		var tile_t := info.get("t", 0) if info is Dictionary else 0
+		if tile_h <= 0:
+			continue
+		set_tile(tx, ty, tile_h, tile_t, tiles)
+
+	# GridWorld elevation 동기화
+	if _grid_world and _grid_world.has_method("set_elevation"):
+		for key in tiles:
+			var parts := key.split(",")
+			if parts.size() != 2:
+				continue
+			var tx := int(parts[0])
+			var ty := int(parts[1])
+			var entry = tiles[key]
+			var eh := entry.get("h", 0) if entry is Dictionary else entry
+			_grid_world.set_elevation(Vector2i(tx, ty), clampi(eh, 0, 2))
+
+
+## 예시 맵 데이터 반환 — 산, 평지, 강이 포함된 63×126 맵.
+static func example_map_data() -> Dictionary:
+	var tiles: Dictionary = {}
+	var w := 63
+	var hh := 126
+
+	# 1. 노이즈 기반 높이맵
+	var noise := FastNoiseLite.new()
+	noise.seed = 42
+	noise.frequency = 0.04
+	noise.fractal_type = FastNoiseLite.FRACTAL_FBM
+	noise.fractal_octaves = 3
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 123
+
+	for x in w:
+		for y in hh:
+			var raw: float = noise.get_noise_2d(x, y)
+			var height := clampi(roundi(abs(raw) * 5), 0, 5)
+			if height <= 0:
+				continue
+			var terrain := 0  # GRASS
+			if height >= 4:
+				terrain = 4    # STONE (산 정상)
+			elif height >= 3:
+				terrain = 0 if rng.randi() % 3 != 0 else 4  # 섞음
+			tiles["%d,%d" % [x, y]] = {"h": height, "t": terrain}
+
+	# 2. 십자형 길 (PATH)
+	var cy: int = hh / 2 - 2  # 61
+	for x in range(10, 50):
+		for yy in range(cy, cy + 3):
+			tiles["%d,%d" % [x, yy]] = {"h": 1, "t": 2}
+	var cx: int = w / 2 - 1  # 30
+	for y in range(20, 90):
+		for xx in range(cx, cx + 2):
+			tiles["%d,%d" % [xx, y]] = {"h": 1, "t": 2}
+
+	# 3. 강 (고도 0 = 물, 타일 없음 = 구멍)
+	# (x=10, y=20~80) 부분을 고도 0으로 만들어 강처럼 보이게
+	for y in range(30, 70):
+		for x in range(15, 18):
+			tiles["%d,%d" % [x, y]] = {"h": 0, "t": 0}
+
+	# 4. 유적지 영역 표시 (STONE)
+	for x in range(50, 55):
+		for y in range(20, 25):
+			var is_wall := (x == 50 or x == 54 or y == 20 or y == 24)
+			var is_entrance := (x == 52 and y == 24)
+			if is_wall and not is_entrance:
+				tiles["%d,%d" % [x, y]] = {"h": 2 + (x + y) % 2, "t": 4}
+
+	return {
+		"width": w,
+		"height": hh,
+		"tiles": tiles,
+	}
+
+
 func _get_top(x: int, y: int, hm: Dictionary) -> Vector2i:
 	var h: int = hm.get("%d,%d" % [x, y], 0)
 	var key: String = "%d,%d" % [x, y]
