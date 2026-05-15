@@ -271,12 +271,26 @@ func _create_cube_at(grid: Vector2i, h: int) -> void:
 			side_l_color = Color(0.44, 0.45, 0.46)
 			side_r_color = Color(0.30, 0.32, 0.33)
 
+	# 그림자 투명도 (0.0=없음, 0.5=반투명, 1.0=완전불투명)
+	const SHADOW_ALPHA := 0.3
+
 	var cube := Node2D.new()
 	cube.name = "Cube_%d_%d" % [grid.x, grid.y]
 	cube.position = world
 	cube.z_index = 50
 	cube.z_as_relative = false
 	_cube_container.add_child(cube)
+
+	# ── 그림자 (Shadow) — 지면에 드리우는 그림자 ──
+	var shadow := Polygon2D.new()
+	shadow.polygon = PackedVector2Array([
+		Vector2(-30, 14), Vector2(0, 30),
+		Vector2(30, 14), Vector2(0, -2),
+	])
+	shadow.color = Color(0.0, 0.0, 0.0, SHADOW_ALPHA)
+	shadow.z_index = 0
+	shadow.z_as_relative = false
+	cube.add_child(shadow)
 
 	# 윗면 (Top)
 	var top := Polygon2D.new()
