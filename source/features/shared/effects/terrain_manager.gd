@@ -145,25 +145,57 @@ func _build_tileset() -> void:
 # ─── 지형 생성 ───
 
 func _generate_and_render() -> void:
-	print("[Terrain] _generate_and_render called, sid=", _sid, " layers=", _layers.size())
+	print("[Terrain] Generating terrain...")
 	for layer in _layers:
 		layer.clear()
 	if _water_layer:
 		_water_layer.clear()
 
-	# ── 단일 타일 디버그: 플레이어 위치 (30,61)에 GRASS 타일 ──
-	_layers[0].set_cell(Vector2i(30, 61), _sid, Vector2i(0, 0))
-	# 주변 8방향도 추가
-	for dx in [-1, 0, 1]:
-		for dy in [-1, 0, 1]:
-			var pos := Vector2i(30 + dx, 61 + dy)
-			var atlas_col := 0 if (dx + dy) % 2 == 0 else 1
-			_layers[0].set_cell(pos, _sid, Vector2i(atlas_col, 0))
-	print("[Terrain] Tiles at player pos, total=", _layers[0].get_used_cells().size())
+	var hm: Dictionary = {}
 
-	# TileSet 설정 출력
-	print("[Terrain] tile_size=", _layers[0].tile_set.tile_size, " shape=", _layers[0].tile_set.tile_shape)
-	print("[Terrain] layout=", _layers[0].tile_set.tile_layout)
+	# 노이즈 높이맵
+	for x in range(_world_size.x):
+		for y in range(_world_size.y):
+			var raw: float = _noise.get_noise_2d(x, y)
+			hm["%d,%d" % [x, y]] = clampi(roundi(abs(raw) * 5), 0, MAX_H)
+
+	# 십자형 길
+	var cy: int = _world_size.y / 2 - 2
+	for x in range(10, 50):
+		for yy in range(cy, cy + 3):
+			hm["%d,%d" % [x, yy]] = 1
+	var cx: int = _world_size.x / 2 - 1
+	for y in range(20, 90):
+		for xx in range(cx, cx + 2):
+			hm["%d,%d" % [xx, y]] = 1
+
+	# 유적지
+	_create_ruins(Vector2i(50, 20), 5, hm)
+
+	# 렌더링
+	for x in range(_world_size.x):
+		for y in range(_world_size.y):
+			var h: int = hm.get("%d,%d" % [x, y], 0)
+			if h <= 0:
+				if _water_layer:
+					var anim_frame: int = (x + y) % 2
+					_water_layer.set_cell(Vector2i(x, y), _sid, Vector2i(anim_frame, 2))
+				continue
+			var pos := Vector2i(x, y)
+			_layers[h].set_cell(pos, _sid, _get_top(x, y, hm))
+			for lev in range(1, h + 1):
+				var bh: int = hm.get("%d,%d" % [x, y + 1], 0)
+				if bh < lev:
+					_layers[lev].set_cell(pos, _sid, _get_side(x, y, hm, lev if lev == h else 0))
+
+	# GridWorld elevation 동기화
+	if _grid_world and _grid_world.has_method("set_elevation"):
+		for key in hm:
+			var parts = key.split(",")
+			if parts.size() == 2:
+				_grid_world.set_elevation(Vector2i(int(parts[0]), int(parts[1])), clampi(hm[key], 0, 2))
+
+	print("[Terrain] done, total cells=", _layers[0].get_used_cells().size())
 
 
 # ─── 유적지 생성 (Hollow Cube) ───
