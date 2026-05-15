@@ -295,30 +295,37 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 	cube.z_index = 50
 	_cube_container.add_child(cube)
 
-	# 조건별 폴리곤 구성 (경사면 색상은 벽+윗면 혼합)
-	if wall_h > 0 and south_lower and not east_lower:
-		_make_poly(cube, [Vector2(0, top_y), Vector2(28, top_y + 16), Vector2(0, top_y + 32)], top_color)
-		_make_poly(cube, [Vector2(0, top_y), Vector2(0, top_y + 32), Vector2(-28, 0), Vector2(-28, top_y + 16)], (side_l_color + top_color) * 0.5)
-		_make_poly(cube, [Vector2(28, top_y + 16), Vector2(0, top_y + 32), Vector2(0, 16), Vector2(28, 0)], side_r_color)
-	elif wall_h > 0 and east_lower and not south_lower:
-		_make_poly(cube, [Vector2(0, top_y), Vector2(0, top_y + 32), Vector2(-28, top_y + 16)], top_color)
-		_make_poly(cube, [Vector2(0, top_y), Vector2(0, top_y + 32), Vector2(28, 0), Vector2(28, top_y + 16)], (side_r_color + top_color) * 0.5)
-		_make_poly(cube, [Vector2(-28, top_y + 16), Vector2(0, top_y + 32), Vector2(0, 16), Vector2(-28, 0)], side_l_color)
-	elif wall_h > 0 and south_lower and east_lower:
-		_make_poly(cube, [Vector2(0, top_y), Vector2(0, top_y + 32), Vector2(-28, 0), Vector2(-28, top_y + 16)], (side_l_color + top_color) * 0.5)
-		_make_poly(cube, [Vector2(0, top_y), Vector2(0, top_y + 32), Vector2(28, 0), Vector2(28, top_y + 16)], (side_r_color + top_color) * 0.5)
-	else:
-		_make_poly(cube, [Vector2(0, top_y), Vector2(28, top_y + 16), Vector2(0, top_y + 32), Vector2(-28, top_y + 16)], top_color)
-		_make_poly(cube, [Vector2(-28, top_y + 16), Vector2(0, top_y + 32), Vector2(0, 16), Vector2(-28, 0)], side_l_color)
-		_make_poly(cube, [Vector2(28, top_y + 16), Vector2(0, top_y + 32), Vector2(0, 16), Vector2(28, 0)], side_r_color)
+	# ── 벽면 (Wall) — top face보다 먼저 추가 ──
+	# 항상 4각형으로 윗면 전체 모서리와 연결 (틈 방지)
+	if wall_h > 0:
+		var side_l := Polygon2D.new()
+		side_l.polygon = PackedVector2Array([
+			Vector2(-28, top_y + 16), Vector2(0, top_y + 32),
+			Vector2(0, 16), Vector2(-28, 0),
+		])
+		side_l.color = side_l_color
+		side_l.texture = _white_tex
+		cube.add_child(side_l)
 
+	if wall_h > 0:
+		var side_r := Polygon2D.new()
+		side_r.polygon = PackedVector2Array([
+			Vector2(28, top_y + 16), Vector2(0, top_y + 32),
+			Vector2(0, 16), Vector2(28, 0),
+		])
+		side_r.color = side_r_color
+		side_r.texture = _white_tex
+		cube.add_child(side_r)
 
-func _make_poly(parent: Node2D, pts: Array, col: Color) -> void:
-	var p := Polygon2D.new()
-	p.polygon = PackedVector2Array(pts)
-	p.color = col
-	p.texture = _white_tex
-	parent.add_child(p)
+	# ── 윗면 (Top) — 벽면 위에 렌더링 ──
+	var top := Polygon2D.new()
+	top.polygon = PackedVector2Array([
+		Vector2(0, top_y), Vector2(28, top_y + 16),
+		Vector2(0, top_y + 32), Vector2(-28, top_y + 16),
+	])
+	top.color = top_color
+	top.texture = _white_tex
+	cube.add_child(top)
 
 
 func _grid_to_world(grid: Vector2i) -> Vector2:
