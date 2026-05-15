@@ -92,7 +92,11 @@ func _build_tileset() -> void:
 		var layer := TileMapLayer.new()
 		layer.name = "H%d" % level
 		layer.tile_set = ts
+		# Y 오프셋: 위로 쌓을수록 y값이 작아짐 (화면 위쪽)
 		layer.position = Vector2(0, -level * TILE_H / 2)
+		# z_index: 높은 레벨일수록 위에 그림 (y_sort 대신 사용)
+		layer.z_index = level + 1
+		# 같은 레벨 내 타일은 y_sort로 깊이 정렬
 		layer.y_sort_enabled = true
 		add_child(layer)
 		_layers.append(layer)
