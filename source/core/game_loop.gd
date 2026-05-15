@@ -138,6 +138,7 @@ func _spawn_test_enemies(player: Node, grid: Node) -> Array:
 		
 		# Visual: Placeholder 사각형 (나중에 SpriteSheet로 교체)
 		enemy.setup_placeholder_visual(data.color)
+		enemy.z_index = 100  # 지형(z=1..6) 위에 렌더링
 
 		# Register on grid
 		if grid.has_method("set_occupied"):
