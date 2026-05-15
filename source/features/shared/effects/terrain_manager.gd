@@ -280,16 +280,16 @@ func generate_from_map(map_data: Dictionary) -> void:
 	var sorted_keys := tiles.keys()
 	sorted_keys.sort()
 	for key in sorted_keys:
-		var parts := key.split(",")
+		var parts = key.split(",")
 		if parts.size() != 2:
 			continue
-		var tx := int(parts[0])
-		var ty := int(parts[1])
+		var tx = int(parts[0])
+		var ty = int(parts[1])
 		if tx < 0 or tx >= w or ty < 0 or ty >= h:
 			continue
-		var info := tiles[key]
-		var tile_h := info.get("h", 0) if info is Dictionary else info
-		var tile_t := info.get("t", 0) if info is Dictionary else 0
+		var info = tiles[key]
+		var tile_h = info.get("h", 0) if info is Dictionary else info
+		var tile_t = info.get("t", 0) if info is Dictionary else 0
 		if tile_h < 0:
 			continue
 		# h=0 → 물 (set_tile에서 water_layer 처리)
@@ -298,13 +298,13 @@ func generate_from_map(map_data: Dictionary) -> void:
 	# GridWorld elevation 동기화
 	if _grid_world and _grid_world.has_method("set_elevation"):
 		for key in tiles:
-			var parts := key.split(",")
+			var parts = key.split(",")
 			if parts.size() != 2:
 				continue
-			var tx := int(parts[0])
-			var ty := int(parts[1])
+			var tx = int(parts[0])
+			var ty = int(parts[1])
 			var entry = tiles[key]
-			var eh := entry.get("h", 0) if entry is Dictionary else entry
+			var eh = entry.get("h", 0) if entry is Dictionary else entry
 			_grid_world.set_elevation(Vector2i(tx, ty), clampi(eh, 0, 2))
 
 
