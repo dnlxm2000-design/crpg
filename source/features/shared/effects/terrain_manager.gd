@@ -186,13 +186,14 @@ func _generate_and_render() -> void:
 					_water_layer.set_cell(Vector2i(x, y), _sid, Vector2i(anim_frame, 2))
 				continue
 			var pos := Vector2i(x, y)
-			_layers[h].set_cell(pos, _sid, _get_top(x, y, hm))
-			# 4방향 벽면 (이웃 높이가 낮으면 측면 표시)
-			for d in dirs:
-				var nh: int = hm.get("%d,%d" % [x + d.x, y + d.y], 0)
-				for lev in range(1, h + 1):
-					if nh < lev:
-						_layers[lev].set_cell(pos, _sid, _get_side(x, y, hm, lev if lev == h else 0))
+			# h≥2는 Polygon2D 큐브가 3D 시각을 완전 대체
+			if h == 1:
+				_layers[h].set_cell(pos, _sid, _get_top(x, y, hm))
+				# 높이 1 벽면 (이웃이 물이면 측면)
+				for d in dirs:
+					var nh: int = hm.get("%d,%d" % [x + d.x, y + d.y], 0)
+					if nh < 1:
+						_layers[1].set_cell(pos, _sid, _get_side(x, y, hm, 1))
 
 	# GridWorld elevation 동기화 + 물 블록 처리
 	if _grid_world and _grid_world.has_method("set_elevation"):
