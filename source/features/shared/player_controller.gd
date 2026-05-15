@@ -72,10 +72,11 @@ func _process(_delta: float) -> void:
 
 	var is_turn: bool = (GameState.current_mode == GameState.GameMode.TURNBASED)
 
-	# Keyboard movement (works in both modes) — DIRECTION_MAP에서 벡터 참조
-	for action in DIRECTION_MAP:
-		if Input.is_action_just_pressed(action):
-			_do_key_move(DIRECTION_MAP[action], is_turn)
+	# Keyboard movement — 실시간모드에서만 _process 처리 (턴모드는 _input에서 처리)
+	if not is_turn:
+		for action in DIRECTION_MAP:
+			if Input.is_action_just_pressed(action):
+				_do_key_move(DIRECTION_MAP[action], is_turn)
 
 	if not is_turn:
 		# E키: 가장 가까운 아이템 집기 (탐험/조사 중심 RPG — 자동 줍기 없음)
