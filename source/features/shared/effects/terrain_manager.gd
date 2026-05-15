@@ -285,7 +285,6 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 	cube.name = "Cube_%d_%d" % [grid.x, grid.y]
 	cube.position = world
 	cube.z_index = 50
-	cube.z_as_relative = false
 	_cube_container.add_child(cube)
 
 	# ── 그림자 (Shadow) — 지면에 드리우는 그림자 ──
@@ -295,8 +294,7 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 		Vector2(30, 14), Vector2(0, -2),
 	])
 	shadow.color = Color(0.0, 0.0, 0.0, SHADOW_ALPHA)
-	shadow.z_index = 0
-	shadow.z_as_relative = false
+	shadow.z_index = -48
 	cube.add_child(shadow)
 
 	# 윗면 (Top)
