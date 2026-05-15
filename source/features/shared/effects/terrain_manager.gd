@@ -295,35 +295,24 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 	cube.z_index = 50
 	_cube_container.add_child(cube)
 
-	# ── 벽면 (Wall) — top face보다 먼저 추가해서 아래에 렌더링 ──
-	# 왼쪽 벽면
+	# ── 벽면 (Wall) — top face보다 먼저 추가 ──
+	# 항상 4각형으로 윗면 전체 모서리와 연결 (틈 방지)
 	if wall_h > 0:
 		var side_l := Polygon2D.new()
-		if south_lower:
-			side_l.polygon = PackedVector2Array([
-				Vector2(0, top_y + 32), Vector2(0, 16), Vector2(-28, 0),
-			])
-		else:
-			side_l.polygon = PackedVector2Array([
-				Vector2(-28, top_y + 16), Vector2(0, top_y + 32),
-				Vector2(0, 16), Vector2(-28, 0),
-			])
+		side_l.polygon = PackedVector2Array([
+			Vector2(-28, top_y + 16), Vector2(0, top_y + 32),
+			Vector2(0, 16), Vector2(-28, 0),
+		])
 		side_l.color = side_l_color
 		side_l.texture = _white_tex
 		cube.add_child(side_l)
 
-	# 오른쪽 벽면
 	if wall_h > 0:
 		var side_r := Polygon2D.new()
-		if east_lower:
-			side_r.polygon = PackedVector2Array([
-				Vector2(0, top_y + 32), Vector2(0, 16), Vector2(28, 0),
-			])
-		else:
-			side_r.polygon = PackedVector2Array([
-				Vector2(28, top_y + 16), Vector2(0, top_y + 32),
-				Vector2(0, 16), Vector2(28, 0),
-			])
+		side_r.polygon = PackedVector2Array([
+			Vector2(28, top_y + 16), Vector2(0, top_y + 32),
+			Vector2(0, 16), Vector2(28, 0),
+		])
 		side_r.color = side_r_color
 		side_r.texture = _white_tex
 		cube.add_child(side_r)
