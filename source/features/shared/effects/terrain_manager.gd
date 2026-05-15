@@ -36,6 +36,8 @@ var _grid_world: Node = null
 var _rng: RandomNumberGenerator = null
 var _world_size := Vector2i(63, 126)
 var _sid: int = 0
+## Polygon2D에 쓸 1픽셀 흰색 텍스처 (공유)
+var _white_tex: ImageTexture = null
 
 
 func _ready() -> void:
@@ -237,6 +239,12 @@ func _build_cubes(hm: Dictionary) -> void:
 	# 기존 큐브 정리
 	if _cube_container:
 		_cube_container.queue_free()
+
+	# 공용 흰색 텍스처 생성 (최초 1회)
+	if _white_tex == null:
+		var _img := Image.create(1, 1, false, Image.FORMAT_RGBA8)
+		_img.set_pixel(0, 0, Color.WHITE)
+		_white_tex = ImageTexture.create_from_image(_img)
 	_cube_container = Node2D.new()
 	_cube_container.name = "CubeContainer"
 	add_child(_cube_container)
@@ -278,9 +286,7 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 			side_l_color = Color(0.44, 0.45, 0.46)
 			side_r_color = Color(0.30, 0.32, 0.33)
 
-	# 1픽셀 흰색 텍스처 (Polygon2D 호환성 보장)
-	var _tex: ImageTexture
-	_tex = ImageTexture.create_from_image(Image.create(1, 1, false, Image.FORMAT_RGBA8))
+	# 1픽셀 흰색 텍스처 (공유, Polygon2D 호환성 보장)
 
 	var cube := Node2D.new()
 	cube.name = "Cube_%d_%d" % [grid.x, grid.y]
@@ -295,7 +301,7 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 		Vector2(0, top_y + 32), Vector2(-28, top_y + 16),
 	])
 	top.color = top_color
-	top.texture = _tex
+	top.texture = _white_tex
 	cube.add_child(top)
 
 	# 왼쪽 벽면
@@ -311,7 +317,7 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 				Vector2(0, 16), Vector2(-28, 0),
 			])
 		side_l.color = side_l_color
-		side_l.texture = _tex
+		side_l.texture = _white_tex
 		cube.add_child(side_l)
 
 	# 오른쪽 벽면
@@ -327,7 +333,7 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 				Vector2(0, 16), Vector2(28, 0),
 			])
 		side_r.color = side_r_color
-		side_r.texture = _tex
+		side_r.texture = _white_tex
 		cube.add_child(side_r)
 
 
