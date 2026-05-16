@@ -122,27 +122,23 @@ func _build_tileset() -> void:
 	_water_layer = null
 	_layers.clear()
 
-	# 워터 레이어
+	# 워터 레이어 (z=-1: 항상 배경)
 	_water_layer = TileMapLayer.new()
 	_water_layer.name = "H_WATER"
 	_water_layer.tile_set = ts
-	_water_layer.z_index = 0
+	_water_layer.z_index = -1
 	_water_layer.position = Vector2(0, 0)
-	_water_layer.y_sort_enabled = true
 	add_child(_water_layer)
 	if Engine.is_editor_hint():
 		_water_layer.owner = get_tree().edited_scene_root
 
-	# 높이 레이어 H0~H5
+	# 높이 레이어 H0~H5 (z=0: 평지 배경, y_sort 없음)
 	for i in range(MAX_H + 1):
 		var layer := TileMapLayer.new()
 		layer.name = "H%d" % i
 		layer.tile_set = ts
-		layer.z_index = i + 1
-		# 위치 오프셋 제거: 모든 레이어를 그리드 좌표계와 일치시킴
-		# (h≥2는 Polygon2D 큐브가 3D 시각 담당)
+		layer.z_index = 0
 		layer.position = Vector2(0, 0)
-		layer.y_sort_enabled = true
 		add_child(layer)
 		if Engine.is_editor_hint():
 			layer.owner = get_tree().edited_scene_root
@@ -214,7 +210,14 @@ func _generate_and_render() -> void:
 		print("[Terrain] Blocked tiles: %d" % blocked_count)
 
 	# ── Polygon2D 정육면체 생성 (산, 고도 ≥2) ──
-	_build_cubes(hm)
+	# 높이 분포 확인
+	var h_counts := {}
+	for x in range(_world_size.x):
+		for y in range(_world_size.y):
+			var h: int = hm.get("%d,%d" % [x, y], 0)
+			h_counts[h] = h_counts.get(h, 0) + 1
+	print("[Terrain] Height distribution: ", h_counts)
+	call_deferred("_build_cubes_deferred", hm)
 
 	var total_cells = 0
 	for li in _layers.size():
@@ -222,47 +225,54 @@ func _generate_and_render() -> void:
 		total_cells += c
 		if c > 0:
 			print("[Terrain]   H", li, " cells=", c)
-	print("[Terrain] done, total cells=", total_cells, " cubes=", _cube_container.get_child_count() if _cube_container else 0)
+	print("[Terrain] done, total cells=", total_cells)
 
 
 # ─── Polygon2D 정육면체 ───
 
-var _cube_container: Node2D = null
+## deferred wrapper: Main 준비 후 큐브 생성
+func _build_cubes_deferred(hm: Dictionary) -> void:
+	_build_cubes(hm)
+
 
 ## 높이 ≥2 타일을 Polygon2D 큐브로 렌더링 (플레이어와 동일한 방식).
 func _build_cubes(hm: Dictionary) -> void:
-	# 기존 큐브 정리
-	if _cube_container:
-		_cube_container.queue_free()
+	# 기존 큐브 정리 (Main에서 Cube_* 노드 제거)
+	var main_node := get_node_or_null("/root/Main")
+	if main_node:
+		for child in main_node.get_children():
+			if child.name.begins_with("Cube_"):
+				child.queue_free()
 
 	# 공용 흰색 텍스처 생성 (최초 1회)
 	if _white_tex == null:
 		var _img := Image.create(1, 1, false, Image.FORMAT_RGBA8)
 		_img.set_pixel(0, 0, Color.WHITE)
 		_white_tex = ImageTexture.create_from_image(_img)
-	_cube_container = Node2D.new()
-	_cube_container.name = "CubeContainer"
-	_cube_container.y_sort_enabled = true
-	add_child(_cube_container)
-	if Engine.is_editor_hint():
-		_cube_container.owner = get_tree().edited_scene_root
 
+	if not main_node:
+		push_error("[Terrain] Main not found, cannot create cubes")
+		return
+
+	var cube_count: int = 0
 	for x in range(_world_size.x):
 		for y in range(_world_size.y):
 			var h: int = hm.get("%d,%d" % [x, y], 0)
 			if h < 2:
 				continue
-			_create_cube_at(Vector2i(x, y), h, hm)
+			_create_cube_at(Vector2i(x, y), h, hm, main_node)
+			cube_count += 1
+	print("[Terrain] Created %d cubes" % cube_count)
 
 
-func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
+func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary, main_node: Node) -> void:
 	var world := _grid_to_world(grid)
 	var wall_h := (h - 1) * 16
 	var top_y := -wall_h - 16
 
 	# 이웃 높이 확인: 남쪽(y+1)과 동쪽(x+1)이 낮으면 경사면
-	var south_lower: bool = hm.get("%d,%d" % [grid.x, grid.y + 1], 0) < h
-	var east_lower: bool = hm.get("%d,%d" % [grid.x + 1, grid.y], 0) < h
+	var _south_lower: bool = hm.get("%d,%d" % [grid.x, grid.y + 1], 0) < h
+	var _east_lower: bool = hm.get("%d,%d" % [grid.x + 1, grid.y], 0) < h
 
 	# 높이별 색상
 	var top_color: Color
@@ -287,8 +297,8 @@ func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:
 	var cube := Node2D.new()
 	cube.name = "Cube_%d_%d" % [grid.x, grid.y]
 	cube.position = world
-	cube.z_index = 50
-	_cube_container.add_child(cube)
+	cube.z_index = 0  # Main y_sort 참여
+	main_node.add_child(cube)
 
 	# ── 벽면 (Wall) — top face보다 먼저 추가 ──
 	# 항상 4각형으로 윗면 전체 모서리와 연결 (틈 방지)

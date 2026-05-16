@@ -32,7 +32,7 @@ func _ready() -> void:
 	if _grid_world and range_overlay.has_method("setup"):
 		range_overlay.setup(_grid_world)
 		# Draw above terrain (z=1..6) but below HUD
-		range_overlay.z_index = 10
+		range_overlay.z_index = -5
 		range_overlay.z_as_relative = false
 
 	# ── Path Preview (real-time mouse path line) ──

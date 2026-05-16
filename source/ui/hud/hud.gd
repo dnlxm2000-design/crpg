@@ -280,12 +280,13 @@ func _on_combat_defeat() -> void:
 func _on_combat_ended() -> void:
 	hide_center_prompt()
 	turn_indicator.text = ""
-	ap_label.text = ""
 	_clear_enemy_bars()
 	if _target_info:
 		_target_info.visible = false
 	# After combat, player may have been replaced — find again
 	_find_player()
+	# Clear combat-only UI after re-finding player
+	ap_label.text = ""
 
 
 ## Show a large centered announcement with a scale-up + fade-out animation.

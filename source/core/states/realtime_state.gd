@@ -13,7 +13,7 @@ func exit() -> void:
 	EventBus.realtime_mode_exited.emit()
 
 
-func update(delta: float) -> void:
+func update(_delta: float) -> void:
 	# Global real-time update logic (enemy AI, day/night cycle, etc.)
 	pass
 

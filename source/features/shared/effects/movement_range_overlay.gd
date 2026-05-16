@@ -1,6 +1,7 @@
 # movement_range_overlay.gd — Highlights reachable tiles for the active combatant.
 # BFS from the unit's position, limited by remaining AP / ap_cost_per_tile.
 # Attach as child of GridWorld or Main.
+# 전투 중: 이동 가능(초록), 이동 불가(빨강), 적 ZOC(주황) 표시.
 extends Node2D
 
 var _grid_world: Node = null
@@ -110,18 +111,70 @@ func _compute_reachable(unit: Node) -> void:
 
 
 func _draw() -> void:
-	if _reachable_tiles.is_empty() or not _grid_world:
+	if not _grid_world:
 		return
 
-	# 아이소메트릭 다이아몬드 타일 (64×32)
-	for tile in _reachable_tiles:
-		var c: Vector2 = _grid_world.grid_to_world(tile)
+	var is_turn: bool = (GameState.current_mode == GameState.GameMode.TURNBASED)
+	if not is_turn:
+		return
 
-		var diamond := PackedVector2Array([
-			Vector2(c.x,     c.y - 16),
-			Vector2(c.x + 32, c.y),
-			Vector2(c.x,     c.y + 16),
-			Vector2(c.x - 32, c.y),
-		])
-		draw_colored_polygon(diamond, Color(0.3, 0.8, 0.3, 0.3))
-		draw_polyline(diamond, Color(0.3, 0.8, 0.3, 0.6), 1.5, true)
+	# ── 이동 가능 타일 (기존 초록) ──
+	if not _reachable_tiles.is_empty():
+		for tile in _reachable_tiles:
+			_draw_diamond(tile, Color(0.3, 0.8, 0.3, 0.3), Color(0.3, 0.8, 0.3, 0.6))
+
+	# ── 플레이어 턴에서만 추가 정보 표시 ──
+	if _current_unit and _current_unit.get("is_player"):
+		_draw_blocked_overlay()
+		_draw_zoc_overlay()
+
+
+## 이동 불가 타일(blocked)을 빨간색으로 표시.
+func _draw_blocked_overlay() -> void:
+	if not _grid_world or not _grid_world.has_method("blocked"):
+		return
+	var blocked: Dictionary = _grid_world.blocked
+	for key in blocked:
+		var parts: PackedStringArray = key.split(",")
+		if parts.size() < 2:
+			continue
+		var tile := Vector2i(parts[0].to_int(), parts[1].to_int())
+		_draw_diamond(tile, Color(0.8, 0.15, 0.15, 0.25), Color(0.8, 0.15, 0.15, 0.5))
+
+
+## 적 ZOC 타일을 주황색으로 표시.
+func _draw_zoc_overlay() -> void:
+	if not _grid_world or not _current_unit:
+		return
+	var tm = get_node_or_null("/root/Main/GameLoop/TurnManager")
+	if not tm:
+		return
+	var combatants: Array = tm.get("combatants") if "combatants" in tm else []
+	if combatants.is_empty():
+		return
+
+	var zoc_map = ZocController.get_enemy_zoc_map(_current_unit, combatants, _grid_world)
+	for key in zoc_map:
+		var parts: PackedStringArray = key.split(",")
+		if parts.size() < 2:
+			continue
+		var tile := Vector2i(parts[0].to_int(), parts[1].to_int())
+		# 범위 밖 또는 blocked 타일은 제외
+		if not _grid_world.is_walkable(tile, true):
+			continue
+		# 적이 점유한 타일(적 본체 위치)은 제외 — ZOC는 빈 타일만
+		if not _grid_world.is_walkable(tile):
+			continue
+		_draw_diamond(tile, Color(0.9, 0.5, 0.1, 0.25), Color(0.9, 0.5, 0.1, 0.5))
+
+
+func _draw_diamond(tile: Vector2i, fill: Color, stroke: Color) -> void:
+	var c: Vector2 = _grid_world.grid_to_world(tile)
+	var diamond := PackedVector2Array([
+		Vector2(c.x,      c.y - 16),
+		Vector2(c.x + 32, c.y),
+		Vector2(c.x,      c.y + 16),
+		Vector2(c.x - 32, c.y),
+	])
+	draw_colored_polygon(diamond, fill)
+	draw_polyline(diamond, stroke, 1.5, true)

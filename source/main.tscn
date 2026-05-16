@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://source/main.gd" id="1"]
 [ext_resource type="Script" path="res://source/core/game_loop.gd" id="2"]
@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://source/features/turnbased/timeline/timeline_manager.gd" id="10"]
 [ext_resource type="Script" path="res://source/features/shared/grid_world.gd" id="11"]
 [ext_resource type="Script" path="res://source/features/shared/effects/terrain_manager.gd" id="12"]
+[ext_resource type="Script" path="res://source/ui/hud/minimap_panel.gd" id="13"]
 
 [node name="Main" type="Node2D"]
 y_sort_enabled = true
@@ -81,3 +82,7 @@ offset_left = -216.0
 offset_top = 16.0
 offset_right = -16.0
 offset_bottom = 36.0
+
+[node name="Minimap" type="CanvasLayer" parent="."]
+script = ExtResource("13")
+layer = 100

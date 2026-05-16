@@ -96,8 +96,8 @@ func _get_name(unit: Node) -> String:
 	"""유닛의 이름을 안전하게 반환한다 (null 안전)."""
 	if not unit or not is_instance_valid(unit):
 		return "?"
-	var name = unit.get("unit_name") if "unit_name" in unit else "Unit"
-	return name
+	var unit_name = unit.get("unit_name") if "unit_name" in unit else "Unit"
+	return unit_name
 
 
 ## 로그 항목을 추가한다. msg: 내용, clr: 글자색 (기본 회백색).

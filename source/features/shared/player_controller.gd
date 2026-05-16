@@ -12,6 +12,10 @@ const DIRECTION_MAP: Dictionary = {
 	"move_down": Vector2i(1, 1),        # S / ↓ → 화면 아래
 	"move_left": Vector2i(-1, 1),       # A / ← → 화면 왼쪽
 	"move_right": Vector2i(1, -1),      # D / → → 화면 오른쪽
+	"move_diag_up_left": Vector2i(-1, 0),   # Q → 화면 위-왼쪽 대각선
+	"move_diag_up_right": Vector2i(0, -1),  # R → 화면 위-오른쪽 대각선
+	"move_diag_down_left": Vector2i(0, 1),  # Z → 화면 아래-왼쪽 대각선
+	"move_diag_down_right": Vector2i(1, 0), # V → 화면 아래-오른쪽 대각선
 }
 
 var _movement = null   # UnitMovement 컴포넌트 (경로 탐색 + 이동)

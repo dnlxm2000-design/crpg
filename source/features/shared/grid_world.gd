@@ -218,7 +218,11 @@ func find_path_grid(from_grid: Vector2i, to_grid: Vector2i) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
 	for idx in range(1, point_ids.size()):
 		var p: Vector2 = astar.get_point_position(point_ids[idx])
-		result.append(_world_to_grid_iso(p))
+		var grid_pos: Vector2i = _world_to_grid_iso(p)
+		var gk: String = "%d,%d" % [grid_pos.x, grid_pos.y]
+		if gk in blocked:
+			return []  # 경로 중간에 blocked된 점이 있으면 경로 무효
+		result.append(grid_pos)
 
 	return result
 

@@ -80,9 +80,7 @@ func spawn_player(at_position: Vector2) -> Node:
 	# ── Placeholder 시각 요소 ──
 	# TODO: setup_placeholder_visual 대신 AnimatedSprite2D + SpriteSheet 로 교체
 	player.setup_placeholder_visual(Color(0.2, 0.6, 1.0))
-	# 지형(z=1..6) 위에 렌더링되도록 z_index 설정
-	player.z_index = 100
-	player.z_as_relative = false
+	# z_index 제거: Main의 y_sort에 위임
 
 	# Camera2D (follows player with smooth isometric tracking)
 	var camera := Camera2D.new()
@@ -97,7 +95,12 @@ func spawn_player(at_position: Vector2) -> Node:
 	player.add_child(camera)
 
 	player.name = "PlayerUnit"
-	add_child(player)
+	# Main에 직접 추가: y_sort로 지형과 정렬되도록
+	var main_node := get_node_or_null("/root/Main")
+	if main_node:
+		main_node.add_child(player)
+	else:
+		add_child(player)
 
 	player_ref = player
 	register_unit(player)

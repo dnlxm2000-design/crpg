@@ -1,4 +1,4 @@
-# CRPG_PROJECT
+# CRPG_PROJECT v0.1.0
 
 **Godot 4 CRPG** — 실시간 탐험과 턴제 전투를 오가는 듀얼 모드 게임 템플릿.
 Knowledge-graph-driven development with [graphify](https://github.com/OhMyOpenCode/graphify).
@@ -8,16 +8,16 @@ Knowledge-graph-driven development with [graphify](https://github.com/OhMyOpenCo
 ### Dual-Mode Design
 
 ```
-                 ┌─ RealityState ── RealTimeManager ── Real-time exploration
+                 ┌─ RealtimeState ── RealTimeManager ── 실시간 탐험
 GameLoop ── FSM ─┤
-                 └─ TurnbasedState ─ TurnManager ── Turn-based combat
-                                         ├─ ActionPoints (AP system)
-                                         └─ TimelineManager (ATB timeline)
+                 └─ TurnbasedState ─ TurnManager ── 턴제 전투
+                                         ├─ ActionPoints (AP 시스템)
+                                         └─ TimelineManager (ATB 타임라인)
 ```
 
-- **실시간 모드** — 필드 탐험, 자유 이동, 실시간 상호작용 (`RealtimeState` / `RealTimeManager`)
-- **턴제 모드** — 전투 진입 시 전환, 속도 기반 행동 순서 (`TurnbasedState` / `TurnManager`)
-- GameLoop가 `enter_realtime()` / `enter_turn_mode()` 로 모드 전환을 오케스트레이션
+- **실시간 모드** — 필드 탐험, 자유 이동, 실시간 상호작용
+- **턴제 모드** — 전투 진입 시 전환, 속도 기반 행동 순서
+- GameLoop가 `enter_realtime()` / `enter_turn_mode()`로 모드 전환 오케스트레이션
 
 ### Movement System (Stoneshard-Inspired)
 
@@ -25,203 +25,127 @@ GameLoop ── FSM ─┤
 PlayerController ── input ──→ UnitMovement ── path ──→ GridWorld (A*)
     │                            │                        │
     ├─ Mouse click (realtime)    ├─ navigate_to()         ├─ AStar2D graph
-    ├─ Arrow keys (both modes)   ├─ move_one_tile() [AP]  ├─ world_to_grid()
+    ├─ WASD (both modes)         ├─ move_one_tile() [AP]  ├─ world_to_grid()
     └─ Space (turn-based skip)   └─ skip_turn()           └─ find_path_grid()
 ```
 
 **듀얼 모드 이동:**
-- **실시간 (모험 모드)** — 마우스 클릭으로 목적지 클릭 → A* 경로 탐색 → 연속 이동
-  - 방향키도 실시간에서 한 칸씩 이동 가능 (Stoneshard 스타일)
-  - 이동 속도: `move_speed` (기본 120px/s)
-- **턴제 (전투 모드)** — 방향키/넘패드로 한 타일씩 이동, AP 소모
-  - 이동 비용: `ap_cost_per_tile` (기본 1 AP)
-  - Space = 턴 넘기기 (Stoneshard)
-  - 이동 후 자동으로 다음 유닛 턴으로 전환
-
-**Stoneshard와의 차용점:**
-- 8방향 이동 (대각선 넘패드 1/3/7/9 지원)
-- Adventure Mode = Click-to-move 연속 경로 이동
-- Combat Mode = 한 번에 한 타일, AP 소모, 키보드 정밀 이동
-- GridWorld가 타일 좌표계 + A* pathfinding 담당
+- **실시간** — 마우스 클릭으로 목적지 지정 → A* 경로 탐색 → 연속 이동
+- **턴제** — 방향키로 한 타일씩 이동, AP 소모
+- **WASD** — 화면 방향 → 그리드 대각선 매핑 (W=(-1,-1), S=(1,1), A=(-1,1), D=(1,-1))
 
 ### Core Components
 
 | Component | File | Role |
 |-----------|------|------|
-| **StateMachine** | `source/core/state_machine/state_machine.gd` | Generic FSM — `change_state()` with `_process`/`_physics_process`/`_input` dispatch |
-| **State** | `source/core/state_machine/state.gd` | Base state — `enter()`, `exit()`, `update()`, `physics_update()`, `handle_input()` |
-| **ModeStateMachine** | `source/core/mode_state_machine.gd` | Active-mode FSM (realtime ↔ turnbased) |
-| **GameLoop** | `source/core/game_loop.gd` | Top-level orchestrator — mode switching, pause, init |
-| **EventBus** | `source/autoload/event_bus.gd` | **Autoload singleton** — 16 global signals for decoupled communication |
-| **GameState** | `source/autoload/game_state.gd` | **Autoload singleton** — `GameMode` enum, settings persistence |
+| **StateMachine** | `source/core/state_machine/state_machine.gd` | Generic FSM |
+| **GameLoop** | `source/core/game_loop.gd` | 모드 전환 오케스트레이터 |
+| **EventBus** | `source/autoload/event_bus.gd` | **Autoload** — 전역 신호 |
+| **GameState** | `source/autoload/game_state.gd` | **Autoload** — 모드/설정 상태 |
 
 ### Turn System
 
 | Component | File | Role |
 |-----------|------|------|
-| **TurnManager** | `source/features/turnbased/turn_manager.gd` | Speed-based initiative queue, round/phases, `start_combat()` |
-| **ActionPoints** | `source/features/turnbased/action_points.gd` | AP component — `max_ap`, `reset_for_turn()`, `spend()`, `can_afford()` |
-| **TimelineManager** | `source/features/turnbased/timeline/timeline_manager.gd` | ATB-style timeline — speed-haste accumulation → turn threshold |
+| **TurnManager** | `source/features/turnbased/turn_manager.gd` | 속도 기반 initiative 큐 |
+| **ActionPoints** | `source/features/turnbased/action_points.gd` | AP 관리 — `max_ap`, `spend()`, `can_afford()` |
+| **TimelineManager** | `source/features/turnbased/timeline/timeline_manager.gd` | ATB 스타일 타임라인 |
 
 ### Shared Components
 
 | Component | File | Role |
 |-----------|------|------|
-| **Unit** | `source/features/shared/unit.gd` | Unit base class — `CharacterBody2D`, HP/AP/speed/attack/defense exports, `take_damage()`, `die()` |
-| **GridWorld** | `source/features/shared/grid_world.gd` | A\* tile grid — `world_to_grid()`, `find_path_grid()`, `is_walkable()`, 8-dir movement |
-| **UnitMovement** | `source/features/shared/unit_movement.gd` | Dual-mode movement — `navigate_to()` (realtime), `move_one_tile()` (turn-based, AP) |
-| **PlayerController** | `source/features/shared/player_controller.gd` | Input handler — mouse click (realtime), arrow keys, Space skip (turn-based) |
-| **HUD** | `source/ui/hud/hud.gd` | CanvasLayer HUD — HP bars, turn indicator, mode label |
+| **Unit** | `source/features/shared/unit.gd` | 유닛 베이스 — HP/AP/속도/공격/방어 |
+| **GridWorld** | `source/features/shared/grid_world.gd` | A* 타일 그리드 — `world_to_grid()`, `find_path_grid()` |
+| **UnitMovement** | `source/features/shared/unit_movement.gd` | 듀얼 모드 이동 — `navigate_to()`, `move_one_tile()` |
+| **PlayerController** | `source/features/shared/player_controller.gd` | 입력 처리 — 마우스, WASD, Space |
+| **CombatResolver** | `source/features/turnbased/combat_resolver.gd` | 명중/회피/치명타/빗맞힘 판정 |
+| **ZocController** | `source/features/turnbased/zoc_controller.gd` | Zone of Control — 진입 AP+1, 이탈 AoO |
 
 ### Grid Constants
 
 | Constant | Value | Description |
 |----------|-------|-------------|
-| `GridWorld.CELL_SIZE` | `32` | 한 타일의 픽셀 크기 (32×32) |
-| `GridWorld.grid_width` | `64` | 그리드 가로 타일 개수 |
-| `GridWorld.grid_height` | `64` | 그리드 세로 타일 개수 |
-
-좌표 변환:
-- `world_to_grid(pos)` → `floori(pos.x / 32, pos.y / 32)`
-- `grid_to_world(pos)` → `vec2(pos.x × 32 + 16, pos.y × 32 + 16)` (타일 중앙)
-- 1 AP = 1 타일 이동 = 32px
+| `GridWorld.TILE_WIDTH_ISO` | `64` | 아이소메트릭 타일 너비 |
+| `GridWorld.TILE_HEIGHT_ISO` | `32` | 아이소메트릭 타일 높이 |
+| `GridWorld.grid_width` | `63` | 그리드 가로 타일 수 |
+| `GridWorld.grid_height` | `126` | 그리드 세로 타일 수 |
 
 ## Project Structure
 
 ```
 CRPG_PROJECT/
-├── project.godot              # Godot 4 project config
-├── AGENTS.md                  # AI agent assistant instructions (graphify integration)
-├── README.md                  # This file
-├── pyproject.toml             # Python project config
-├── .gitignore
-├── assets/                    # Assets (images, audio, etc.)
-├── data/                      # Game data (JSON, configs)
+├── project.godot              # Godot 4 프로젝트 설정
+├── AGENTS.md                  # AI 에이전트 가이드
+├── README.md                  # 이 파일
+├── TODO.md                    # 작업 현황
+├── assets/                    # 에셋 (이미지, 오디오)
+├── data/                      # 게임 데이터 (아이템 등)
 ├── source/
-│   ├── main.gd                # Entry point
-│   ├── main.tscn              # Main scene (scene tree)
+│   ├── main.gd                # 진입점
+│   ├── main.tscn              # 메인 씬
 │   ├── autoload/
-│   │   ├── event_bus.gd       # Global event bus (19 signals)
-│   │   └── game_state.gd      # Global game state + settings
+│   │   ├── event_bus.gd       # 전역 이벤트 버스
+│   │   └── game_state.gd      # 전역 게임 상태
 │   ├── core/
-│   │   ├── game_loop.gd       # Mode orchestrator
+│   │   ├── game_loop.gd       # 모드 오케스트레이터
 │   │   ├── mode_state_machine.gd
 │   │   ├── state_machine/
-│   │   │   ├── state.gd
-│   │   │   └── state_machine.gd
 │   │   └── states/
-│   │       ├── realtime_state.gd
-│   │       └── turnbased_state.gd
 │   ├── features/
 │   │   ├── realtime/
-│   │   │   └── realtime_manager.gd  # Player spawn + real-time mode mgmt
 │   │   ├── shared/
-│   │   │   ├── unit.gd              # Unit base class (CharacterBody2D)
-│   │   │   ├── grid_world.gd        # A* tile grid (NEW)
-│   │   │   ├── unit_movement.gd     # Dual-mode movement (NEW)
-│   │   │   └── player_controller.gd # Input handler (NEW)
+│   │   │   ├── unit.gd
+│   │   │   ├── grid_world.gd
+│   │   │   ├── unit_movement.gd
+│   │   │   ├── player_controller.gd
+│   │   │   └── effects/
+│   │   │       ├── terrain_manager.gd
+│   │   │       ├── movement_range_overlay.gd
+│   │   │       └── path_preview.gd
 │   │   └── turnbased/
 │   │       ├── action_points.gd
 │   │       ├── turn_manager.gd
+│   │       ├── combat_resolver.gd
+│   │       ├── zoc_controller.gd
 │   │       └── timeline/
-│   │           └── timeline_manager.gd
 │   ├── ui/
 │   │   └── hud/
-│   │       └── hud.gd
-│   └── utils/
-│       └── helpers.gd
-├── graphify-out/              # Knowledge graph output
-│   ├── GRAPH_REPORT.md        # Graph report (177 nodes, 163 edges, 19 communities)
-│   ├── graph.json
-│   └── graph.html
-└── crpg_project/              # Python package (graphify integration)
+│   │       ├── hud.gd
+│   │       ├── action_bar.gd
+│   │       ├── targeting.gd
+│   │       ├── event_log.gd
+│   │       ├── turn_order_panel.gd
+│   │       ├── minimap_panel.gd
+│   │       ├── inventory_panel.gd
+│   │       └── equipment_panel.gd
+│   └── data/items/
+└── graphify-out/              # 지식 그래프
 ```
 
 ## graphify — Knowledge Graph Integration
 
-This project uses **graphify** (v0.7.13) to build a knowledge graph of the entire codebase, including GDScript files.
-
-### How It Works
-
-```
-graphify update .
-  ├── detect        → discover .gd, .py, .tsx, etc. files
-  ├── extract       → AST-based parsing with GDScript extractor (regex)
-  ├── build graph   → nodes + edges + communities (Leiden clustering)
-  ├── analyze       → god nodes, surprising connections
-  └── report        → GRAPH_REPORT.md, graph.json, graph.html
-```
-
-### Usage
-
 ```bash
-# Update knowledge graph after code changes (AST-only, no API cost)
+# 코드 변경 후 지식 그래프 업데이트
 graphify update .
 
-# Or via AI assistant slash command in OpenCode / Claude Code
+# AI 어시스턴트에서
 /graphify
 ```
 
-### GDScript Extract Support
-
-GDScript is fully supported via a custom regex-based extractor injected into graphify:
-
-| Feature | Graph Node Kind | Example |
-|---------|----------------|---------|
-| `class_name` | `class` | `State`, `TurnManager` |
-| `extends` | edge `→` | `State → Node` |
-| `func` | `function` | `enter()`, `take_damage()` |
-| `signal` | `signal` | `turn_started`, `unit_damaged` |
-| `@export var` | `export_var` | `max_hp (export)`, `speed (export)` |
-| `@onready var` | `onready_var` | `health_bar` |
-| `var` / `const` | `variable` | `current_hp`, `MAX_PLAYERS` |
-| `enum` | `enum` | `enum GameMode` |
-
-### Current Graph Stats
-
-| Metric | Value |
-|--------|-------|
-| Files | 20 (16 .gd + 4 .py) |
-| Nodes | **177** |
-| Edges | **163** |
-| Communities | **19** |
-| Extraction | 100% EXTRACTED (no LLM inference) |
-
 ## Getting Started
 
-**Prerequisites:** Godot 4 engine ([download](https://godotengine.org/download/windows/))
+**필요:** Godot 4 ([다운로드](https://godotengine.org/download/windows/))
 
-1. Download & install Godot 4
-2. Open `project.godot` in Godot
-3. **Register Autoloads** (mandatory):
-   - `source/autoload/event_bus.gd` → singleton name `EventBus`
-   - `source/autoload/game_state.gd` → singleton name `GameState`
-4. **Create `main.tscn`** with the following scene tree:
-   ```
-   Main (Node) — script: source/main.gd
-   ├── GameLoop (Node) — script: source/core/game_loop.gd
-   │   ├── ModeStateMachine (Node) — script: source/core/mode_state_machine.gd
-   │   │   ├── realtime (Node) — script: source/core/states/realtime_state.gd
-   │   │   └── turnbased (Node) — script: source/core/states/turnbased_state.gd
-   │   ├── TurnManager (Node) — script: source/features/turnbased/turn_manager.gd
-   │   ├── ActionPoints (Node) — script: source/features/turnbased/action_points.gd
-   │   └── Timeline (Node) — script: source/features/turnbased/timeline/timeline_manager.gd
-   ├── RealTimeManager (Node) — script: source/features/realtime/realtime_manager.gd
-   ├── HUD (CanvasLayer) — script: source/ui/hud/hud.gd
-   │   ├── HealthBar (ProgressBar, %HealthBar)
-   │   ├── ModeLabel (Label, %ModeLabel)
-   │   ├── ActionPointsLabel (Label, %ActionPointsLabel)
-   │   └── TurnIndicator (Label, %TurnIndicator)
-   └── (other children as needed)
-   ```
-5. Press **F5** to run
-
-> **graphify note:** GDScript extractor is injected into graphify's `extract.py` (site-packages). It will persist across graphify version upgrades as a scripted post-install step. The regex-based parser covers all standard GDScript constructs; for edge cases (nested multi-line strings, unusual block comments), results may vary.
+1. Godot 4 설치
+2. `project.godot` 열기
+3. **Autoload 등록** (필수):
+   - `source/autoload/event_bus.gd` → `EventBus`
+   - `source/autoload/game_state.gd` → `GameState`
+4. **F5** 실행
 
 ## Tech Stack
 
 - **Engine:** Godot 4 (GDScript)
 - **Knowledge Graph:** graphify v0.7.13
-- **Language:** GDScript + Python
 - **Platform:** Windows 10+
-- **Python:** 3.14+
