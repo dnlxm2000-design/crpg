@@ -94,19 +94,9 @@ func move_one_tile(direction: Vector2i, unit_node = null) -> bool:
 
 	var current_grid: Vector2i = _grid_world.world_to_grid(_unit.global_position)
 	var target_grid: Vector2i = current_grid + direction
-	var dbg_cur_world: Vector2 = _grid_world.grid_to_world(current_grid)
-	var dbg_tgt_world: Vector2 = _grid_world.grid_to_world(target_grid)
 	var target_ok: bool = _grid_world.is_walkable(target_grid)
-	# corner blocking 정보 (WASD는 모두 대각선格子이므로 항상 체크됨)
-	var corner1: Vector2i = Vector2i(current_grid.x + direction.x, current_grid.y)
-	var corner2: Vector2i = Vector2i(current_grid.x, current_grid.y + direction.y)
-	var corner1_ok: bool = _grid_world.is_walkable(corner1)
-	var corner2_ok: bool = _grid_world.is_walkable(corner2)
-	var is_diag: bool = (direction.x != 0 and direction.y != 0)
-	print("[Move] dir=%s cur=%s tgt=%s walkable=tgt:%s corner1:%s corner2:%s" % [
-		direction, current_grid, target_grid, target_ok,
-		"%s(%s)" % [corner1_ok, corner1] if is_diag else "N/A",
-		"%s(%s)" % [corner2_ok, corner2] if is_diag else "N/A"
+	print("[Move] dir=%s cur=%s tgt=%s walkable=%s" % [
+		direction, current_grid, target_grid, target_ok
 	])
 	var dir_vec: Vector2 = Vector2(direction).normalized()
 
@@ -115,15 +105,8 @@ func move_one_tile(direction: Vector2i, unit_node = null) -> bool:
 		_unit.update_facing_direction(dir_vec)
 
 	# 일반 이동 (걸어갈 수 있는 타일)
-	if not _grid_world.is_walkable(target_grid):
+	if not target_ok:
 		return false
-
-	# 대각선 이동 시 모서리 차단 (corner blocking)
-	if direction.x != 0 and direction.y != 0:
-		if not _grid_world.is_walkable(Vector2i(current_grid.x + direction.x, current_grid.y)):
-			return false
-		if not _grid_world.is_walkable(Vector2i(current_grid.x, current_grid.y + direction.y)):
-			return false
 
 	# AP 확인 (turn-based)
 	if unit_node:
