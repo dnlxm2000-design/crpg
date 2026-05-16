@@ -199,24 +199,19 @@ func _generate_and_render() -> void:
 					if nh < 1:
 						_layers[1].set_cell(pos, _sid, _get_side(x, y, hm, 1))
 
-	# GridWorld elevation 동기화 + 물 블록 처리
+	# GridWorld elevation 동기화 + 물/산 블록 처리
+	# hm 딕셔너리 순회 대신 그리드 직접 순회로 변경 (차단 누락 방지)
 	if _grid_world and _grid_world.has_method("set_elevation"):
-		for key in hm:
-			# _get_top()이 추가한 "x,y_moss" 키는 건너뜀
-			if "_moss" in key:
-				continue
-			var parts = key.split(",")
-			if parts.size() == 2:
-				var gx := int(parts[0])
-				var gy := int(parts[1])
-				var h_val = hm[key]
-				if typeof(h_val) != TYPE_INT:
-					continue
-				_grid_world.set_elevation(Vector2i(gx, gy), clampi(h_val, 0, 2))
-				# 고도 0 = 물, 고도 ≥2 = 산 → 통과 불가
+		var blocked_count: int = 0
+		for x in range(_world_size.x):
+			for y in range(_world_size.y):
+				var key: String = "%d,%d" % [x, y]
+				var h_val: int = hm.get(key, 0)
+				_grid_world.set_elevation(Vector2i(x, y), clampi(h_val, 0, 2))
 				if h_val <= 0 or h_val >= 2:
-					if _grid_world.has_method("set_blocked"):
-						_grid_world.set_blocked(Vector2i(gx, gy), true)
+					_grid_world.set_blocked(Vector2i(x, y), true)
+					blocked_count += 1
+		print("[Terrain] Blocked tiles: %d" % blocked_count)
 
 	# ── Polygon2D 정육면체 생성 (산, 고도 ≥2) ──
 	_build_cubes(hm)

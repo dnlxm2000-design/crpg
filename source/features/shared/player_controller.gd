@@ -72,7 +72,9 @@ func _process(_delta: float) -> void:
 	if not is_turn:
 		for action in DIRECTION_MAP:
 			if Input.is_action_just_pressed(action):
-				_do_key_move(DIRECTION_MAP[action], is_turn)
+				var dir: Vector2i = DIRECTION_MAP[action]
+				print("[PC] Input: %s → dir=%s" % [action, dir])
+				_do_key_move(dir, is_turn)
 
 	if not is_turn:
 		# E키: 가장 가까운 아이템 집기 (탐험/조사 중심 RPG — 자동 줍기 없음)
