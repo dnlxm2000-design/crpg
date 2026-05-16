@@ -50,6 +50,8 @@ func start_combat(participants: Array[Node] = []) -> void:
 
 
 func end_combat() -> void:
+	if not is_combat_active:
+		return  # 이미 종료됨 (중복 호출 방지)
 	is_combat_active = false
 	EventBus.combat_ended.emit()
 

@@ -28,6 +28,8 @@ func _ready() -> void:
 	# Combat outcome handlers
 	EventBus.combat_victory.connect(_on_combat_victory)
 	EventBus.combat_defeat.connect(_on_combat_defeat)
+	# Combat end → return to realtime
+	EventBus.combat_ended.connect(_on_combat_ended)
 
 
 ## Switch to real-time mode.
@@ -179,6 +181,13 @@ func _on_restart_requested() -> void:
 func _on_realtime_entered() -> void:
 	print("[GameLoop] Entered real-time mode")
 	GameState.current_mode = GameState.GameMode.REALTIME
+
+
+func _on_combat_ended() -> void:
+	# 안전망: victory/defeat 경로 외 전투 종료 시 실시간 복귀
+	if is_turn_mode:
+		print("[GameLoop] Combat ended — returning to real-time mode")
+		enter_realtime()
 
 
 func _on_turn_entered() -> void:
