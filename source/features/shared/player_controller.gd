@@ -354,6 +354,9 @@ func _do_key_move(dir: Vector2i, is_turn: bool) -> void:
 func _handle_turn_input(event: InputEvent) -> void:
 	# ── 마우스 클릭 처리 (전투 중 이동/공격) ──
 	if event is InputEventMouseButton and event.pressed:
+		# HUD 패널(인벤토리/장비) 위 클릭은 게임 입력으로 소비하지 않음
+		if _is_click_on_hud_panel():
+			return
 		get_viewport().set_input_as_handled()
 		match event.button_index:
 			MOUSE_BUTTON_LEFT:
