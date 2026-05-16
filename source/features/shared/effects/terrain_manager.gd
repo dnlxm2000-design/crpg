@@ -221,6 +221,13 @@ func _generate_and_render() -> void:
 	# ── Polygon2D 정육면체 생성 (산, 고도 ≥2) ──
 	_build_cubes(hm)
 
+	# ── 디버그: 그리드(30,61) 위치에 빨간 마커 표시 (타일맵 vs 그리드 좌표계 검증) ──
+	_debug_grid_marker(Vector2i(30, 61), Color(1, 0, 0, 0.7))  # 플레이어 스폰 위치 (빨강)
+	_debug_grid_marker(Vector2i(29, 60), Color(0, 1, 0, 0.7))  # W 방향 (초록)
+	_debug_grid_marker(Vector2i(31, 62), Color(0, 0, 1, 0.7))  # S 방향 (파랑)
+	_debug_grid_marker(Vector2i(29, 62), Color(1, 1, 0, 0.7))  # A 방향 (노랑)
+	_debug_grid_marker(Vector2i(31, 60), Color(1, 0, 1, 0.7))  # D 방향 (보라)
+
 	var total_cells = 0
 	for li in _layers.size():
 		var c = _layers[li].get_used_cells().size()
@@ -258,6 +265,20 @@ func _build_cubes(hm: Dictionary) -> void:
 			if h < 2:
 				continue
 			_create_cube_at(Vector2i(x, y), h, hm)
+
+
+## 디버그: 지정 그리드 위치에 빨간 사각형 마커 표시 (타일맵 vs 그리드 좌표계 검증용)
+func _debug_grid_marker(grid: Vector2i, color: Color) -> void:
+	var world := _grid_to_world(grid)
+	var marker := ColorRect.new()
+	marker.name = "DebugMarker_%d_%d" % [grid.x, grid.y]
+	marker.size = Vector2(8, 8)
+	marker.color = color
+	marker.position = world - Vector2(4, 4)  # 중심으로 정렬
+	marker.z_index = 50
+	marker.z_as_relative = false
+	add_child(marker)
+	print("[Terrain] Debug marker at grid %s → world %s" % [grid, world])
 
 
 func _create_cube_at(grid: Vector2i, h: int, hm: Dictionary) -> void:

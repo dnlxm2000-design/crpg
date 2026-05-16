@@ -94,6 +94,11 @@ func move_one_tile(direction: Vector2i, unit_node = null) -> bool:
 
 	var current_grid: Vector2i = _grid_world.world_to_grid(_unit.global_position)
 	var target_grid: Vector2i = current_grid + direction
+	var current_world: Vector2 = _grid_world.grid_to_world(current_grid)
+	var target_world: Vector2 = _grid_world.grid_to_world(target_grid)
+	print("[Move] dir=%s cur_grid=%s cur_world=%s target_grid=%s target_world=%s walkable=%s" % [
+		direction, current_grid, current_world, target_grid, target_world, _grid_world.is_walkable(target_grid)
+	])
 	var dir_vec: Vector2 = Vector2(direction).normalized()
 
 	# 항상 방향 전환 (이동 성공 여부와 무관)
