@@ -33,7 +33,8 @@ const DIRS_DIAGONAL: Array = [Vector2i(1, -1), Vector2i(1, 1), Vector2i(-1, 1), 
 
 func _ready() -> void:
 	_build_grid()
-	_generate_elevation()
+	# _generate_elevation() 제거: TerrainManager가 지형 생성 + 차단 설정
+	# GridWorld가 다른 noise로 elevation을 덮어쓰면 blocked와 불일치 발생
 
 
 ## Build the A* graph and connect neighbors.
