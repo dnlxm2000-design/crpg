@@ -188,6 +188,13 @@ func _on_combat_ended() -> void:
 	if is_turn_mode:
 		print("[GameLoop] Combat ended — returning to real-time mode")
 		enter_realtime()
+	
+	# 플레이어 AP 복구 (전투 후 0 상태 방지)
+	var rt = get_node_or_null("/root/Main/RealTimeManager")
+	if rt and rt.get("player_ref"):
+		var player = rt.player_ref
+		if "current_action_points" in player and "max_action_points" in player:
+			player.current_action_points = player.max_action_points
 
 
 func _on_turn_entered() -> void:

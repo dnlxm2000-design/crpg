@@ -1,6 +1,4 @@
-# minimap_panel.gd — 완전 독립형 원형 미니맵 (CanvasLayer).
-# 다른 UI 파일을 전혀 건드리지 않음. _enter_tree()에서 자동으로 뷰포트에 추가됨.
-# 위치는 자식 Control의 anchor로 지정 (뷰포트 크기 변화에도 안정적).
+# minimap_panel.gd - Independent circular minimap (CanvasLayer).
 extends CanvasLayer
 
 const PANEL_W := 136
@@ -25,53 +23,15 @@ var _player: Node = null
 var _grid_world: Node = null
 
 
-func _enter_tree() -> void:
-	# 부모가 없으면 뷰포트 루트에 자동 추가 (완전 독립)
-	if not get_parent():
-		get_tree().root.add_child(self)
-
-
 func _ready() -> void:
-	layer = 100  # HUD 위에 렌더링
+	layer = 100
 
-	# ── 전체 화면 컨테이너 (anchor 기반 위치 지정) ──
-	var container := Control.new()
-	container.set_anchors_preset(Control.PRESET_FULL_RECT)
-	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(container)
+	_bg = ColorRect.new()
+	_bg.color = Color(0.0, 0.0, 0.0, 0.55)
+	_bg.size = Vector2(PANEL_W, PANEL_H)
+	_bg.position = Vector2(0, 0)
+	add_child(_bg)
 
-	# ── 우상단 패널 ──
-	var panel := Panel.new()
-	panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	panel.offset_left = -PANEL_W - 8
-	panel.offset_top = 8
-	panel.offset_right = -8
-	panel.offset_bottom = PANEL_H + 8
-
-	# 패널 배경 스타일
-	var bg_style := StyleBoxFlat.new()
-	bg_style.bg_color = Color(0.0, 0.0, 0.0, 0.55)
-	bg_style.corner_radius_top_left = 8
-	bg_style.corner_radius_top_right = 8
-	bg_style.corner_radius_bottom_left = 8
-	bg_style.corner_radius_bottom_right = 8
-	bg_style.set_content_margin_all(4)
-	panel.add_theme_stylebox_override("panel", bg_style)
-	container.add_child(panel)
-
-	# ── 원형 마스크 이미지 ──
-	var circle_img := Image.create(MAP_SIZE, MAP_SIZE, false, Image.FORMAT_RGBA8)
-	circle_img.fill(Color.TRANSPARENT)
-	var c := MAP_SIZE / 2
-	var r := MAP_SIZE / 2 - 1
-	for px in MAP_SIZE:
-		for py in MAP_SIZE:
-			var d := Vector2(px - c, py - c)
-			if d.length_squared() <= r * r:
-				circle_img.set_pixel(px, py, Color.WHITE)
-	var circle_tex := ImageTexture.create_from_image(circle_img)
-
-	# ── 미니맵 이미지 ──
 	_img = Image.create(MAP_SIZE, MAP_SIZE, false, Image.FORMAT_RGBA8)
 	_img.fill(Color(0.08, 0.08, 0.08))
 	_tex = ImageTexture.create_from_image(_img)
@@ -82,9 +42,8 @@ func _ready() -> void:
 	_tex_rect.size = Vector2(MAP_SIZE, MAP_SIZE)
 	_tex_rect.position = Vector2(4, 4)
 	_tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(_tex_rect)
+	add_child(_tex_rect)
 
-	# ── 좌표 레이블 ──
 	_coord_label = Label.new()
 	_coord_label.position = Vector2(4, MAP_SIZE + 8)
 	_coord_label.size = Vector2(MAP_SIZE, 18)
@@ -92,16 +51,25 @@ func _ready() -> void:
 	_coord_label.add_theme_font_size_override("font_size", 13)
 	_coord_label.add_theme_color_override("font_color", Color(1, 1, 1))
 	_coord_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
-	panel.add_child(_coord_label)
+	add_child(_coord_label)
 
-	# ── 데이터 수집 ──
+	_anchor_to_top_right()
+
+	call_deferred("_init_data")
+
+
+func _init_data() -> void:
 	_grid_world = get_node_or_null("/root/Main/GameLoop/GridWorld")
 	var rt = get_node_or_null("/root/Main/RealTimeManager")
 	if rt:
 		_player = rt.get("player_ref")
-
 	_collect_terrain()
 	_render()
+
+
+func _anchor_to_top_right() -> void:
+	var screen := get_viewport().get_visible_rect().size
+	offset = Vector2(screen.x - PANEL_W - 8, 8)
 
 
 func _collect_terrain() -> void:
@@ -126,9 +94,12 @@ func _render() -> void:
 		for y in range(GRID_H):
 			var h: int = _heights.get("%d,%d" % [x, y], 0)
 			var color: Color
-			if h <= 0:      color = COLOR_WATER
-			elif h == 1:    color = COLOR_GRASS
-			else:           color = COLOR_MOUNTAIN
+			if h <= 0:
+				color = COLOR_WATER
+			elif h == 1:
+				color = COLOR_GRASS
+			else:
+				color = COLOR_MOUNTAIN
 
 			var px := int(float(x) * sx)
 			var py := int(float(y) * sy)

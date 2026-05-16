@@ -53,6 +53,24 @@ func end_combat() -> void:
 	if not is_combat_active:
 		return  # 이미 종료됨 (중복 호출 방지)
 	is_combat_active = false
+	
+	# 그리드 점유 정리 (죽은 적 시체 제외)
+	var grid = get_node_or_null("/root/Main/GameLoop/GridWorld")
+	if grid and grid.has_method("set_occupied"):
+		for c in combatants:
+			if not is_instance_valid(c):
+				continue
+			var gp: Vector2i = grid.world_to_grid(c.global_position)
+			var occupant = grid.get_occupant(gp)
+			if occupant == c:
+				grid.set_occupied(gp, null)
+	
+	# 전투원 목록 초기화 (다음 전투에 영향 방지)
+	combatants.clear()
+	turn_order.clear()
+	current_turn_index = 0
+	current_round = 0
+	
 	EventBus.combat_ended.emit()
 
 
