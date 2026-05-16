@@ -115,7 +115,7 @@ func _process(_delta: float) -> void:
 	if not _player or not _grid_world:
 		return
 
-	var wp := _player.global_position
+	var wp: Vector2 = _player.global_position
 	var gp: Vector2i = _grid_world.world_to_grid(wp)
 	_coord_label.text = "x:%d  y:%d" % [gp.x, gp.y]
 
