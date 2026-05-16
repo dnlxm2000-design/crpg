@@ -52,29 +52,6 @@ func _ready() -> void:
 			var spawn_pos: Vector2 = _grid_world.grid_to_world(spawn_grid) if _grid_world else Vector2(0, 320)
 			var player = rt_manager.spawn_player(spawn_pos)
 			print("[Main] Player spawned at iso grid %s → world %s" % [str(spawn_grid), str(spawn_pos)])
-			
-			# Debug: 5x5 terrain grid around spawn
-			if _grid_world:
-				print("[Main] Terrain 5x5 around spawn (h=높이, B=차단):")
-				for dy in range(-2, 3):
-					var row := "  "
-					for dx in range(-2, 3):
-						var gp: Vector2i = spawn_grid + Vector2i(dx, dy)
-						var h: int = _grid_world.get_elevation(gp)
-						var blocked: bool = not _grid_world.is_walkable(gp, true)
-						row += "%d%s " % [h, "B" if blocked else "."]
-					print("[Main]   dy=%+d: %s" % [dy, row])
-				# 4방향 상세
-				for info in [
-					{"name": "W", "dir": Vector2i(-1, -1)},
-					{"name": "S", "dir": Vector2i(1, 1)},
-					{"name": "A", "dir": Vector2i(-1, 1)},
-					{"name": "D", "dir": Vector2i(1, -1)},
-				]:
-					var adj: Vector2i = spawn_grid + info.dir
-					var h: int = _grid_world.get_elevation(adj)
-					var w: bool = _grid_world.is_walkable(adj)
-					print("[Main]   %s → grid=%s h=%d walkable=%s" % [info.name, adj, h, w])
 			# Wire path preview to player + grid
 			if _grid_world and path_preview.has_method("setup"):
 				path_preview.setup(_grid_world, player)
