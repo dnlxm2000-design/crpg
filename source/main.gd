@@ -59,9 +59,9 @@ func _ready() -> void:
 				for dy in range(-2, 3):
 					var row := "  "
 					for dx in range(-2, 3):
-						var gp := spawn_grid + Vector2i(dx, dy)
-						var h := _grid_world.get_elevation(gp)
-						var blocked := not _grid_world.is_walkable(gp, true)
+						var gp: Vector2i = spawn_grid + Vector2i(dx, dy)
+						var h: int = _grid_world.get_elevation(gp)
+						var blocked: bool = not _grid_world.is_walkable(gp, true)
 						row += "%d%s " % [h, "B" if blocked else "."]
 					print("[Main]   dy=%+d: %s" % [dy, row])
 				# 4방향 상세
@@ -71,9 +71,9 @@ func _ready() -> void:
 					{"name": "A", "dir": Vector2i(-1, 1)},
 					{"name": "D", "dir": Vector2i(1, -1)},
 				]:
-					var adj := spawn_grid + info.dir
-					var h := _grid_world.get_elevation(adj)
-					var w := _grid_world.is_walkable(adj)
+					var adj: Vector2i = spawn_grid + info.dir
+					var h: int = _grid_world.get_elevation(adj)
+					var w: bool = _grid_world.is_walkable(adj)
 					print("[Main]   %s → grid=%s h=%d walkable=%s" % [info.name, adj, h, w])
 			# Wire path preview to player + grid
 			if _grid_world and path_preview.has_method("setup"):
