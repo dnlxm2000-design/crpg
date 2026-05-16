@@ -214,9 +214,10 @@ func _generate_and_render() -> void:
 				if typeof(h_val) != TYPE_INT:
 					continue
 				_grid_world.set_elevation(Vector2i(gx, gy), clampi(h_val, 0, 2))
-				# 고도 0 = 물 = 통과 불가
-				if h_val <= 0 and _grid_world.has_method("set_blocked"):
-					_grid_world.set_blocked(Vector2i(gx, gy), true)
+				# 고도 0 = 물, 고도 ≥2 = 산 → 통과 불가
+				if h_val <= 0 or h_val >= 2:
+					if _grid_world.has_method("set_blocked"):
+						_grid_world.set_blocked(Vector2i(gx, gy), true)
 
 	# ── Polygon2D 정육면체 생성 (산, 고도 ≥2) ──
 	_build_cubes(hm)
