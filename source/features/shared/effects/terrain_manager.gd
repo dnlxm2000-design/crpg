@@ -100,8 +100,7 @@ func _build_tileset() -> void:
 	var ts := TileSet.new()
 	ts.tile_shape = TileSet.TILE_SHAPE_ISOMETRIC
 	ts.tile_layout = TileSet.TILE_LAYOUT_DIAMOND_DOWN
-	# HORIZONTAL: 그리드 X=오른쪽, Y=왼쪽아래 (월드 좌표계와 일치)
-	ts.tile_offset_axis = TileSet.TILE_OFFSET_AXIS_HORIZONTAL
+	# offset_axis 제거: 그리드 좌표계와 타일맵 좌표계 일치
 	ts.tile_size = Vector2i(TILE_W, TILE_H)
 
 	var src := TileSetAtlasSource.new()
