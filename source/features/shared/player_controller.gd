@@ -132,10 +132,17 @@ func _click_preview_or_move() -> void:
 	if _movement.is_moving:
 		return
 
-	var mouse_world: Vector2 = _unit.get_global_mouse_position()
 	var grid_world = _movement.get_grid_world()
 	if not grid_world:
 		return
+
+	# Use viewport mouse position + camera offset for accurate world coords
+	var mouse_viewport: Vector2 = get_viewport().get_mouse_position()
+	var camera: Camera2D = get_viewport().get_camera_2d()
+	var mouse_world: Vector2 = mouse_viewport
+	if camera:
+		mouse_world = camera.get_global_mouse_position()
+
 	var mouse_grid: Vector2i = grid_world.world_to_grid(mouse_world)
 
 	# Check if there is a pickable MapItem at the clicked tile

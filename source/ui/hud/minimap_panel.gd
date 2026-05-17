@@ -30,6 +30,7 @@ func _ready() -> void:
 	_bg.color = Color(0.0, 0.0, 0.0, 0.55)
 	_bg.size = Vector2(PANEL_W, PANEL_H)
 	_bg.position = Vector2(0, 0)
+	_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_bg)
 
 	_img = Image.create(MAP_SIZE, MAP_SIZE, false, Image.FORMAT_RGBA8)
