@@ -352,7 +352,18 @@ func _create_inv_row(item_data: Dictionary) -> Control:
 		equip_btn.text = "Equip"
 		equip_btn.custom_minimum_size = Vector2(60, 22)
 		equip_btn.add_theme_font_size_override("font_size", 11)
-		equip_btn.pressed.connect(_on_equip.bind(item))
+
+		# Ranged weapon: check ammo, show warning if none
+		if item.get("weapon_class") == "ranged" and item.get("ammo_type") != "":
+			if not _has_ammo(item.ammo_type):
+				equip_btn.text = "No Ammo"
+				equip_btn.disabled = true
+				equip_btn.add_theme_color_override("font_color", Color(0.5, 0.3, 0.3))
+			else:
+				equip_btn.pressed.connect(_on_equip.bind(item))
+		else:
+			equip_btn.pressed.connect(_on_equip.bind(item))
+
 		row.add_child(equip_btn)
 
 	# Use button (for consumables)
@@ -440,6 +451,17 @@ func _format_attributes(unit: Node) -> Dictionary:
 ## D&D-style modifier: floor((score - 10) / 2)
 func _calc_mod(score: int) -> int:
 	return floori((score - 10) / 2.0)
+
+
+## Check if player inventory has ammo of given type.
+func _has_ammo(ammo_type: String) -> bool:
+	if not _inventory:
+		return false
+	for it in _inventory.get_item_list():
+		var item = it.get("item")
+		if item and item.get("item_type") == 12 and item.get("ammo_type") == ammo_type:
+			return true
+	return false
 
 
 ## Return weapon class tag for display.

@@ -239,7 +239,18 @@ func _create_item_row(it, qty: int) -> Control:
 		var equip_btn := Button.new()
 		equip_btn.text = "Equip"
 		equip_btn.custom_minimum_size = Vector2(48, 24)
-		equip_btn.pressed.connect(_on_equip_item.bind(it.id))
+
+		# Ranged weapon: check ammo
+		if it.get("weapon_class") == "ranged" and it.get("ammo_type") != "":
+			if not _has_ammo(it.ammo_type):
+				equip_btn.text = "No Ammo"
+				equip_btn.disabled = true
+				equip_btn.add_theme_color_override("font_color", Color(0.5, 0.3, 0.3))
+			else:
+				equip_btn.pressed.connect(_on_equip_item.bind(it.id))
+		else:
+			equip_btn.pressed.connect(_on_equip_item.bind(it.id))
+
 		row.add_child(equip_btn)
 
 	return row
@@ -301,3 +312,14 @@ func _pick_color(it) -> Color:
 
 func _on_inventory_changed(_a = null, _b = null) -> void:
 	refresh()
+
+
+## Check if inventory has ammo of given type.
+func _has_ammo(ammo_type: String) -> bool:
+	if not _inventory:
+		return false
+	for it in _inventory.get_item_list():
+		var item = it.get("item")
+		if item and item.get("item_type") == 12 and item.get("ammo_type") == ammo_type:
+			return true
+	return false

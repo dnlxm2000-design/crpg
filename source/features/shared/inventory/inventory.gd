@@ -175,6 +175,12 @@ func equip_item(item_id: String, user: Node) -> Dictionary:
 	if slot_name == "":
 		return {success = false, message = "Not equippable"}
 
+	# Ranged weapon: check ammo availability
+	if item.get("weapon_class") == "ranged" and item.get("ammo_type") != "":
+		var needed: String = item.ammo_type
+		if not _has_ammo(needed):
+			return {success = false, message = "No %s in inventory" % needed}
+
 	# Remove from inventory first
 	if not remove_item(item_id, 1):
 		return {success = false, message = "Failed to remove from inventory"}
@@ -206,6 +212,15 @@ func unequip_item(slot_var: String, user: Node) -> bool:
 
 
 ## ─── Internal ───
+
+## Check if inventory has any ammo of the given type.
+func _has_ammo(ammo_type: String) -> bool:
+	for it in _items:
+		if it.get("item_type") == 12 and it.get("ammo_type") == ammo_type:
+			var qty = _quantities.get(it.id, 0)
+			if qty > 0:
+				return true
+	return false
 
 func _find_item_index(item_id: String) -> int:
 	for i in range(_items.size()):
