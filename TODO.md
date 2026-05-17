@@ -78,6 +78,13 @@ Knowledge-graph-driven development with [graphify](https://github.com/OhMyOpenCo
 - [ ] 실시간 패트롤 AI
 - [ ] 전리품 / 경험치 / 레벨업
 - [ ] 추가 유적지 및 맵 구조물 (5×5 Hollow Cube)
+- [ ] **종족 + 직업 시스템** (보류 중 — 방향 논의 완료)
+  - [ ] `Unit`에 `race: String`, `class: String` 필드 추가
+  - [ ] 종족 보정표: Human(+1전속성), Elf(+2DEX +1INT -1CON), Dwarf(+2CON +1STR -1DEX), Orc(+2STR +1CON -2INT), Goblin(+2DEX +1WIS -2STR)
+  - [ ] 직업 프리셋: Warrior(STR↑CON↑INT↓), Ranger(DEX↑WIS↑STR↓), Mage(INT↑WIS↑CON↓), Rogue(DEX↑CHA↑CON↓)
+  - [ ] `Unit.get_race_modifiers()` / `Unit.get_class_preset()` 헬퍼
+  - [ ] 적 스폰에 종족/직업 적용 (Goblin Warrior, Orc Archer 등)
+  - [ ] 장비 패널에 종족/직업 표시
 
 ### UI
 - [ ] 명중률 프리뷰
