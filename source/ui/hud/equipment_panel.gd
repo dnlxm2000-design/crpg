@@ -307,8 +307,8 @@ func _create_slot_row(var_name: String, label: String) -> Control:
 		item_label.add_theme_color_override("font_color", Color(0.35, 0.35, 0.4))
 	row.add_child(item_label)
 
-	# Unequip button (only if slot is occupied)
-	if item:
+	# Unequip button (only if slot is occupied AND not in combat)
+	if item and GameState.current_mode != GameState.GameMode.TURNBASED:
 		var unequip_btn := Button.new()
 		unequip_btn.text = "Unequip"
 		unequip_btn.custom_minimum_size = Vector2(70, 22)
@@ -345,8 +345,8 @@ func _create_inv_row(item_data: Dictionary) -> Control:
 		qty_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.8))
 		row.add_child(qty_label)
 
-	# Equip button (for equippable items)
-	if item and item.get("item_type") in ["WEAPON", "ARMOR", "HELMET", "NECKLACE", "CLOAK", "BELT", "RING", "GLOVE", "BOOTS", "OFF_HAND"]:
+	# Equip button (for equippable items, disabled in combat)
+	if item and item.get("item_type") in ["WEAPON", "ARMOR", "HELMET", "NECKLACE", "CLOAK", "BELT", "RING", "GLOVE", "BOOTS", "OFF_HAND"] and GameState.current_mode != GameState.GameMode.TURNBASED:
 		var equip_btn := Button.new()
 		equip_btn.text = "Equip"
 		equip_btn.custom_minimum_size = Vector2(60, 22)
@@ -368,6 +368,8 @@ func _create_inv_row(item_data: Dictionary) -> Control:
 
 ## Handle unequip button click.
 func _on_unequip(slot_var: String) -> void:
+	if GameState.current_mode == GameState.GameMode.TURNBASED:
+		return
 	if not _player:
 		return
 	var inv = _player.get_node_or_null("Inventory")
@@ -380,6 +382,8 @@ func _on_unequip(slot_var: String) -> void:
 
 ## Handle equip button click.
 func _on_equip(item: Resource) -> void:
+	if GameState.current_mode == GameState.GameMode.TURNBASED:
+		return
 	if not _player:
 		return
 	var inv = _player.get_node_or_null("Inventory")
