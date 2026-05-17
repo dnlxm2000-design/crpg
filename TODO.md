@@ -67,6 +67,7 @@ Knowledge-graph-driven development with [graphify](https://github.com/OhMyOpenCo
 - [x] ~~플레이어 시작 위치 조정 — 길 교차점 (30,61)~~
 - [ ] 산 경사면 시각화 — 사선 절단 + 평면 붙이기 (보류)
 - [x] ~~전투 중 마우스 이동 안정화~~
+- [ ] 6속성 기반 파생 스탯 계산식 반영 (STR→공격력, DEX→회피/선제권, CON→HP, INT→마법데미지, WIS→저항, CHA→가격)
 
 ### 전투 심화
 - [ ] 스킬/마법 시스템 (근접 외 다양한 액션)
