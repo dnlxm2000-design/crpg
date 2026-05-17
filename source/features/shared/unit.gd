@@ -159,47 +159,38 @@ func setup_placeholder_visual(body_color: Color, collision_size: Vector2i = Vect
 	collision.shape = shape
 	add_child(collision)
 
-	# ── 3D 박스 (3단 육면체, 지형 타일 스택 방식) ──
-	# 육면체 구성: 아랫면 2단(옆면만) + 윗면 1단(윗면+옆면)
-	# 각 단: 다이아몬드 타일 1개 높이(16px)
+	# ── 3D 박스: z_index 제거 → y_sort 위임
 	var box_color: Color = body_color
 	var side_l_color: Color = body_color.darkened(0.35)
 	var side_r_color: Color = body_color.darkened(0.55)
 
-	# 윗면 (Top face) — level 2, y=-32
-	var top := Polygon2D.new()
-	top.polygon = PackedVector2Array([
-		Vector2(0, -48), Vector2(28, -32),
-		Vector2(0, -16), Vector2(-28, -32),
-	])
-	top.color = box_color
-	top.z_index = 3
-	top.name = "UnitBoxTop"
-	add_child(top)
-
-	# 왼쪽 옆면 (Left side) — 3단 연속
 	var side_l := Polygon2D.new()
 	side_l.polygon = PackedVector2Array([
 		Vector2(-28, -32), Vector2(0, -16),
 		Vector2(0, 24), Vector2(-28, 8),
 	])
 	side_l.color = side_l_color
-	side_l.z_index = 2
 	side_l.name = "UnitBoxSideL"
 	add_child(side_l)
 
-	# 오른쪽 옆면 (Right side) — 3단 연속
 	var side_r := Polygon2D.new()
 	side_r.polygon = PackedVector2Array([
 		Vector2(28, -32), Vector2(0, -16),
 		Vector2(0, 24), Vector2(28, 8),
 	])
 	side_r.color = side_r_color
-	side_r.z_index = 1
 	side_r.name = "UnitBoxSideR"
 	add_child(side_r)
 
-	# UnitSprite 참조용 더미 (flip_h 등 호환)
+	var top_face := Polygon2D.new()
+	top_face.polygon = PackedVector2Array([
+		Vector2(0, -48), Vector2(28, -32),
+		Vector2(0, -16), Vector2(-28, -32),
+	])
+	top_face.color = box_color
+	top_face.name = "UnitBoxTop"
+	add_child(top_face)
+
 	var _dummy := Sprite2D.new()
 	_dummy.name = "UnitSprite"
 	_dummy.visible = false
