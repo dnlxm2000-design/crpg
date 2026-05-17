@@ -16,6 +16,7 @@ damage_bonus = 3
 defense_bonus = 0
 accuracy_bonus = 4
 evasion_bonus = 0
+weapon_class = "ranged"
 weapon_subtype = "sling"
 range = 4
 ammo_type = ""

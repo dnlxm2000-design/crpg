@@ -332,7 +332,8 @@ func _create_inv_row(item_data: Dictionary) -> Control:
 	var name_label := Label.new()
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if item and "item_name" in item:
-		name_label.text = "  %s" % item.item_name
+		var tag = _get_weapon_tag(item)
+		name_label.text = "  %s%s" % [item.item_name, tag]
 		name_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.9))
 	else:
 		name_label.text = "  (unknown)"
@@ -439,3 +440,15 @@ func _format_attributes(unit: Node) -> Dictionary:
 ## D&D-style modifier: floor((score - 10) / 2)
 func _calc_mod(score: int) -> int:
 	return floori((score - 10) / 2.0)
+
+
+## Return weapon class tag for display.
+func _get_weapon_tag(item: Resource) -> String:
+	if not item:
+		return ""
+	var wclass = item.get("weapon_class") if "weapon_class" in item else ""
+	if wclass == "ranged":
+		return " [원거리]"
+	if wclass == "melee" and ("weapon_subtype" in item and item.weapon_subtype != ""):
+		return " [근접]"
+	return ""

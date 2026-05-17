@@ -16,6 +16,7 @@ damage_bonus = 11
 defense_bonus = 0
 accuracy_bonus = -1
 evasion_bonus = 0
+weapon_class = "ranged"
 weapon_subtype = "crossbow"
 range = 6
 ammo_type = ""

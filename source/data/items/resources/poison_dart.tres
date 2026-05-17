@@ -16,6 +16,7 @@ damage_bonus = 1
 defense_bonus = 0
 accuracy_bonus = 0
 evasion_bonus = 0
+weapon_class = "ranged"
 weapon_subtype = "ammo"
 range = 1
 ammo_type = "dart"

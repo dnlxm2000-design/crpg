@@ -16,6 +16,7 @@ damage_bonus = 5
 defense_bonus = 0
 accuracy_bonus = 2
 evasion_bonus = 0
+weapon_class = "ranged"
 weapon_subtype = "bow"
 range = 5
 ammo_type = ""
