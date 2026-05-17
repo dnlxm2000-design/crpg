@@ -28,3 +28,15 @@ extends Resource
 @export var accuracy_bonus: int = 0
 ## Evasion bonus when equipped (for armor, boots, cloaks, etc.).
 @export var evasion_bonus: int = 0
+## Weapon subtype (for WEAPON type): "1h_sword", "2h_sword", "axe", "bow", etc.
+@export var weapon_subtype: String = ""
+## Attack range: 1=melee, 2+=ranged (tiles)
+@export var range: int = 1
+## Ammunition type required (for bows/crossbows/slings): "arrow", "bolt", "dart"
+@export var ammo_type: String = ""
+## Strength requirement to wield effectively
+@export var str_req: int = 0
+## Dexterity requirement to wield effectively
+@export var dex_req: int = 0
+## Weapon weight (affects movement, fatigue)
+@export var weight: float = 0.0

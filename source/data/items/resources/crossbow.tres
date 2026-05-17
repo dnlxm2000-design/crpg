@@ -1,0 +1,24 @@
+﻿[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "crossbow"
+item_name = "크로스보우"
+description = "석궁. 사거리 6, 높은 위력."
+item_type = 1
+value = 180
+heal_amount = 0
+ap_cost = 0
+stackable = false
+damage_bonus = 11
+defense_bonus = 0
+accuracy_bonus = -1
+evasion_bonus = 0
+weapon_subtype = "crossbow"
+range = 6
+ammo_type = ""
+str_req = 12
+dex_req = 6
+weight = 2.5

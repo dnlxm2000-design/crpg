@@ -1,0 +1,24 @@
+﻿[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "arrow"
+item_name = "화살"
+description = "일반 화살. 활 전용."
+item_type = 12
+value = 2
+heal_amount = 0
+ap_cost = 0
+stackable = true
+damage_bonus = 0
+defense_bonus = 0
+accuracy_bonus = 0
+evasion_bonus = 0
+weapon_subtype = "ammo"
+range = 1
+ammo_type = "arrow"
+str_req = 0
+dex_req = 0
+weight = 0.1

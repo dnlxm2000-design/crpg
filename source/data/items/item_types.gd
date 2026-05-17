@@ -14,6 +14,7 @@ enum ItemType {
 	BOOTS = 9,        # boots
 	OFF_HAND = 10,    # left_hand (shield, torch, etc.)
 	GLOVE = 11,       # gloves
+	AMMO = 12,        # arrows, bolts, darts
 }
 
 ## Return the equipment slot name for a given item_type, or "" if not equippable.

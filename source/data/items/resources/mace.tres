@@ -1,0 +1,24 @@
+﻿[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "mace"
+item_name = "메이스"
+description = "철제 곤봉. 둔상 특화."
+item_type = 1
+value = 90
+heal_amount = 0
+ap_cost = 0
+stackable = false
+damage_bonus = 8
+defense_bonus = 0
+accuracy_bonus = 0
+evasion_bonus = 0
+weapon_subtype = "1h_blunt"
+range = 1
+ammo_type = ""
+str_req = 11
+dex_req = 0
+weight = 1.5

@@ -1,0 +1,24 @@
+﻿[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "wakizashi"
+item_name = "와키자시"
+description = "카타나의 보조도. 근접전에서 유용."
+item_type = 1
+value = 90
+heal_amount = 0
+ap_cost = 0
+stackable = false
+damage_bonus = 5
+defense_bonus = 0
+accuracy_bonus = 2
+evasion_bonus = 0
+weapon_subtype = "1h_sword"
+range = 1
+ammo_type = ""
+str_req = 6
+dex_req = 8
+weight = 0.8

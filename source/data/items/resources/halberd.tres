@@ -1,0 +1,24 @@
+﻿[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "halberd"
+item_name = "할버드"
+description = "할버드. 찍기+찌르기 복합."
+item_type = 1
+value = 250
+heal_amount = 0
+ap_cost = 0
+stackable = false
+damage_bonus = 14
+defense_bonus = 0
+accuracy_bonus = -1
+evasion_bonus = 0
+weapon_subtype = "2h_polearm"
+range = 2
+ammo_type = ""
+str_req = 14
+dex_req = 3
+weight = 3

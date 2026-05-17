@@ -1,0 +1,24 @@
+﻿[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "hand_axe"
+item_name = "핸드 액스"
+description = "소형 도끼. 던지기 가능."
+item_type = 1
+value = 60
+heal_amount = 0
+ap_cost = 0
+stackable = false
+damage_bonus = 7
+defense_bonus = 0
+accuracy_bonus = 0
+evasion_bonus = 0
+weapon_subtype = "1h_axe"
+range = 1
+ammo_type = ""
+str_req = 10
+dex_req = 5
+weight = 1

@@ -1,0 +1,24 @@
+﻿[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "quarterstaff"
+item_name = "쿼터스태프"
+description = "육척봉. 빠른 연속 타격."
+item_type = 1
+value = 40
+heal_amount = 0
+ap_cost = 0
+stackable = false
+damage_bonus = 6
+defense_bonus = 0
+accuracy_bonus = 3
+evasion_bonus = 0
+weapon_subtype = "2h_blunt"
+range = 2
+ammo_type = ""
+str_req = 8
+dex_req = 8
+weight = 1.5

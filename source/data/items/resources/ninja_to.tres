@@ -1,0 +1,24 @@
+﻿[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "ninja_to"
+item_name = "닌자도"
+description = "직도. 은밀한 암살용."
+item_type = 1
+value = 130
+heal_amount = 0
+ap_cost = 0
+stackable = false
+damage_bonus = 6
+defense_bonus = 0
+accuracy_bonus = 4
+evasion_bonus = 0
+weapon_subtype = "1h_sword"
+range = 1
+ammo_type = ""
+str_req = 7
+dex_req = 12
+weight = 1

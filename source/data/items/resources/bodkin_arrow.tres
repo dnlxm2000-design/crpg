@@ -1,0 +1,24 @@
+﻿[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "bodkin_arrow"
+item_name = "보드킨 화살"
+description = "갑옷 관통 화살."
+item_type = 12
+value = 5
+heal_amount = 0
+ap_cost = 0
+stackable = true
+damage_bonus = 2
+defense_bonus = 0
+accuracy_bonus = 0
+evasion_bonus = 0
+weapon_subtype = "ammo"
+range = 1
+ammo_type = "arrow"
+str_req = 0
+dex_req = 0
+weight = 0.1

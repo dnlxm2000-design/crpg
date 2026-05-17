@@ -1,0 +1,24 @@
+﻿[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "two_handed_sword"
+item_name = "투핸디드 소드"
+description = "양손 대검. 압도적인 파괴력."
+item_type = 1
+value = 300
+heal_amount = 0
+ap_cost = 0
+stackable = false
+damage_bonus = 16
+defense_bonus = 0
+accuracy_bonus = -3
+evasion_bonus = 0
+weapon_subtype = "2h_sword"
+range = 1
+ammo_type = ""
+str_req = 16
+dex_req = 0
+weight = 3.5

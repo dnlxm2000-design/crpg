@@ -1,0 +1,24 @@
+﻿[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "spear"
+item_name = "스피어"
+description = "창. 사거리 2, 선제공격 유리."
+item_type = 1
+value = 100
+heal_amount = 0
+ap_cost = 0
+stackable = false
+damage_bonus = 9
+defense_bonus = 0
+accuracy_bonus = 2
+evasion_bonus = 0
+weapon_subtype = "2h_polearm"
+range = 2
+ammo_type = ""
+str_req = 10
+dex_req = 5
+weight = 2.5

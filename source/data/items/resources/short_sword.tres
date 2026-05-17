@@ -1,0 +1,24 @@
+﻿[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "short_sword"
+item_name = "숏 소드"
+description = "빠르고 다루기 쉬운 단검형 장검."
+item_type = 1
+value = 80
+heal_amount = 0
+ap_cost = 0
+stackable = false
+damage_bonus = 6
+defense_bonus = 0
+accuracy_bonus = 2
+evasion_bonus = 0
+weapon_subtype = "1h_sword"
+range = 1
+ammo_type = ""
+str_req = 8
+dex_req = 5
+weight = 1
