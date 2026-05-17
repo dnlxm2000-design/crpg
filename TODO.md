@@ -83,6 +83,32 @@ Knowledge-graph-driven development with [graphify](https://github.com/OhMyOpenCo
 - [ ] 명중률 프리뷰
 - [ ] SpriteSheet 교체 (Blender AI)
 
+### 안정화 작업 (Stabilization)
+- [ ] **버그 수정** — 남아있는 크래시/예외 케이스
+  - [ ] `die()` 시 grid occupancy 정리 + corpse 재점유 충돌 검증
+  - [ ] `_find_player()` null fallback 안정성 (HUD, equipment_panel, inventory_panel)
+  - [ ] `_grid_world` null 체크 (minimap_panel, player_controller)
+  - [ ] `RealTimeManager.player_ref` null 시 UI 패널 동작 확인
+- [ ] **에러 핸들링** — null 체크, 노드 찾기 실패 처리
+  - [ ] `get_node_or_null()` 결과 미사용 시 경고 로깅
+  - [ ] `is_instance_valid()` 체크 누락 지점 (enemy HP bars, targeting)
+  - [ ] `EventBus` 신호 emit 시 수신자 null 안전성
+- [ ] **신호 정리** — 미사용/중복 signal 연결 정리
+  - [ ] `EventBus` 전체 연결/해제 매핑 확인 (disconnect 누락)
+  - [ ] `_on_inventory_changed` 중복 connect 방지 (equipment_panel)
+  - [ ] `unit_destroyed` 신호 다중 수신자 충돌 확인
+- [ ] **코드 정리** — 미사용 변수/함수 제거, 주석 정리
+  - [ ] `player_controller.gd`: `_turn_end_confirm` 사용 여부 확인
+  - [ ] `unit.gd`: 미사용 equipment 변수 확인 (전부 사용 중?)
+  - [ ] `turn_manager.gd`: `_start_new_round` 로직 검토
+  - [ ] 주석: 한국어/영어 혼용 통일
+- [ ] **전체 테스트** — 게임 플로우 전체 재검토
+  - [ ] 실시간 이동 → 전투 진입 → 턴 진행 → 전투 종료 → 실시간 복귀 전체 사이클
+  - [ ] 전투 중 사망 → 전투 종료 → AP 복원 → 실시간 이동
+  - [ ] 인벤토리/장비 패널 열기 → 아이템 사용/장착 → 닫기 → 전투 재개
+  - [ ] 미니맵 좌표 실시간 업데이트 확인
+  - [ ] TurnIndicator 위치 (우하단) 가림 없음 확인
+
 ---
 
 ## 🧪 테스트 스위트 (7/7 통과)

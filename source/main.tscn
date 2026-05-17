@@ -1,4 +1,4 @@
-﻿[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://source/main.gd" id="1"]
 [ext_resource type="Script" path="res://source/core/game_loop.gd" id="2"]
@@ -75,8 +75,9 @@ offset_bottom = 92.0
 
 [node name="TurnIndicator" type="Label" parent="HUD"]
 unique_name_in_owner = true
-anchors_preset = 7
+anchor_left = 1.0
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -300.0
 offset_top = -120.0
