@@ -4,23 +4,23 @@
 
 [resource]
 script = ExtResource("1")
-id = "poison_dart"
-item_name = "독 다트"
-description = "독이 묻은 투척무기. 추가 독 데미지."
-item_type = 1
-value = 25
+id = "stone"
+item_name = "돌조각"
+description = "평범한 돌멩이. 새총 전용."
+item_type = 12
+value = 0
 heal_amount = 0
 ap_cost = 0
 stackable = true
-damage_bonus = 2
+damage_bonus = 0
 defense_bonus = 0
-accuracy_bonus = 2
+accuracy_bonus = 0
 evasion_bonus = 0
-weapon_subtype = "thrown"
+weapon_subtype = "ammo"
 weapon_class = "ranged"
-range = 2
-ammo_type = ""
-str_req = 4
-dex_req = 10
-weight = 0.3
+range = 1
+ammo_type = "stone"
+str_req = 0
+dex_req = 0
+weight = 0.05
 
