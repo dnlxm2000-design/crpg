@@ -78,6 +78,10 @@ Knowledge-graph-driven development with [graphify](https://github.com/OhMyOpenCo
 - [ ] 실시간 패트롤 AI
 - [ ] 전리품 / 경험치 / 레벨업
 - [ ] 추가 유적지 및 맵 구조물 (5×5 Hollow Cube)
+- [ ] **도시 맵 생성** — [Medieval Fantasy City Generator](https://watabou.itch.io/medieval-fantasy-city-generator) 참고
+  - [ ] JSON 내보내기 → Godot에서 파싱하여 도시 맵으로 사용
+  - [ ] 프로시저 생성 알고리즘 분석 (Haxe 소스: [TownGeneratorOS](https://github.com/watabou/TownGeneratorOS))
+  - [ ] 3D City Viewer로 생성된 도시 확인
 - [x] **종족 시스템** — Human/Dwarf/Elf/Halfling/HalfElf/HalfOrc 보정표, `get_race_modifier()`, `get_effective_*()`
   - [x] 직업 프리셋: Fighter/Mage/Ranger/Rogue, 스킬/스탯 적용
   - [x] `Unit.apply_class()`, `get_skill_level()`, `process_skill_xp()`
