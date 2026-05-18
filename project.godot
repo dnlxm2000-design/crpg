@@ -23,6 +23,7 @@ config/features=PackedStringArray("4.6")
 
 EventBus="*res://source/autoload/event_bus.gd"
 GameState="*res://source/autoload/game_state.gd"
+Localization="*res://source/autoload/localization.gd"
 
 [display]
 

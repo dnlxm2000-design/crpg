@@ -234,7 +234,7 @@ func _apply_effects(item, user: Node) -> void:
 	if item.heal_amount > 0 and "take_damage" in user:
 		# Heal: negative damage
 		var heal: int = item.heal_amount
-		var max_hp = user.get("max_hp") if "max_hp" in user else 999
+		var max_hp = user.get_max_hp() if user.has_method("get_max_hp") else (user.get("max_hp") if "max_hp" in user else 999)
 		user.current_hp = min(user.current_hp + heal, max_hp)
 		print("[Inventory] %s healed %d HP using %s" % [user.name, heal, item.item_name])
 		# Log the heal via damage event (negative amount signals healing)

@@ -260,8 +260,9 @@ func _attack_target(target: Node) -> void:
 	var tgt_pos: Vector2i = _grid_world.world_to_grid(target.global_position) if _grid_world else Vector2i(0, 0)
 	var elv: int = _grid_world.get_elevation(atk_pos) - _grid_world.get_elevation(tgt_pos) if _grid_world and _grid_world.has_method("get_elevation") else 0
 	var back: bool = CombatResolver.is_back_attack(atk_pos, target)
+	var cover: int = _grid_world.calculate_cover(atk_pos, tgt_pos, _parent, target) if _grid_world and _grid_world.has_method("calculate_cover") else 0
 
-	var result = CombatResolver.resolve_attack(_parent, target, 1, elv, back)
+	var result = CombatResolver.resolve_attack(_parent, target, 1, elv, back, cover)
 	if not result[CombatResolver.KEY_HIT]:
 		EventBus.unit_evaded.emit(target, _parent)
 		return
@@ -284,8 +285,9 @@ func _ranged_attack(target: Node) -> void:
 
 	var elv: int = _grid_world.get_elevation(my_pos) - _grid_world.get_elevation(tgt_pos) if _grid_world and _grid_world.has_method("get_elevation") else 0
 	var back: bool = CombatResolver.is_back_attack(my_pos, target)
+	var cover: int = _grid_world.calculate_cover(my_pos, tgt_pos, _parent, target) if _grid_world and _grid_world.has_method("calculate_cover") else 0
 
-	var result = CombatResolver.resolve_attack(_parent, target, max(dist, 1), elv, back)
+	var result = CombatResolver.resolve_attack(_parent, target, max(dist, 1), elv, back, cover)
 	if not result[CombatResolver.KEY_HIT]:
 		EventBus.unit_evaded.emit(target, _parent)
 		return

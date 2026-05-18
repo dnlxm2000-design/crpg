@@ -560,13 +560,14 @@ func _try_attack_adjacent() -> bool:
 
 	var my_pos: Vector2i = grid_world.world_to_grid(_unit.global_position)
 
-	# 공격 헬퍼: elevation + back attack 포함 resolve 후 attack 수행
+	# 공격 헬퍼: elevation + back attack + cover 포함 resolve 후 attack 수행
 	var _do_attack = func(occupant: Node, occ_pos: Vector2i) -> void:
 		_unit.current_action_points -= 1
 		EventBus.ap_changed.emit(_unit)
 		var elv_diff: int = grid_world.get_elevation(my_pos) - grid_world.get_elevation(occ_pos) if grid_world.has_method("get_elevation") else 0
 		var back: bool = CombatResolver.is_back_attack(my_pos, occupant)
-		var result = CombatResolver.resolve_attack(_unit, occupant, 1, elv_diff, back)
+		var cover: int = grid_world.calculate_cover(my_pos, occ_pos, _unit, occupant) if grid_world.has_method("calculate_cover") else 0
+		var result = CombatResolver.resolve_attack(_unit, occupant, 1, elv_diff, back, cover)
 		var hit = result[CombatResolver.KEY_HIT]
 		if hit:
 			if result[CombatResolver.KEY_CRIT]:

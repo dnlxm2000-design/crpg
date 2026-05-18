@@ -244,6 +244,71 @@ func get_neighbors(grid_pos: Vector2i) -> Array[Vector2i]:
 	return result
 
 
+## Bresenham line between two grid positions. Returns all cells the line passes through.
+func _bresenham_line(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	var dx: int = abs(to.x - from.x)
+	var dy: int = abs(to.y - from.y)
+	var sx: int = 1 if from.x < to.x else -1
+	var sy: int = 1 if from.y < to.y else -1
+	var err: int = dx - dy
+	var cx: int = from.x
+	var cy: int = from.y
+
+	while cx != to.x or cy != to.y:
+		var e2: int = 2 * err
+		if e2 > -dy:
+			err -= dy
+			cx += sx
+		if e2 < dx:
+			err += dx
+			cy += sy
+		result.append(Vector2i(cx, cy))
+
+	return result
+
+
+## 엄폐 레벨 계산: attacker → target 사이 blocked 타일 수로 판정.
+## 인접 유닛(생명체)도 절반 엄폐로 간주.
+func calculate_cover(attacker_pos: Vector2i, target_pos: Vector2i, attacker: Node = null, target: Node = null) -> int:
+	# 인접 체크 (체스 거리 1)
+	var chess_dist: int = max(abs(attacker_pos.x - target_pos.x), abs(attacker_pos.y - target_pos.y))
+	if chess_dist <= 1:
+		return 0  # 인접 시 엄폐 없음
+
+	var line: Array[Vector2i] = _bresenham_line(attacker_pos, target_pos)
+	var cover_count: int = 0
+	var total_steps: int = line.size()
+
+	for cell in line:
+		var key: String = "%d,%d" % [cell.x, cell.y]
+		if key in blocked:
+			cover_count += 1
+		# 경로상 다른 유닛도 절반 엄폐 제공
+		elif key in occupied:
+			var occupant = occupied[key]
+			# 공격자나 대상자 자신은 제외
+			if occupant != attacker and occupant != target:
+				cover_count += 1
+
+	if total_steps == 0:
+		return 0
+
+	var cover_ratio: float = float(cover_count) / float(total_steps)
+
+	# 완전 엄폐: 경로상 60% 이상이 blocked
+	if cover_ratio >= 0.6:
+		return 3  # TOTAL
+	# 3/4 엄폐: 30%~60%
+	elif cover_ratio >= 0.3:
+		return 2  # THREE_QUARTER
+	# 절반 엄폐: 1개 이상의 엄폐물 존재
+	elif cover_count >= 1:
+		return 1  # HALF
+
+	return 0  # NONE
+
+
 ## Unique point ID for AStar2D.
 static func _point_id(x: int, y: int) -> int:
 	return y * 100000 + x

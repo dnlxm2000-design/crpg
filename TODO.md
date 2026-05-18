@@ -65,9 +65,9 @@ Knowledge-graph-driven development with [graphify](https://github.com/OhMyOpenCo
 
 ### 높은 우선순위
 - [x] ~~플레이어 시작 위치 조정 — 길 교차점 (30,61)~~
-- [ ] 산 경사면 시각화 — 사선 절단 + 평면 붙이기 (보류)
+- [x] 엄폐 시스템 (Cover System) — 절반/3/4/완전 엄폐, Bresenham 라인 판정, AC/DEX 보너스
 - [x] ~~전투 중 마우스 이동 안정화~~
-- [ ] 6속성 기반 파생 스탯 계산식 반영 (STR→공격력, DEX→회피/선제권, CON→HP, INT→마법데미지, WIS→저항, CHA→가격)
+- [x] 6속성 기반 파생 스탯 계산식 반영 (STR→공격력, DEX→회피/선제권, CON→HP, INT→마법데미지, WIS→저항, CHA→가격)
 
 ### 전투 심화
 - [ ] 스킬/마법 시스템 (근접 외 다양한 액션)
@@ -78,17 +78,17 @@ Knowledge-graph-driven development with [graphify](https://github.com/OhMyOpenCo
 - [ ] 실시간 패트롤 AI
 - [ ] 전리품 / 경험치 / 레벨업
 - [ ] 추가 유적지 및 맵 구조물 (5×5 Hollow Cube)
-- [ ] **종족 + 직업 시스템** (보류 중 — 방향 논의 완료)
-  - [ ] `Unit`에 `race: String`, `class: String` 필드 추가
-  - [ ] 종족 보정표: Human(+1전속성), Elf(+2DEX +1INT -1CON), Dwarf(+2CON +1STR -1DEX), Orc(+2STR +1CON -2INT), Goblin(+2DEX +1WIS -2STR)
-  - [ ] 직업 프리셋: Warrior(STR↑CON↑INT↓), Ranger(DEX↑WIS↑STR↓), Mage(INT↑WIS↑CON↓), Rogue(DEX↑CHA↑CON↓)
-  - [ ] `Unit.get_race_modifiers()` / `Unit.get_class_preset()` 헬퍼
+- [x] **종족 시스템** — Human/Dwarf/Elf/Halfling/HalfElf/HalfOrc 보정표, `get_race_modifier()`, `get_effective_*()`
+  - [x] 직업 프리셋: Fighter/Mage/Ranger/Rogue, 스킬/스탯 적용
+  - [x] `Unit.apply_class()`, `get_skill_level()`, `process_skill_xp()`
+  - [x] 스킬 13종 정의 (검술/창술/궁술/태권/해부/힐링/마법/명상/은신/추적 등)
+  - [x] `equipment_panel.gd` 스킬 표시 섹션 추가
   - [ ] 적 스폰에 종족/직업 적용 (Goblin Warrior, Orc Archer 등)
-  - [ ] 장비 패널에 종족/직업 표시
 
 ### UI
 - [ ] 명중률 프리뷰
 - [ ] SpriteSheet 교체 (Blender AI)
+- [ ] 종족/직업 선택 UI 모달 (게임 시작 시)
 
 ### 안정화 작업 (Stabilization)
 - [ ] **버그 수정** — 남아있는 크래시/예외 케이스

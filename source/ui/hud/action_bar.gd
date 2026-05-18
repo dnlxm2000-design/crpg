@@ -40,19 +40,19 @@ func _ready() -> void:
 	add_child(_container)
 
 	# Attack button
-	_attack_btn = _make_button("⚔ Attack", Color(1.0, 0.4, 0.3))
+	_attack_btn = _make_button(Localization.t("btn_attack"), Color(1.0, 0.4, 0.3))
 	_attack_btn.pressed.connect(_on_attack_pressed)
 
 	# Push button
-	_push_btn = _make_button("Push", Color(0.6, 0.8, 0.4))
+	_push_btn = _make_button(Localization.t("btn_push"), Color(0.6, 0.8, 0.4))
 	_push_btn.pressed.connect(_on_push_pressed)
 
 	# Item button
-	_item_btn = _make_button("🎒 Item", Color(0.4, 0.6, 1.0))
+	_item_btn = _make_button(Localization.t("btn_item"), Color(0.4, 0.6, 1.0))
 	_item_btn.pressed.connect(_on_item_pressed)
 
 	# Wait button
-	_wait_btn = _make_button("⏳ Wait", Color(0.8, 0.8, 0.3))
+	_wait_btn = _make_button(Localization.t("btn_wait"), Color(0.8, 0.8, 0.3))
 	_wait_btn.pressed.connect(_on_wait_pressed)
 
 	# Initially hidden

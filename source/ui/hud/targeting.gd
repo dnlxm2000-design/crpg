@@ -201,9 +201,9 @@ func _update_highlight() -> void:
 	_highlight.visible = true
 
 	# 타겟 정보 레이블 (하이라이트 위에 표시)
-	var unit_name = current_target.get("unit_name") if "unit_name" in current_target else "Enemy"
+	var unit_name = current_target.get("unit_name") if "unit_name" in current_target else Localization.t("enemy_default")
 	var hp = current_target.get("current_hp") if "current_hp" in current_target else 0
-	var max_hp = current_target.get("max_hp") if "max_hp" in current_target else 100
-	_target_label.text = "%s\nHP: %d/%d" % [unit_name, hp, max_hp]
+	var max_hp = current_target.get_max_hp() if current_target.has_method("get_max_hp") else (current_target.get("max_hp") if "max_hp" in current_target else 100)
+	_target_label.text = "%s\n%s" % [unit_name, Localization.t("target_hp", [hp, max_hp])]
 	_target_label.position = world_pos - Vector2(40, 60)
 	_target_label.visible = true

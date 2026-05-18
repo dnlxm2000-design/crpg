@@ -28,6 +28,10 @@ const BACK_ATTACK_ACCURACY_BONUS: int = 15
 ## 후방 공격 데미지 배율
 const BACK_ATTACK_DAMAGE_MULTIPLIER: float = 1.5
 
+## 엄폐 보너스: 절반 엄폐 → AC/DEX +2, 3/4 엄폐 → AC/DEX +5
+const HALF_COVER_BONUS: int = 2
+const THREE_QUARTER_COVER_BONUS: int = 5
+
 ## 결과 키
 const KEY_HIT_CHANCE: String = "hit_chance"
 const KEY_ROLL: String = "roll"
@@ -39,11 +43,12 @@ const KEY_ACTUAL_DAMAGE: String = "actual_damage"
 const KEY_BACK_ATTACK: String = "back_attack"
 const KEY_ELEVATION_DIFF: String = "elevation_diff"
 const KEY_BASE_ATK: String = "base_atk"  # 디버깅용 순수 공격력
+const KEY_COVER_LEVEL: String = "cover_level"  # 0=없음, 1=절반, 2=3/4, 3=완전
 
-## 명중률 계산 (equipment + 거리 + 고도 + 후방 포함).
+## 명중률 계산 (equipment + 거리 + 고도 + 후방 + 엄폐 포함).
 static func calculate_hit_chance(
 	attacker: Node, target: Node, distance: int = 1,
-	elevation_diff: int = 0, back_attack: bool = false
+	elevation_diff: int = 0, back_attack: bool = false, cover_level: int = 0
 ) -> int:
 	var atk_acc: int = attacker.get_accuracy() if attacker.has_method("get_accuracy") else 90
 	var tgt_ev: int = target.get_evasion() if target.has_method("get_evasion") else 10
@@ -64,7 +69,14 @@ static func calculate_hit_chance(
 	# 후방 공격 보너스
 	var back_bonus: int = BACK_ATTACK_ACCURACY_BONUS if back_attack else 0
 
-	return clampi(atk_acc - tgt_ev + distance_penalty + elevation_bonus + back_bonus,
+	# 엄폐 보너스 (방어자 회피 증가)
+	var cover_bonus: int = 0
+	match cover_level:
+		1: cover_bonus = HALF_COVER_BONUS        # 절반 엄폐: +2
+		2: cover_bonus = THREE_QUARTER_COVER_BONUS  # 3/4 엄폐: +5
+		3: return 0  # 완전 엄폐: 직접 공격 불가
+
+	return clampi(atk_acc - tgt_ev + distance_penalty + elevation_bonus + back_bonus + cover_bonus,
 		MIN_HIT_CHANCE, MAX_HIT_CHANCE)
 
 
@@ -72,19 +84,16 @@ static func calculate_hit_chance(
 ## Parameters:
 ##   elevation_diff: 공격자 고도 - 방어자 고도 (양수 = 공격자가 높음)
 ##   back_attack: 방어자 뒷면에서 공격했는가?
+##   cover_level: 0=없음, 1=절반, 2=3/4, 3=완전
 static func resolve_attack(
 	attacker: Node, target: Node, distance: int = 1,
-	elevation_diff: int = 0, back_attack: bool = false
+	elevation_diff: int = 0, back_attack: bool = false, cover_level: int = 0
 ) -> Dictionary:
-	var hit_chance: int = calculate_hit_chance(attacker, target, distance, elevation_diff, back_attack)
-	var roll: float = randf() * 100.0
-
-	var base_atk: int = attacker.get_attack() if attacker.has_method("get_attack") else \
-		(attacker.get("attack") if "attack" in attacker else 10)
+	var hit_chance: int = calculate_hit_chance(attacker, target, distance, elevation_diff, back_attack, cover_level)
 
 	var result: Dictionary = {
 		KEY_HIT_CHANCE: hit_chance,
-		KEY_ROLL: roll,
+		KEY_ROLL: 0.0,
 		KEY_HIT: false,
 		KEY_CRIT: false,
 		KEY_GRAZE: false,
@@ -92,8 +101,20 @@ static func resolve_attack(
 		KEY_ACTUAL_DAMAGE: 0,
 		KEY_BACK_ATTACK: back_attack,
 		KEY_ELEVATION_DIFF: elevation_diff,
-		KEY_BASE_ATK: base_atk,
+		KEY_BASE_ATK: 0,
+		KEY_COVER_LEVEL: cover_level,
 	}
+
+	# 완전 엄폐: 직접 공격 불가
+	if cover_level == 3:
+		return result
+
+	var roll: float = randf() * 100.0
+	result[KEY_ROLL] = roll
+
+	var base_atk: int = attacker.get_attack() if attacker.has_method("get_attack") else \
+		(attacker.get("attack") if "attack" in attacker else 10)
+	result[KEY_BASE_ATK] = base_atk
 
 	if roll >= hit_chance:
 		return result

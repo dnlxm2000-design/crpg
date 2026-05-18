@@ -5,17 +5,17 @@ extends Panel
 
 ## 열거 순서대로 표시할 장비 슬롯.
 const SLOTS: Array[Dictionary] = [
-	{var_name = "equipped_helmet",    label = "Head"},
-	{var_name = "equipped_necklace",  label = "Necklace"},
-	{var_name = "equipped_weapon",    label = "Right Hand"},
-	{var_name = "equipped_off_hand",  label = "Left Hand"},
-	{var_name = "equipped_armor",     label = "Body"},
-	{var_name = "equipped_belt",      label = "Belt"},
-	{var_name = "equipped_cloak",     label = "Cloak"},
-	{var_name = "equipped_ring1",     label = "Ring 1"},
-	{var_name = "equipped_ring2",     label = "Ring 2"},
-	{var_name = "equipped_gloves",    label = "Gloves"},
-	{var_name = "equipped_boots",     label = "Boots"},
+	{var_name = "equipped_helmet",    label_key = "slot_head"},
+	{var_name = "equipped_necklace",  label_key = "slot_necklace"},
+	{var_name = "equipped_weapon",    label_key = "slot_right_hand"},
+	{var_name = "equipped_off_hand",  label_key = "slot_left_hand"},
+	{var_name = "equipped_armor",     label_key = "slot_body"},
+	{var_name = "equipped_belt",      label_key = "slot_belt"},
+	{var_name = "equipped_cloak",     label_key = "slot_cloak"},
+	{var_name = "equipped_ring1",     label_key = "slot_ring_1"},
+	{var_name = "equipped_ring2",     label_key = "slot_ring_2"},
+	{var_name = "equipped_gloves",    label_key = "slot_gloves"},
+	{var_name = "equipped_boots",     label_key = "slot_boots"},
 ]
 
 var _player: Node = null
@@ -24,6 +24,7 @@ var _slot_container: VBoxContainer = null
 var _inv_container: VBoxContainer = null
 var _stat_label: Label = null
 var _derived_label: Label = null
+var _skill_label: Label = null
 var _gold_label: Label = null
 var is_open: bool = false
 var _dragging: bool = false
@@ -41,7 +42,7 @@ func _ready() -> void:
 
 	# ── Title bar ──
 	var title := Label.new()
-	title.text = "캐릭터 스테이터스"
+	title.text = Localization.t("panel_title")
 	title.add_theme_font_size_override("font_size", 16)
 	title.add_theme_color_override("font_color", Color(0.9, 0.9, 0.95))
 	title.position = Vector2(12, 10)
@@ -106,12 +107,39 @@ func _ready() -> void:
 	_derived_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.5))
 	stats_inner.add_child(_derived_label)
 
-	# ── 2. Equipment slots ──
+	# ── 2. Skill section ──
+	var skill_bg := PanelContainer.new()
+	skill_bg.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var skill_style := StyleBoxFlat.new()
+	skill_style.bg_color = Color(0.06, 0.06, 0.1, 0.6)
+	skill_style.corner_radius_top_left = 4
+	skill_style.corner_radius_top_right = 4
+	skill_style.corner_radius_bottom_left = 4
+	skill_style.corner_radius_bottom_right = 4
+	skill_bg.add_theme_stylebox_override("panel", skill_style)
+	left_vbox.add_child(skill_bg)
+
+	var skill_inner := VBoxContainer.new()
+	skill_inner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	skill_inner.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	skill_inner.add_theme_constant_override("margin_left", 8)
+	skill_inner.add_theme_constant_override("margin_top", 4)
+	skill_inner.add_theme_constant_override("margin_right", 8)
+	skill_inner.add_theme_constant_override("margin_bottom", 4)
+	skill_inner.add_theme_constant_override("separation", 2)
+	skill_bg.add_child(skill_inner)
+
+	_skill_label = Label.new()
+	_skill_label.add_theme_font_size_override("font_size", 11)
+	_skill_label.add_theme_color_override("font_color", Color(0.8, 1.0, 0.7))
+	skill_inner.add_child(_skill_label)
+
+	# ── 3. Equipment slots ──
 	var eq_title := Label.new()
 	eq_title.text = "장비"
 	eq_title.add_theme_font_size_override("font_size", 13)
 	eq_title.add_theme_color_override("font_color", Color(0.8, 0.8, 0.85))
-	eq_title.size = Vector2(200, 22)
+	eq_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	left_vbox.add_child(eq_title)
 
 	var eq_scroll := ScrollContainer.new()
@@ -241,6 +269,10 @@ func refresh() -> void:
 	if _derived_label:
 		_derived_label.text = attrs.derived
 
+	# Skills
+	if _skill_label:
+		_skill_label.text = _format_skills(_player)
+
 	# Equipment slots
 	_refresh_slots()
 
@@ -262,7 +294,7 @@ func _refresh_slots() -> void:
 
 	# Build slot rows
 	for slot in SLOTS:
-		var row := _create_slot_row(slot.var_name, slot.label)
+		var row := _create_slot_row(slot.var_name, slot.label_key)
 		_slot_container.add_child(row)
 
 
@@ -277,7 +309,7 @@ func _refresh_inventory() -> void:
 
 	if not _inventory:
 		var empty := Label.new()
-		empty.text = "  (no inventory)"
+		empty.text = "  %s" % Localization.t("empty_inventory")
 		empty.add_theme_color_override("font_color", Color(0.35, 0.35, 0.4))
 		_inv_container.add_child(empty)
 		return
@@ -285,7 +317,7 @@ func _refresh_inventory() -> void:
 	var item_list: Array[Dictionary] = _inventory.get_item_list()
 	if item_list.is_empty():
 		var empty := Label.new()
-		empty.text = "  (empty)"
+		empty.text = "  %s" % Localization.t("empty_slot")
 		empty.add_theme_color_override("font_color", Color(0.35, 0.35, 0.4))
 		_inv_container.add_child(empty)
 		return
@@ -301,18 +333,18 @@ func _update_gold() -> void:
 	var gold = 0
 	if _player and "gold" in _player:
 		gold = _player.gold
-	_gold_label.text = "Gold: %d" % gold
+	_gold_label.text = Localization.t("gold_label", [gold])
 
 
 ## Create one row: [slot label] [item name] [unequip button]
-func _create_slot_row(var_name: String, label: String) -> Control:
+func _create_slot_row(var_name: String, label_key: String) -> Control:
 	var row := HBoxContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.custom_minimum_size = Vector2(0, 28)
 
 	# Slot label
 	var slot_label := Label.new()
-	slot_label.text = label
+	slot_label.text = Localization.t(label_key)
 	slot_label.custom_minimum_size = Vector2(90, 24)
 	slot_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
 	row.add_child(slot_label)
@@ -325,14 +357,14 @@ func _create_slot_row(var_name: String, label: String) -> Control:
 		item_label.text = "  %s" % item.item_name
 		item_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.9))
 	else:
-		item_label.text = "  (empty)"
+		item_label.text = "  %s" % Localization.t("empty_slot")
 		item_label.add_theme_color_override("font_color", Color(0.35, 0.35, 0.4))
 	row.add_child(item_label)
 
 	# Unequip button (only if slot is occupied AND not in combat)
 	if item and GameState.current_mode != GameState.GameMode.TURNBASED:
 		var unequip_btn := Button.new()
-		unequip_btn.text = "Unequip"
+		unequip_btn.text = Localization.t("btn_unequip")
 		unequip_btn.custom_minimum_size = Vector2(70, 22)
 		unequip_btn.add_theme_font_size_override("font_size", 11)
 		unequip_btn.pressed.connect(_on_unequip.bind(var_name))
@@ -358,7 +390,7 @@ func _create_inv_row(item_data: Dictionary) -> Control:
 		name_label.text = "  %s%s" % [item.item_name, tag]
 		name_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.9))
 	else:
-		name_label.text = "  (unknown)"
+		name_label.text = "  %s" % Localization.t("unknown_item")
 	row.add_child(name_label)
 
 	# Quantity
@@ -371,14 +403,14 @@ func _create_inv_row(item_data: Dictionary) -> Control:
 	# Equip button (for equippable items, disabled in combat)
 	if item and item.get("item_type") in ["WEAPON", "ARMOR", "HELMET", "NECKLACE", "CLOAK", "BELT", "RING", "GLOVE", "BOOTS", "OFF_HAND"] and GameState.current_mode != GameState.GameMode.TURNBASED:
 		var equip_btn := Button.new()
-		equip_btn.text = "Equip"
+		equip_btn.text = Localization.t("btn_equip")
 		equip_btn.custom_minimum_size = Vector2(60, 22)
 		equip_btn.add_theme_font_size_override("font_size", 11)
 
 		# Ranged weapon: check ammo, show warning if none
 		if item.get("weapon_class") == "ranged" and item.get("ammo_type") != "":
 			if not _has_ammo(item.ammo_type):
-				equip_btn.text = "No Ammo"
+				equip_btn.text = Localization.t("btn_no_ammo")
 				equip_btn.disabled = true
 				equip_btn.add_theme_color_override("font_color", Color(0.5, 0.3, 0.3))
 			else:
@@ -391,7 +423,7 @@ func _create_inv_row(item_data: Dictionary) -> Control:
 	# Use button (for consumables)
 	if item and item.get("item_type") == "CONSUMABLE":
 		var use_btn := Button.new()
-		use_btn.text = "Use"
+		use_btn.text = Localization.t("btn_use")
 		use_btn.custom_minimum_size = Vector2(50, 22)
 		use_btn.add_theme_font_size_override("font_size", 11)
 		use_btn.pressed.connect(_on_use.bind(item))
@@ -442,6 +474,8 @@ func _on_use(item: Resource) -> void:
 
 ## Format 6 attributes + derived stats for display.
 func _format_attributes(unit: Node) -> Dictionary:
+	var race_name: String = unit.get("race") if "race" in unit else "Human"
+
 	var str_val: int = unit.get("strength") if "strength" in unit else 0
 	var dex_val: int = unit.get("dexterity") if "dexterity" in unit else 0
 	var con_val: int = unit.get("constitution") if "constitution" in unit else 0
@@ -449,23 +483,47 @@ func _format_attributes(unit: Node) -> Dictionary:
 	var wis_val: int = unit.get("wisdom") if "wisdom" in unit else 0
 	var cha_val: int = unit.get("charisma") if "charisma" in unit else 0
 
-	var str_mod = _calc_mod(str_val)
-	var dex_mod = _calc_mod(dex_val)
-	var con_mod = _calc_mod(con_val)
-	var int_mod = _calc_mod(int_val)
-	var wis_mod = _calc_mod(wis_val)
-	var cha_mod = _calc_mod(cha_val)
+	# 종족 보정
+	var r_str: int = unit.get_race_modifier("str") if unit.has_method("get_race_modifier") else 0
+	var r_dex: int = unit.get_race_modifier("dex") if unit.has_method("get_race_modifier") else 0
+	var r_con: int = unit.get_race_modifier("con") if unit.has_method("get_race_modifier") else 0
+	var r_int: int = unit.get_race_modifier("int") if unit.has_method("get_race_modifier") else 0
+	var r_wis: int = unit.get_race_modifier("wis") if unit.has_method("get_race_modifier") else 0
+	var r_cha: int = unit.get_race_modifier("cha") if unit.has_method("get_race_modifier") else 0
+
+	# 유효값 (base + race)
+	var e_str = str_val + r_str
+	var e_dex = dex_val + r_dex
+	var e_con = con_val + r_con
+	var e_int = int_val + r_int
+	var e_wis = wis_val + r_wis
+	var e_cha = cha_val + r_cha
+
+	var str_mod = _calc_mod(e_str)
+	var dex_mod = _calc_mod(e_dex)
+	var con_mod = _calc_mod(e_con)
+	var int_mod = _calc_mod(e_int)
+	var wis_mod = _calc_mod(e_wis)
+	var cha_mod = _calc_mod(e_cha)
 
 	var atk: int = unit.get_attack() if unit.has_method("get_attack") else 0
 	var def: int = unit.get_defense() if unit.has_method("get_defense") else 0
 	var acc: int = unit.get_accuracy() if unit.has_method("get_accuracy") else 0
 	var eva: int = unit.get_evasion() if unit.has_method("get_evasion") else 0
 	var init: int = unit.get_initiative() if unit.has_method("get_initiative") else 0
+	var max_hp: int = unit.get_max_hp() if unit.has_method("get_max_hp") else (unit.get("max_hp") if "max_hp" in unit else 100)
+	var cur_hp: int = unit.get("current_hp") if "current_hp" in unit else 0
+	var magic: int = unit.get_magic_power() if unit.has_method("get_magic_power") else 0
+	var resist: int = unit.get_resistance() if unit.has_method("get_resistance") else 0
+	var price: float = unit.get_price_multiplier() if unit.has_method("get_price_multiplier") else 1.0
 
-	var primary := "STR: %-3d (%+d)  DEX: %-3d (%+d)  CON: %-3d (%+d)\n" % [str_val, str_mod, dex_val, dex_mod, con_val, con_mod]
-	primary += "INT: %-3d (%+d)  WIS: %-3d (%+d)  CHA: %-3d (%+d)" % [int_val, int_mod, wis_val, wis_mod, cha_val, cha_mod]
+	# 종족명 + 속성 (base→effective 표시)
+	var primary := "%s\n" % race_name
+	primary += "STR: %-3d→%-3d (%+d)  DEX: %-3d→%-3d (%+d)  CON: %-3d→%-3d (%+d)\n" % [str_val, e_str, str_mod, dex_val, e_dex, dex_mod, con_val, e_con, con_mod]
+	primary += "INT: %-3d→%-3d (%+d)  WIS: %-3d→%-3d (%+d)  CHA: %-3d→%-3d (%+d)" % [int_val, e_int, int_mod, wis_val, e_wis, wis_mod, cha_val, e_cha, cha_mod]
 
-	var derived := "ATK: %d  DEF: %d  ACC: %d%%  EVA: %d%%  INIT: %d" % [atk, def, acc, eva, init]
+	var derived := "체력(HP): %d/%d  공격(ATK): %d  방어(DEF): %d  명중(ACC): %d%%  회피(EVA): %d%%  선제(INIT): %d\n" % [cur_hp, max_hp, atk, def, acc, eva, init]
+	derived += "마법(Magic): %+d  저항(Resist): %+d  가격(Price): %.2fx" % [magic, resist, price]
 
 	return {primary = primary, derived = derived}
 
@@ -473,6 +531,41 @@ func _format_attributes(unit: Node) -> Dictionary:
 ## D&D-style modifier: floor((score - 10) / 2)
 func _calc_mod(score: int) -> int:
 	return floori((score - 10) / 2.0)
+
+
+## Format learned skills for display.
+func _format_skills(unit: Node) -> String:
+	if not unit.has_method("get_skill_level"):
+		return "(no skills)"
+	var class_name_str = unit.get("character_class") if "character_class" in unit else ""
+	var display = ClassData.CLASSES.get(class_name_str, {})
+	var class_display = display.get("display_name", class_name_str)
+
+	var lines: Array[String] = []
+	lines.append("직업: %s" % class_display)
+
+	for skill_id in unit.learned_skills:
+		var level: float = unit.get_skill_level(skill_id)
+		var skill_def = SkillData.SKILLS.get(skill_id)
+		var name = skill_def.get("name", skill_id) if skill_def else skill_id
+		var title = _get_skill_title(level)
+		lines.append("  %s: %.1f (%s)" % [name, level, title])
+
+	return "\n".join(lines)
+
+
+## Get skill title based on level.
+func _get_skill_title(level: float) -> String:
+	if level >= 100: return "거장(GM)"
+	elif level >= 90: return "달인"
+	elif level >= 80: return "상급자"
+	elif level >= 70: return "전문가"
+	elif level >= 60: return "장인"
+	elif level >= 50: return "숙련자"
+	elif level >= 40: return "기술자"
+	elif level >= 30: return "수습"
+	elif level >= 20: return "초보"
+	else: return "견습생"
 
 
 ## Check if player inventory has ammo of given type.

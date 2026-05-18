@@ -87,7 +87,7 @@ func _ready() -> void:
 	# ── Gold display (top-left, below HP bar) ──
 	_gold_label = Label.new()
 	_gold_label.name = "GoldLabel"
-	_gold_label.text = "Gold: 0"
+	_gold_label.text = Localization.t("gold_label", [0])
 	_gold_label.add_theme_font_size_override("font_size", 14)
 	_gold_label.add_theme_color_override("font_color", Color(1.0, 0.8, 0.0))
 	_gold_label.position = Vector2(16, 100)
@@ -210,7 +210,7 @@ func _on_turn_started(unit: Node) -> void:
 		var total: int = order.size()
 		turn_indicator.text = "%s (%d/%d)의 턴" % [unit_name, idx + 1, total]
 	else:
-		turn_indicator.text = "%s's Turn" % unit_name
+		turn_indicator.text = Localization.t("turn_label", [unit_name])
 	# Update AP if it's the player's turn
 	if unit == _player:
 		_update_ap_label()
@@ -242,11 +242,16 @@ func hide_center_prompt() -> void:
 
 
 func _on_mode_changed(mode: String) -> void:
-	mode_label.text = mode.to_upper()
+	if mode == "realtime":
+		mode_label.text = Localization.t("mode_realtime")
+	elif mode == "turnbased":
+		mode_label.text = Localization.t("mode_turnbased")
+	else:
+		mode_label.text = mode.to_upper()
 
 
 func _on_round_started(round: int) -> void:
-	mode_label.text = "ROUND %d" % round
+	mode_label.text = Localization.t("round_label", [round])
 
 
 func _on_round_ended(round: int) -> void:
@@ -361,7 +366,7 @@ func _show_miss_text(unit: Node) -> void:
 	if not is_instance_valid(unit):
 		return
 	var label = Label.new()
-	label.text = "MISS"
+	label.text = Localization.t("miss_text")
 	label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
 	label.add_theme_font_size_override("font_size", 16)
 	label.position = Vector2(16, -60)
@@ -379,7 +384,7 @@ func _show_miss_text(unit: Node) -> void:
 func _update_hp_bar() -> void:
 	if not _player or not health_bar:
 		return
-	var max_hp = _player.get("max_hp") if "max_hp" in _player else 100
+	var max_hp = _player.get_max_hp() if _player.has_method("get_max_hp") else (_player.get("max_hp") if "max_hp" in _player else 100)
 	var cur_hp = _player.get("current_hp") if "current_hp" in _player else 0
 	health_bar.max_value = max_hp
 	health_bar.value = cur_hp
@@ -399,7 +404,7 @@ func _update_hp_bar() -> void:
 		label_node.name = "HPLabel"
 		health_bar.add_child(label_node)
 		label_node.position = Vector2(4, 2)
-	label_node.text = "%d / %d" % [cur_hp, max_hp]
+	label_node.text = Localization.t("hp_label", [cur_hp, max_hp])
 
 
 func _update_ap_label() -> void:
@@ -407,7 +412,7 @@ func _update_ap_label() -> void:
 		return
 	var ap = _player.get("current_action_points") if "current_action_points" in _player else 0
 	var max_ap = _player.get("max_action_points") if "max_action_points" in _player else 4
-	ap_label.text = "AP: %d / %d" % [ap, max_ap]
+	ap_label.text = Localization.t("ap_label", [ap, max_ap])
 
 
 ## === Enemy HP Bars ===
@@ -478,13 +483,13 @@ func _on_target_changed(target: Node) -> void:
 	var dist_label = _target_info.get_node_or_null("TargetDist")
 
 	if name_label:
-		var unit_name = target.get("unit_name") if "unit_name" in target else "Unknown"
+		var unit_name = target.get("unit_name") if "unit_name" in target else Localization.t("unknown_default")
 		name_label.text = "▶ " + unit_name
 
 	if hp_label:
 		var cur_hp = target.get("current_hp") if "current_hp" in target else 0
-		var max_hp = target.get("max_hp") if "max_hp" in target else 100
-		hp_label.text = "HP: %d / %d" % [cur_hp, max_hp]
+		var max_hp = target.get_max_hp() if target.has_method("get_max_hp") else (target.get("max_hp") if "max_hp" in target else 100)
+		hp_label.text = Localization.t("hp_label", [cur_hp, max_hp])
 
 	if dist_label:
 		if _player and is_instance_valid(_player):
@@ -502,7 +507,7 @@ func _update_gold_label() -> void:
 	if not _gold_label or not _player:
 		return
 	var gold = _player.get("gold") if "gold" in _player else 0
-	_gold_label.text = "Gold: %d" % gold
+	_gold_label.text = Localization.t("gold_label", [gold])
 
 
 ## Create a small HP bar panel for an enemy unit.
@@ -514,7 +519,7 @@ func _add_enemy_hp_bar(unit: Node) -> void:
 
 	# Enemy name
 	var name_label = Label.new()
-	name_label.text = unit.get("unit_name") if "unit_name" in unit else "Enemy"
+	name_label.text = unit.get("unit_name") if "unit_name" in unit else Localization.t("enemy_default")
 	name_label.position = Vector2(4, 2)
 	panel.add_child(name_label)
 
@@ -522,7 +527,7 @@ func _add_enemy_hp_bar(unit: Node) -> void:
 	var hp_bar = ProgressBar.new()
 	hp_bar.size = Vector2(180, 20)
 	hp_bar.position = Vector2(4, 20)
-	var max_hp = unit.get("max_hp") if "max_hp" in unit else 100
+	var max_hp = unit.get_max_hp() if unit.has_method("get_max_hp") else (unit.get("max_hp") if "max_hp" in unit else 100)
 	var cur_hp = unit.get("current_hp") if "current_hp" in unit else 0
 	hp_bar.max_value = max_hp
 	hp_bar.value = cur_hp
@@ -531,7 +536,7 @@ func _add_enemy_hp_bar(unit: Node) -> void:
 	# HP text
 	var hp_label = Label.new()
 	hp_label.name = "HPValue"
-	hp_label.text = "%d / %d" % [cur_hp, max_hp]
+	hp_label.text = Localization.t("hp_label", [cur_hp, max_hp])
 	hp_label.position = Vector2(4, 2)
 	hp_bar.add_child(hp_label)
 
@@ -552,14 +557,14 @@ func _update_enemy_hp_bar(unit: Node) -> void:
 	if not hp_bar:
 		return
 
-	var max_hp = unit.get("max_hp") if "max_hp" in unit else 100
+	var max_hp = unit.get_max_hp() if unit.has_method("get_max_hp") else (unit.get("max_hp") if "max_hp" in unit else 100)
 	var cur_hp = unit.get("current_hp") if "current_hp" in unit else 0
 	hp_bar.max_value = max_hp
 	hp_bar.value = cur_hp
 
 	var hp_label = hp_bar.get_node_or_null("HPValue")
 	if hp_label:
-		hp_label.text = "%d / %d" % [cur_hp, max_hp]
+		hp_label.text = Localization.t("hp_label", [cur_hp, max_hp])
 
 
 ## Remove all enemy HP bar panels.

@@ -25,12 +25,33 @@ extends CharacterBody2D
 @export var wisdom: int = 10         # WIS: 지각, 의지력
 @export var charisma: int = 10       # CHA: 교섭, 상점 가격
 
+## 종족 (race modifiers applied on top of base stats)
+@export var race: String = "Human"
+
+## 직업 (class determines starting skills and stat modifiers)
+@export var character_class: String = ""  # "fighter", "mage", "ranger", "rogue"
+
+## 학습된 스킬: {skill_id: level}
+var learned_skills: Dictionary = {}
+
+## 스킬 XP 로그 (전투 중 누적, 전투 종료 시 일괄 처리)
+var _skill_xp_log: Dictionary = {}
+
 ## Runtime state
 var current_hp: int = 100
 var current_action_points: int = 3
 var max_action_points: int = 3
 var is_alive: bool = true
 var status_effects: Array = []
+
+## 엄폐 레벨 (cover system)
+enum CoverLevel {
+	NONE = 0,       # 엄폐 없음
+	HALF = 1,       # 절반 엄폐: AC/DEX +2
+	THREE_QUARTER = 2,  # 3/4 엄폐: AC/DEX +5
+	TOTAL = 3,      # 완전 엄폐: 직접 공격 불가
+}
+var current_cover: CoverLevel = CoverLevel.NONE
 
 ## 바라보는 방향 (마지막 이동 방향)
 var facing_direction: Vector2 = Vector2.DOWN
@@ -67,7 +88,7 @@ var gold: int = 0
 
 
 func _ready() -> void:
-	current_hp = max_hp
+	current_hp = get_max_hp()
 	movement = get_node_or_null("UnitMovement")
 
 	# ── 그림자 (반투명 검은 타원) ──
@@ -212,47 +233,227 @@ func reset_actions() -> void:
 	current_action_points = max_action_points
 
 
-## 장비를 포함한 최종 공격력 반환 (weapon + off_hand).
+## D&D-style attribute modifier: floor((score - 10) / 2)
+static func _attr_mod(score: int) -> int:
+	return floori((score - 10) / 2.0)
+
+
+## 종족 보정표: {race: {str, dex, con, int, wis, cha}}
+const RACE_MODIFIERS: Dictionary = {
+	"Human":    {str =  1, dex =  1, con =  1, int =  1, wis =  1, cha =  1},
+	"Dwarf":    {str =  2, dex = -1, con =  3, int =  0, wis =  1, cha = -1},
+	"Elf":      {str = -1, dex =  2, con = -1, int =  2, wis =  1, cha =  1},
+	"Halfling": {str = -2, dex =  3, con =  0, int =  0, wis =  2, cha =  1},
+	"HalfElf":  {str =  0, dex =  1, con =  0, int =  1, wis =  0, cha =  2},
+	"HalfOrc":  {str =  3, dex =  0, con =  2, int = -1, wis = -1, cha =  0},
+}
+
+
+## 종족 보정을 적용한 최종 속성값 반환.
+func get_race_modifier(attr: String) -> int:
+	var mods = RACE_MODIFIERS.get(race, {})
+	return mods.get(attr, 0)
+
+
+## 종족 보정을 반영한 최종 STR.
+func get_effective_str() -> int:
+	return strength + get_race_modifier("str")
+
+## 종족 보정을 반영한 최종 DEX.
+func get_effective_dex() -> int:
+	return dexterity + get_race_modifier("dex")
+
+## 종족 보정을 반영한 최종 CON.
+func get_effective_con() -> int:
+	return constitution + get_race_modifier("con")
+
+## 종족 보정을 반영한 최종 INT.
+func get_effective_int() -> int:
+	return intelligence + get_race_modifier("int")
+
+## 종족 보정을 반영한 최종 WIS.
+func get_effective_wis() -> int:
+	return wisdom + get_race_modifier("wis")
+
+## 종족 보정을 반영한 최종 CHA.
+func get_effective_cha() -> int:
+	return charisma + get_race_modifier("cha")
+
+
+## ─── 직업/스킬 시스템 ───
+
+## 직업 적용: 스킬 부여 + 스탯 보정.
+func apply_class(class_def: Resource) -> void:
+	if not class_def:
+		return
+	character_class = class_def.class_id
+	# 스킬 부여
+	for skill_id in class_def.skill_levels:
+		learned_skills[skill_id] = class_def.skill_levels[skill_id]
+	# 스탯 보정 적용
+	for attr in class_def.stat_modifiers:
+		var current = get(attr)
+		set(attr, current + class_def.stat_modifiers[attr])
+
+
+## 특정 스킬 레벨 조회.
+func get_skill_level(skill_id: String) -> float:
+	return learned_skills.get(skill_id, 0.0)
+
+
+## 스킬 XP 추가 (전투 중 누적).
+func add_skill_xp(skill_id: String, xp: int) -> void:
+	if not _skill_xp_log.has(skill_id):
+		_skill_xp_log[skill_id] = 0
+	_skill_xp_log[skill_id] += xp
+
+
+## 전투 종료 시 스킬 XP 일괄 처리 + 레벨업.
+func process_skill_xp() -> void:
+	for skill_id in _skill_xp_log:
+		var current_level: float = learned_skills.get(skill_id, 0.0)
+		if current_level >= 100.0:
+			continue
+		var xp: int = _skill_xp_log[skill_id]
+		var adjusted: float = _calculate_xp_gain(xp, current_level)
+		var new_level: float = min(current_level + adjusted / 10.0, 100.0)
+		learned_skills[skill_id] = new_level
+		print("[Skill] %s: %.1f → %.1f (+%.1f)" % [skill_id, current_level, new_level, new_level - current_level])
+	_skill_xp_log.clear()
+
+
+## 차등 XP 보정: 낮은 스킬이 빨리 오름.
+static func _calculate_xp_gain(base_xp: int, current_level: float) -> float:
+	if current_level < 30.0:
+		return base_xp * 1.5
+	elif current_level < 60.0:
+		return base_xp * 1.0
+	elif current_level < 80.0:
+		return base_xp * 0.7
+	else:
+		return base_xp * 0.4
+
+
+## 스킬 콤보 체크: 모든 요구 스킬이 30 이상이면 true.
+func has_skill_combo(combo_skills: Array) -> bool:
+	for s in combo_skills:
+		if get_skill_level(s) < 30.0:
+			return false
+	return true
+
+
+## 전체 스킬 레벨 합계 (720 캡 체크용).
+func get_total_skill_levels() -> float:
+	var total: float = 0.0
+	for lvl in learned_skills.values():
+		total += lvl
+	return total
+
+
+## 스킬 레벨에 따른 전투 보정 계산.
+func get_skill_bonus(skill_id: String, stat: String) -> float:
+	var level: float = get_skill_level(skill_id)
+	var skill_def = SkillData.SKILLS.get(skill_id)
+	if not skill_def:
+		return 0.0
+	return skill_def.get(stat, 0.0) * (level / 100.0)
+
+
+## 장비를 포함한 최종 공격력 반환 (weapon + off_hand + STR 보정 + 스킬 보정).
 func get_attack() -> int:
 	var bonus: int = 0
 	if equipped_weapon and "damage_bonus" in equipped_weapon:
 		bonus += equipped_weapon.damage_bonus
 	if equipped_off_hand and "damage_bonus" in equipped_off_hand:
 		bonus += equipped_off_hand.damage_bonus
+	bonus += _attr_mod(get_effective_str())
+	# 주무기 스킬 보정 적용
+	var weapon_skill = _get_equipped_weapon_skill_id()
+	if weapon_skill:
+		bonus += int(get_skill_bonus(weapon_skill, "damage"))
 	return attack + bonus
 
 
-## 장비를 포함한 최종 방어력 반환 (모든 방어구 합산).
+## 현재 장비된 무기에 해당하는 스킬 ID 반환.
+func _get_equipped_weapon_skill_id() -> String:
+	if not equipped_weapon:
+		return ""
+	var wclass = equipped_weapon.get("weapon_class", "")
+	var wtype = equipped_weapon.get("weapon_subtype", "")
+	# 무기 타입 → 스킬 매핑
+	if wtype in ["spear", "lance", "pike"]:
+		return "spear"
+	elif wtype in ["dagger", "dagger", "sai", "fork"]:
+		return "fencing"
+	elif wtype in ["mace", "hammer", "club", "staff"]:
+		return "mace_fighting"
+	elif wclass == "ranged":
+		return "archery"
+	elif wclass == "thrown":
+		return "throwing"
+	else:
+		return "swordsmanship"  # 기본값
+
+
+## 장비를 포함한 최종 방어력 반환 (모든 방어구 합산 + CON 보정).
 func get_defense() -> int:
 	var bonus: int = 0
 	for slot_item in [equipped_armor, equipped_helmet, equipped_necklace, equipped_cloak, equipped_belt, equipped_boots, equipped_gloves, equipped_off_hand, equipped_ring1, equipped_ring2]:
 		if slot_item and "defense_bonus" in slot_item:
 			bonus += slot_item.defense_bonus
+	bonus += _attr_mod(get_effective_con())
 	return defense + bonus
 
 
-## 장비를 포함한 최종 명중률 반환.
+## 장비를 포함한 최종 명중률 반환 (장비 보정 + DEX 보정 + 스킬 보정).
 func get_accuracy() -> int:
 	var bonus: int = 0
 	for slot_item in [equipped_weapon, equipped_off_hand, equipped_gloves, equipped_ring1, equipped_ring2]:
 		if slot_item and "accuracy_bonus" in slot_item:
 			bonus += slot_item.accuracy_bonus
+	bonus += _attr_mod(get_effective_dex())
+	# 주무기 스킬 명중 보정
+	var weapon_skill = _get_equipped_weapon_skill_id()
+	if weapon_skill:
+		bonus += int(get_skill_bonus(weapon_skill, "accuracy"))
 	return accuracy + bonus
 
 
 ## 선제권 계산 (턴 순서 결정).
-## dexterity * 2 + speed.
+## effective_dex * 2 + speed.
 func get_initiative() -> int:
-	return dexterity * 2 + speed
+	return get_effective_dex() * 2 + speed
 
 
-## 장비를 포함한 최종 회피율 반환.
+## 장비를 포함한 최종 회피율 반환 (장비 보정 + DEX 보정).
 func get_evasion() -> int:
 	var bonus: int = 0
 	for slot_item in [equipped_armor, equipped_helmet, equipped_cloak, equipped_belt, equipped_boots, equipped_off_hand, equipped_ring1, equipped_ring2, equipped_necklace, equipped_gloves]:
 		if slot_item and "evasion_bonus" in slot_item:
 			bonus += slot_item.evasion_bonus
+	bonus += _attr_mod(get_effective_dex())
 	return evasion + bonus
+
+
+## CON 보정을 반영한 최대 HP.
+func get_max_hp() -> int:
+	return max_hp + _attr_mod(get_effective_con()) * 5
+
+
+## INT 기반 마법 공격력 (미래 확장용).
+func get_magic_power() -> int:
+	var bonus: int = _attr_mod(get_effective_int()) * 3
+	return bonus
+
+
+## WIS 기반 마법 저항 (미래 확장용).
+func get_resistance() -> int:
+	return _attr_mod(get_effective_wis()) * 2
+
+
+## CHA 기반 상점 가격 배율 (1.0 기준, 낮을수록 할인).
+func get_price_multiplier() -> float:
+	return max(0.5, 1.0 - _attr_mod(get_effective_cha()) * 0.05)
 
 
 ## 공격 명중 여부 판정. attacker → target.
