@@ -43,4 +43,44 @@ const CLASSES: Dictionary = {
 		},
 		stat_modifiers = {strength = -1, dexterity = 3, constitution = -1, intelligence = 1, wisdom = 0, charisma = 2},
 	},
+	"paladin": {
+		display_name = "성기사(Paladin)",
+		description = "방어+마법저항 특화. 높은 HP, 마법 내성.",
+		skill_levels = {
+			"mace_fighting": 50.0,
+			"resisting_spells": 50.0,
+			"anatomy": 30.0,
+		},
+		stat_modifiers = {strength = 2, dexterity = 0, constitution = 3, intelligence = -2, wisdom = 1, charisma = 0},
+	},
+	"bard": {
+		display_name = "음유시인(Bard)",
+		description = "지원+마법 특화. 높은 교섭, 마법 활용.",
+		skill_levels = {
+			"eval_int": 50.0,
+			"magery": 40.0,
+			"anatomy": 30.0,
+		},
+		stat_modifiers = {strength = -2, dexterity = 0, constitution = 0, intelligence = 1, wisdom = 2, charisma = 3},
+	},
+	"monk": {
+		display_name = "무도가(Monk)",
+		description = "격투+회피 특화. 장비 없이도 강력.",
+		skill_levels = {
+			"wrestling": 50.0,
+			"meditation": 40.0,
+			"anatomy": 30.0,
+		},
+		stat_modifiers = {strength = 2, dexterity = 2, constitution = 0, intelligence = 0, wisdom = 1, charisma = -1},
+	},
+	"cleric": {
+		display_name = "사제(Cleric)",
+		description = "치유+마법 특화. 아군 지원, 회복.",
+		skill_levels = {
+			"magery": 50.0,
+			"healing": 50.0,
+			"meditation": 30.0,
+		},
+		stat_modifiers = {strength = -1, dexterity = 0, constitution = 1, intelligence = 2, wisdom = 2, charisma = 0},
+	},
 }
