@@ -268,6 +268,22 @@ const SKILLS: Dictionary = {
 		evasion = 0.1,     # 자연의 가호로 회피 보너스
 		str = 0.0, dex = 0.0, con = 0.05, int = 0.1, wis = 0.15,
 	},
+	"herbalism": {
+		name = "약초학(Herbalism)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.05, int = 0.1, wis = 0.15, cha = 0.0,
+	},
+	"alchemy": {
+		name = "연금술(Alchemy)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.3,      # 포션/폭탄 데미지 증가
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.0, int = 0.2, wis = 0.05, cha = 0.0,
+	},
 }
 
 

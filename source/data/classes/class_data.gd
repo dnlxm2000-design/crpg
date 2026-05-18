@@ -103,4 +103,14 @@ const CLASSES: Dictionary = {
 		},
 		stat_modifiers = {strength = -2, dexterity = 0, constitution = 1, intelligence = 1, wisdom = 3, charisma = 1},
 	},
+	"alchemist": {
+		display_name = "연금술사(Alchemist)",
+		description = "포션+폭탄 제작 특화. 약초학+연금술 시너지.",
+		skill_levels = {
+			"alchemy": 50.0,
+			"herbalism": 50.0,
+			"anatomy": 30.0,
+		},
+		stat_modifiers = {strength = -1, dexterity = 0, constitution = 0, intelligence = 3, wisdom = 2, charisma = 0},
+	},
 }
