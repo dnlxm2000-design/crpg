@@ -228,6 +228,38 @@ const SKILLS: Dictionary = {
 		evasion = 0.0,
 		str = 0.0, dex = 0.0, con = 0.0, int = 0.2, wis = 0.05, cha = 0.0,
 	},
+	"animal_taming": {
+		name = "동물 조련(Animal Taming)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.0, int = 0.0, wis = 0.1, cha = 0.15,
+	},
+	"animal_lore": {
+		name = "동물 지식(Animal Lore)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.0, int = 0.15, wis = 0.1, cha = 0.0,
+	},
+	"herding": {
+		name = "몰이(Herding)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.0, int = 0.0, wis = 0.15, cha = 0.1,
+	},
+	"veterinary": {
+		name = "수의학(Veterinary)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.1, int = 0.0, wis = 0.15, cha = 0.0,
+	},
 }
 
 

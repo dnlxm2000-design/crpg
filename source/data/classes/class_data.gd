@@ -28,8 +28,8 @@ const CLASSES: Dictionary = {
 		description = "원거리 특화. 높은 회피와 추적.",
 		skill_levels = {
 			"archery": 50.0,
-			"tactics": 40.0,
-			"tracking": 30.0,
+			"tracking": 40.0,
+			"herding": 30.0,
 		},
 		stat_modifiers = {strength = 0, dexterity = 3, constitution = 0, intelligence = 1, wisdom = 2, charisma = -1},
 	},
@@ -82,5 +82,15 @@ const CLASSES: Dictionary = {
 			"prayer": 30.0,
 		},
 		stat_modifiers = {strength = -1, dexterity = 0, constitution = 1, intelligence = 2, wisdom = 2, charisma = 0},
+	},
+	"tamer": {
+		display_name = "조련사(Tamer)",
+		description = "동물 조련+수의학 특화. 야생동물 길들이기, 동물 치료.",
+		skill_levels = {
+			"animal_taming": 50.0,
+			"animal_lore": 50.0,
+			"veterinary": 30.0,
+		},
+		stat_modifiers = {strength = 0, dexterity = 1, constitution = 1, intelligence = 0, wisdom = 3, charisma = 1},
 	},
 }
