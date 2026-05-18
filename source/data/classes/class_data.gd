@@ -113,4 +113,44 @@ const CLASSES: Dictionary = {
 		},
 		stat_modifiers = {strength = -1, dexterity = 0, constitution = 0, intelligence = 3, wisdom = 2, charisma = 0},
 	},
+	"blacksmith": {
+		display_name = "대장장이(Blacksmith)",
+		description = "금속 무기/갑옷 제작. 높은 STR과 내구력.",
+		skill_levels = {
+			"blacksmithy": 50.0,
+			"mining": 50.0,
+			"arms_lore": 30.0,
+		},
+		stat_modifiers = {strength = 3, dexterity = 0, constitution = 2, intelligence = 0, wisdom = 0, charisma = -1},
+	},
+	"samurai": {
+		display_name = "사무라이(Samurai)",
+		description = "양손무기+분신술 특화. 무사도+검술.",
+		skill_levels = {
+			"bushido": 50.0,
+			"swordsmanship": 50.0,
+			"parrying": 30.0,
+		},
+		stat_modifiers = {strength = 2, dexterity = 2, constitution = 1, intelligence = 0, wisdom = 1, charisma = -1},
+	},
+	"ninja": {
+		display_name = "닌자(Ninja)",
+		description = "암습+분신술 특화. 인술+은신.",
+		skill_levels = {
+			"ninjitsu": 50.0,
+			"stealth": 50.0,
+			"poisoning": 30.0,
+		},
+		stat_modifiers = {strength = -1, dexterity = 3, constitution = 0, intelligence = 0, wisdom = 1, charisma = 0},
+	},
+	"necromancer": {
+		display_name = "강령술사(Necromancer)",
+		description = "어둠 마법+흡혈 특화. 사령술+주술.",
+		skill_levels = {
+			"necromancy": 50.0,
+			"mysticism": 50.0,
+			"spirit_speak": 30.0,
+		},
+		stat_modifiers = {strength = -2, dexterity = 0, constitution = 0, intelligence = 3, wisdom = 2, charisma = -1},
+	},
 }

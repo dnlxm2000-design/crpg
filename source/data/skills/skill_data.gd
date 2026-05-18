@@ -372,6 +372,108 @@ const SKILLS: Dictionary = {
 		evasion = 0.0,
 		str = 0.0, dex = 0.0, con = 0.0, int = 0.05, wis = 0.2, cha = 0.0,
 	},
+
+	# ── 제작/공예 (CRAFTING) ──
+	"blacksmithy": {
+		name = "대장기술(Blacksmithy)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.1, dex = 0.0, con = 0.05, int = 0.0, wis = 0.0, cha = 0.0,
+	},
+	"bowcraft": {
+		name = "활/화살제작(Bowcraft)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.1, con = 0.0, int = 0.05, wis = 0.0, cha = 0.0,
+	},
+	"carpentry": {
+		name = "목공술(Carpentry)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.05, con = 0.05, int = 0.05, wis = 0.0, cha = 0.0,
+	},
+	"tailoring": {
+		name = "재봉(Tailoring)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.1, con = 0.0, int = 0.0, wis = 0.05, cha = 0.0,
+	},
+	"cooking": {
+		name = "요리(Cooking)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.05, int = 0.0, wis = 0.1, cha = 0.0,
+	},
+	"mining": {
+		name = "채광(Mining)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.1, dex = 0.0, con = 0.1, int = 0.0, wis = 0.0, cha = 0.0,
+	},
+	"lumberjacking": {
+		name = "벌목(Lumberjacking)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.25,    # 도끼류 데미지 보너스
+		evasion = 0.0,
+		str = 0.15, dex = 0.0, con = 0.05, int = 0.0, wis = 0.0, cha = 0.0,
+	},
+
+	# ── 특수 무예 (MARTIAL) ──
+	"bushido": {
+		name = "무사도(Bushido)",
+		type = 1,
+		accuracy = 0.0,
+		damage = 0.3,     # 양손무기 데미지 증가
+		evasion = 0.15,   # 분신술 회피
+		str = 0.1, dex = 0.05, con = 0.0, int = 0.0, wis = 0.1, cha = 0.0,
+	},
+	"ninjitsu": {
+		name = "인술(Ninjitsu)",
+		type = 1,
+		accuracy = 0.0,
+		damage = 0.2,     # 암습 데미지
+		evasion = 0.25,   # 분신술 회피
+		str = 0.0, dex = 0.2, con = 0.0, int = 0.05, wis = 0.0, cha = 0.0,
+	},
+	"throwing": {
+		name = "투척술(Throwing)",
+		type = 0,
+		accuracy = 0.45,
+		damage = 0.25,
+		evasion = 0.0,
+		str = 0.05, dex = 0.15, con = 0.0, int = 0.0, wis = 0.0, cha = 0.0,
+	},
+
+	# ── 어둠 마법 (DARK_MAGIC) ──
+	"necromancy": {
+		name = "사령술(Necromancy)",
+		type = 2,
+		accuracy = 0.0,
+		damage = 0.4,     # 흡혈/어둠 마법 데미지
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.05, int = 0.15, wis = 0.1, cha = 0.0,
+	},
+	"mysticism": {
+		name = "주술(Mysticism)",
+		type = 2,
+		accuracy = 0.0,
+		damage = 0.35,    # 단체 공격 마법
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.0, int = 0.15, wis = 0.15, cha = 0.0,
+	},
 }
 
 
