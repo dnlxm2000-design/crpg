@@ -188,6 +188,46 @@ const SKILLS: Dictionary = {
 		evasion = 0.0,
 		str = 0.0, dex = 0.0, con = 0.0, int = 0.0, wis = 0.0, cha = 0.2,
 	},
+	"detecting_hidden": {
+		name = "은신 탐색(Detecting Hidden)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.0, int = 0.1, wis = 0.15, cha = 0.0,
+	},
+	"stealth": {
+		name = "은신 이동(Stealth)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.35,    # 은신 이동 시 높은 회피
+		str = 0.0, dex = 0.2, con = 0.0, int = 0.0, wis = 0.0, cha = 0.0,
+	},
+	"stealing": {
+		name = "훔치기(Stealing)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.25, con = 0.0, int = 0.0, wis = 0.0, cha = 0.0,
+	},
+	"snooping": {
+		name = "훔쳐보기(Snooping)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.1, con = 0.0, int = 0.1, wis = 0.05, cha = 0.0,
+	},
+	"forensic_eval": {
+		name = "법의학(Forensic Evaluation)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.0, int = 0.2, wis = 0.05, cha = 0.0,
+	},
 }
 
 
