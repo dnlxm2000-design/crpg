@@ -45,11 +45,11 @@ const CLASSES: Dictionary = {
 	},
 	"paladin": {
 		display_name = "성기사(Paladin)",
-		description = "방어+마법저항 특화. 높은 HP, 마법 내성.",
+		description = "방어+신성 마법 특화. 높은 HP, 마법 내성.",
 		skill_levels = {
 			"mace_fighting": 50.0,
-			"resisting_spells": 50.0,
-			"anatomy": 30.0,
+			"divinity": 50.0,
+			"prayer": 30.0,
 		},
 		stat_modifiers = {strength = 2, dexterity = 0, constitution = 3, intelligence = -2, wisdom = 1, charisma = 0},
 	},
@@ -75,11 +75,11 @@ const CLASSES: Dictionary = {
 	},
 	"cleric": {
 		display_name = "사제(Cleric)",
-		description = "치유+마법 특화. 아군 지원, 회복.",
+		description = "치유+신성 마법 특화. 아군 지원, 회복.",
 		skill_levels = {
-			"magery": 50.0,
+			"divinity": 50.0,
 			"healing": 50.0,
-			"meditation": 30.0,
+			"prayer": 30.0,
 		},
 		stat_modifiers = {strength = -1, dexterity = 0, constitution = 1, intelligence = 2, wisdom = 2, charisma = 0},
 	},

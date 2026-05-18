@@ -80,6 +80,14 @@ const SKILLS: Dictionary = {
 		evasion = 0.0,
 		str = 0.0, dex = 0.0, con = 0.05, int = 0.0, wis = 0.05,
 	},
+	"prayer": {
+		name = "기도(Prayer)",
+		type = 1,
+		accuracy = 0.0,
+		damage = 0.15,     # 신성 버프 데미지 증가
+		evasion = 0.1,     # 기도 시 회피 보너스
+		str = 0.0, dex = 0.0, con = 0.1, int = 0.0, wis = 0.1,
+	},
 	"resisting_spells": {
 		name = "마법저항(Resisting Spells)",
 		type = 1,
@@ -113,6 +121,14 @@ const SKILLS: Dictionary = {
 		damage = 0.4,      # 마법 데미지 증가
 		evasion = 0.0,
 		str = 0.0, dex = 0.0, con = 0.0, int = 0.15, wis = 0.0,
+	},
+	"divinity": {
+		name = "신성학(Divinity)",
+		type = 2,
+		accuracy = 0.0,
+		damage = 0.35,     # 신성 마법 데미지 증가
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.0, int = 0.1, wis = 0.15,
 	},
 
 	# ── 유틸 스킬 (UTILITY) ──
