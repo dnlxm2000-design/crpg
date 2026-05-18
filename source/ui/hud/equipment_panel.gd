@@ -1,5 +1,5 @@
 # equipment_panel.gd — 캐릭터 스테이터스 패널 (E키 토글).
-# 상단: 6속성 + 파생 스탯 → 중간: 장비 슬롯 → 하단: 인벤토리 목록.
+# 레이아웃: 좌측상단 스탯 / 좌측하단 장비 / 우측 인벤토리
 # ESC/X 버튼으로 닫기.
 extends Panel
 
@@ -31,15 +31,15 @@ var _drag_offset: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
-	# Panel style
-	size = Vector2(420, 720)
+	# Panel style — 3분할 레이아웃 (좌:스타트+장비 / 우:인벤토리)
+	size = Vector2(820, 560)
 	position = Vector2(60, 60)
 	var bg := StyleBoxFlat.new()
 	bg.bg_color = Color(0.08, 0.08, 0.12, 0.92)
 	add_theme_stylebox_override("panel", bg)
 	visible = false
 
-	# ── 1. Title bar: 캐릭터 스테이터스 ──
+	# ── Title bar ──
 	var title := Label.new()
 	title.text = "캐릭터 스테이터스"
 	title.add_theme_font_size_override("font_size", 16)
@@ -57,10 +57,25 @@ func _ready() -> void:
 	close_btn.pressed.connect(_on_close)
 	add_child(close_btn)
 
-	# ── 2. Stats section (6 attributes + derived) ──
+	# ── Main HBoxContainer: 좌측(스타트+장비) | 우측(인벤토리) ──
+	var main_hbox := HBoxContainer.new()
+	main_hbox.position = Vector2(8, 42)
+	main_hbox.size = Vector2(size.x - 16, size.y - 50)
+	main_hbox.add_theme_constant_override("separation", 6)
+	add_child(main_hbox)
+
+	# ── 좌측 VBox: 스탯(상) + 장비(하) ──
+	var left_vbox := VBoxContainer.new()
+	left_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	left_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	left_vbox.custom_minimum_size = Vector2(380, 0)
+	left_vbox.add_theme_constant_override("separation", 6)
+	main_hbox.add_child(left_vbox)
+
+	# ── 1. Stats section ──
 	var stats_bg := PanelContainer.new()
-	stats_bg.position = Vector2(8, 42)
-	stats_bg.size = Vector2(size.x - 16, 72)
+	stats_bg.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stats_bg.custom_minimum_size = Vector2(0, 72)
 	var stats_style := StyleBoxFlat.new()
 	stats_style.bg_color = Color(0.06, 0.06, 0.1, 0.6)
 	stats_style.corner_radius_top_left = 4
@@ -68,7 +83,7 @@ func _ready() -> void:
 	stats_style.corner_radius_bottom_left = 4
 	stats_style.corner_radius_bottom_right = 4
 	stats_bg.add_theme_stylebox_override("panel", stats_style)
-	add_child(stats_bg)
+	left_vbox.add_child(stats_bg)
 
 	var stats_inner := VBoxContainer.new()
 	stats_inner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -91,53 +106,60 @@ func _ready() -> void:
 	_derived_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.5))
 	stats_inner.add_child(_derived_label)
 
-	# ── 3. Equipment slots ──
+	# ── 2. Equipment slots ──
 	var eq_title := Label.new()
 	eq_title.text = "장비"
 	eq_title.add_theme_font_size_override("font_size", 13)
 	eq_title.add_theme_color_override("font_color", Color(0.8, 0.8, 0.85))
-	eq_title.position = Vector2(12, 122)
 	eq_title.size = Vector2(200, 22)
-	add_child(eq_title)
+	left_vbox.add_child(eq_title)
 
 	var eq_scroll := ScrollContainer.new()
-	eq_scroll.position = Vector2(8, 146)
-	eq_scroll.size = Vector2(size.x - 16, 260)
+	eq_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	eq_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	eq_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	add_child(eq_scroll)
+	left_vbox.add_child(eq_scroll)
 
 	_slot_container = VBoxContainer.new()
-	_slot_container.size = Vector2(size.x - 24, 0)
 	_slot_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_slot_container.add_theme_constant_override("separation", 2)
 	eq_scroll.add_child(_slot_container)
 
-	# ── 4. Inventory items ──
+	# ── 우측 VBox: 인벤토리 (전체 높이) ──
+	var right_vbox := VBoxContainer.new()
+	right_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	right_vbox.custom_minimum_size = Vector2(380, 0)
+	right_vbox.add_theme_constant_override("separation", 4)
+	main_hbox.add_child(right_vbox)
+
+	# 인벤토리 타이틀 + 골드
+	var inv_header := HBoxContainer.new()
+	inv_header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	inv_header.custom_minimum_size = Vector2(0, 22)
+	right_vbox.add_child(inv_header)
+
 	var inv_title := Label.new()
 	inv_title.text = "장비목록"
 	inv_title.add_theme_font_size_override("font_size", 13)
 	inv_title.add_theme_color_override("font_color", Color(0.8, 0.8, 0.85))
-	inv_title.position = Vector2(12, 414)
-	inv_title.size = Vector2(200, 22)
-	add_child(inv_title)
+	inv_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	inv_header.add_child(inv_title)
 
-	# 골드 표시
 	_gold_label = Label.new()
 	_gold_label.add_theme_font_size_override("font_size", 12)
 	_gold_label.add_theme_color_override("font_color", Color(1.0, 0.8, 0.0))
-	_gold_label.position = Vector2(260, 414)
-	_gold_label.size = Vector2(148, 22)
+	_gold_label.custom_minimum_size = Vector2(120, 22)
 	_gold_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	add_child(_gold_label)
+	inv_header.add_child(_gold_label)
 
 	var inv_scroll := ScrollContainer.new()
-	inv_scroll.position = Vector2(8, 438)
-	inv_scroll.size = Vector2(size.x - 16, 240)
+	inv_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	inv_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	inv_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	add_child(inv_scroll)
+	right_vbox.add_child(inv_scroll)
 
 	_inv_container = VBoxContainer.new()
-	_inv_container.size = Vector2(size.x - 24, 0)
 	_inv_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_inv_container.add_theme_constant_override("separation", 2)
 	inv_scroll.add_child(_inv_container)
