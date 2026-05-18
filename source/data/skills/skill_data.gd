@@ -148,6 +148,38 @@ const SKILLS: Dictionary = {
 		evasion = 0.0,
 		str = 0.0, dex = 0.1, con = 0.0, int = 0.0, wis = 0.1,
 	},
+	"musicianship": {
+		name = "악기연주(Musicianship)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.0, int = 0.0, wis = 0.05, cha = 0.15,
+	},
+	"provocation": {
+		name = "도발(Provocation)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.0, int = 0.0, wis = 0.0, cha = 0.2,
+	},
+	"peacemaking": {
+		name = "평온(Peacemaking)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.15,    # 평온 시 회피 보너스
+		str = 0.0, dex = 0.0, con = 0.0, int = 0.0, wis = 0.05, cha = 0.1,
+	},
+	"discordance": {
+		name = "불협화음(Discordance)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.25,     # 대상 약화 → 간접 데미지 증가
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.0, int = 0.0, wis = 0.0, cha = 0.2,
+	},
 }
 
 

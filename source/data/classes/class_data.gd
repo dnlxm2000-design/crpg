@@ -55,11 +55,11 @@ const CLASSES: Dictionary = {
 	},
 	"bard": {
 		display_name = "음유시인(Bard)",
-		description = "지원+마법 특화. 높은 교섭, 마법 활용.",
+		description = "지원+군중제어 특화. 도발/평온/불협화음.",
 		skill_levels = {
-			"eval_int": 50.0,
-			"magery": 40.0,
-			"anatomy": 30.0,
+			"musicianship": 50.0,
+			"provocation": 50.0,
+			"discordance": 30.0,
 		},
 		stat_modifiers = {strength = -2, dexterity = 0, constitution = 0, intelligence = 1, wisdom = 2, charisma = 3},
 	},
