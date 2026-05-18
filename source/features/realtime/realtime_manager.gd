@@ -2,6 +2,8 @@
 # Stoneshard-style: continuous click-to-move, fluid exploration.
 extends Node
 
+const ItemData = preload("res://source/data/items/item_data.gd")
+
 ## Is real-time mode currently active?
 var active: bool = false
 
@@ -85,6 +87,9 @@ func spawn_player(at_position: Vector2, race: String = "Human", class_id: String
 	inventory.name = "Inventory"
 	player.add_child(inventory)
 
+	# ── 직업 시작 아이템 부여 ──
+	_give_starting_items(inventory, class_id)
+
 	# ── Placeholder 시각 요소 ──
 	# TODO: setup_placeholder_visual 대신 AnimatedSprite2D + SpriteSheet 로 교체
 	player.setup_placeholder_visual(Color(0.2, 0.6, 1.0))
@@ -133,3 +138,51 @@ func _apply_class_to_unit(unit: Node, class_def: Dictionary, class_id: String) -
 		unit.max_hp = new_max
 		unit.current_hp = new_max
 	print("[RealTimeManager] Class '%s' applied: skills=%s, stats=%s" % [class_id, unit.learned_skills, class_def.stat_modifiers])
+
+
+## 직업별 시작 아이템을 인벤토리에 추가.
+func _give_starting_items(inventory: Node, class_id: String) -> void:
+	var starting = ItemData.CLASS_STARTING_ITEMS.get(class_id, [])
+	for entry in starting:
+		var item_id: String = entry.item_id
+		var qty: int = entry.get("quantity", 1)
+		var item_def = ItemData.ITEMS.get(item_id)
+		if not item_def:
+			print("[RealTimeManager] WARNING: unknown starting item '%s'" % item_id)
+			continue
+		# Create a Resource-based item or dict-based item
+		var item_res = _load_item_resource(item_id)
+		if item_res:
+			for i in qty:
+				inventory.add_item(item_res)
+		else:
+			# Fallback: dict-based item
+			var item_dict = {
+				"id": item_id,
+				"item_name": item_def.get("name", item_id),
+				"description": item_def.get("description", ""),
+				"item_type": item_def.get("type", 0),
+				"value": item_def.get("value", 0),
+				"heal_amount": item_def.get("heal_amount", 0),
+				"ap_cost": item_def.get("ap_cost", 1),
+				"stackable": item_def.get("stackable", true),
+				"damage_bonus": item_def.get("damage_bonus", 0),
+				"defense_bonus": item_def.get("defense_bonus", 0),
+				"accuracy_bonus": item_def.get("accuracy_bonus", 0),
+				"evasion_bonus": item_def.get("evasion_bonus", 0),
+				"weapon_subtype": item_def.get("weapon_subtype", ""),
+				"weapon_class": item_def.get("weapon_class", ""),
+				"range": item_def.get("range", 1),
+				"ammo_type": item_def.get("ammo_type", ""),
+			}
+			for i in qty:
+				inventory.add_item_dict(item_dict)
+	print("[RealTimeManager] Starting items for '%s': %d types, %d total" % [class_id, starting.size(), starting.reduce(func(acc, e): return acc + e.get("quantity", 1), 0)])
+
+
+## .tres 리소스에서 아이템 로드 (폴백: dict 기반).
+func _load_item_resource(item_id: String) -> Resource:
+	var path = "res://source/data/items/resources/%s.tres" % item_id
+	if ResourceLoader.exists(path):
+		return load(path)
+	return null

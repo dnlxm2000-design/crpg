@@ -40,6 +40,15 @@ func add_item(item, quantity: int = 1) -> bool:
 	return true
 
 
+## Add an item from a dictionary definition (for items without .tres files).
+func add_item_dict(data: Dictionary, quantity: int = 1) -> bool:
+	var Item = load("res://source/data/items/item.gd")
+	var item = Item.new()
+	for key in data:
+		item.set(key, data[key])
+	return add_item(item, quantity)
+
+
 ## Remove a quantity of an item. Returns true if enough existed.
 func remove_item(item_id: String, quantity: int = 1) -> bool:
 	if quantity <= 0:
