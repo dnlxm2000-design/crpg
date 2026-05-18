@@ -260,6 +260,14 @@ const SKILLS: Dictionary = {
 		evasion = 0.0,
 		str = 0.0, dex = 0.0, con = 0.1, int = 0.0, wis = 0.15, cha = 0.0,
 	},
+	"nature_magic": {
+		name = "자연술(Nature Magic)",
+		type = 2,
+		accuracy = 0.0,
+		damage = 0.35,     # 자연 마법 데미지 증가
+		evasion = 0.1,     # 자연의 가호로 회피 보너스
+		str = 0.0, dex = 0.0, con = 0.05, int = 0.1, wis = 0.15,
+	},
 }
 
 

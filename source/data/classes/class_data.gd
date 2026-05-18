@@ -93,4 +93,14 @@ const CLASSES: Dictionary = {
 		},
 		stat_modifiers = {strength = 0, dexterity = 1, constitution = 1, intelligence = 0, wisdom = 3, charisma = 1},
 	},
+	"druid": {
+		display_name = "드루이드(Druid)",
+		description = "자연 마법+치유 특화. 자연의 힘으로 공격과 회복.",
+		skill_levels = {
+			"nature_magic": 50.0,
+			"healing": 50.0,
+			"animal_lore": 30.0,
+		},
+		stat_modifiers = {strength = -2, dexterity = 0, constitution = 1, intelligence = 1, wisdom = 3, charisma = 1},
+	},
 }
