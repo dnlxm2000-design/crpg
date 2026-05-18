@@ -156,6 +156,14 @@ const SKILLS: Dictionary = {
 		evasion = 0.0,
 		str = 0.0, dex = 0.0, con = 0.0, int = 0.0, wis = 0.05, cha = 0.15,
 	},
+	"dancing": {
+		name = "춤추기(Dancing)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.25,    # 춤 동작 시 회피 보너스
+		str = 0.0, dex = 0.15, con = 0.0, int = 0.0, wis = 0.0, cha = 0.1,
+	},
 	"provocation": {
 		name = "도발(Provocation)",
 		type = 3,

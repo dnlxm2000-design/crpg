@@ -58,10 +58,10 @@ const CLASSES: Dictionary = {
 		description = "지원+군중제어 특화. 도발/평온/불협화음.",
 		skill_levels = {
 			"musicianship": 50.0,
-			"provocation": 50.0,
-			"discordance": 30.0,
+			"provocation": 40.0,
+			"dancing": 30.0,
 		},
-		stat_modifiers = {strength = -2, dexterity = 0, constitution = 0, intelligence = 1, wisdom = 2, charisma = 3},
+		stat_modifiers = {strength = -2, dexterity = 1, constitution = 0, intelligence = 1, wisdom = 2, charisma = 2},
 	},
 	"monk": {
 		display_name = "무도가(Monk)",
