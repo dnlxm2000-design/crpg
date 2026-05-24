@@ -1,34 +1,35 @@
-# player_controller.gd — 플레이어 입력 처리기 (Stoneshard 스타일).
+# player_controller.gd — 플레이어 입력 처리기 (Stoneshard 스타일). 3D version.
 # _input(이벤트 기반) + _process(폴링) 이중 방식으로 안정적인 입력 캡처.
 extends Node
 
 const CombatResolver = preload("res://source/features/turnbased/combat_resolver.gd")
 
 # 이동 키 → 그리드 방향 벡터 매핑 (아이소메트릭 8방향).
-# WASD = 화면 상하좌우, QRZV = 화면 대각선.
-# 화면 ↑ = 그리드 (-1,-1), 화면 → = 그리드 (1,-1), 등.
 const DIRECTION_MAP: Dictionary = {
-	"move_up": Vector2i(-1, -1),        # W / ↑ → 화면 위
-	"move_down": Vector2i(1, 1),        # S / ↓ → 화면 아래
-	"move_left": Vector2i(-1, 1),       # A / ← → 화면 왼쪽
-	"move_right": Vector2i(1, -1),      # D / → → 화면 오른쪽
-	"move_diag_up_left": Vector2i(-1, 0),   # Q → 화면 위-왼쪽 대각선
-	"move_diag_up_right": Vector2i(0, -1),  # R → 화면 위-오른쪽 대각선
-	"move_diag_down_left": Vector2i(0, 1),  # Z → 화면 아래-왼쪽 대각선
-	"move_diag_down_right": Vector2i(1, 0), # V → 화면 아래-오른쪽 대각선
+	"move_up": Vector2i(-1, -1),
+	"move_down": Vector2i(1, 1),
+	"move_left": Vector2i(-1, 1),
+	"move_right": Vector2i(1, -1),
+	"move_diag_up_left": Vector2i(-1, 0),
+	"move_diag_up_right": Vector2i(0, -1),
+	"move_diag_down_left": Vector2i(0, 1),
+	"move_diag_down_right": Vector2i(1, 0),
 }
 
-var _movement = null   # UnitMovement 컴포넌트 (경로 탐색 + 이동)
-var _unit = null       # 부모 유닛 노드
+var _movement = null
+var _unit = null
 
-# 턴 종료 확인: 첫 Space는 대기, 두 번째 Space가 턴 종료 확정
+# 턴 종료 확인
 var _turn_end_confirm: bool = false
 
-# 두 번 클릭 프리뷰: 첫 클릭 미리보기, 두 번째 클릭 이동 실행
+# 두 번 클릭 프리뷰
 var _preview_active: bool = false
-var _preview_target_world: Vector2 = Vector2.ZERO
+var _preview_target_world: Vector3 = Vector3.ZERO
 var _preview_target_grid: Vector2i = Vector2i(-1, -1)
 var _path_preview: Node = null
+
+# 3D 마우스 피킹용 RayCast3D
+var _mouse_raycast: RayCast3D = null
 
 
 func _ready() -> void:
@@ -38,31 +39,37 @@ func _ready() -> void:
 		print("[PlayerController] Found UnitMovement, parent=", _unit.name)
 	else:
 		push_error("[PlayerController] UnitMovement not found at ../UnitMovement")
-	_path_preview = get_node_or_null("/root/Main/PathPreview")   # 이동 경로 시각화 노드
+	_path_preview = get_node_or_null("/root/Main/PathPreview")
+
+	# RayCast3D 설정 (마우스 → 3D 월드 피킹)
+	_mouse_raycast = RayCast3D.new()
+	_mouse_raycast.name = "MouseRayCast"
+	_mouse_raycast.target_position = Vector3(0, -100, 0)  # 아래 방향으로 긴 레이
+	_mouse_raycast.collide_with_areas = false
+	_mouse_raycast.collide_with_bodies = false
+	# Terrain 메쉬와 충돌하도록 collision_mask 설정 (필요시 조정)
+	_mouse_raycast.collision_mask = 1
+	add_child(_mouse_raycast)
 
 
 func _input(event: InputEvent) -> void:
 	if not _movement or _movement.is_locked:
 		return
 
-	# I키: 인벤토리 토글 (모드 무관, 전투/탐험 모두 동작)
 	if event.is_action_pressed("toggle_inventory"):
 		_toggle_inventory()
 		get_viewport().set_input_as_handled()
 		return
 
-	# U키: 장비 패널 토글 (모드 무관)
 	if event.is_action_pressed("ui_focus_next") or (event is InputEventKey and event.keycode == KEY_U and event.pressed and not event.echo):
 		_toggle_equipment()
 		get_viewport().set_input_as_handled()
 		return
 
-	# 턴 기반 모드: 이벤트 기반 입력 처리
 	if GameState.current_mode == GameState.GameMode.TURNBASED:
 		_handle_turn_input(event)
 		return
 
-	# 실시간 모드: 마우스 클릭 처리 (이동 경로 지정 + 아이템 클릭)
 	_handle_realtime_input(event)
 
 
@@ -72,18 +79,15 @@ func _process(_delta: float) -> void:
 
 	var is_turn: bool = (GameState.current_mode == GameState.GameMode.TURNBASED)
 
-	# Keyboard movement — 실시간모드에서만 _process 처리 (턴모드는 _input에서 처리)
 	if not is_turn:
 		for action in DIRECTION_MAP:
 			if Input.is_action_just_pressed(action):
 				_do_key_move(DIRECTION_MAP[action], is_turn)
 
 	if not is_turn:
-		# E키: 가장 가까운 아이템 집기 (탐험/조사 중심 RPG — 자동 줍기 없음)
 		if Input.is_action_just_pressed("attack_action"):
 			_pickup_nearest_item()
 
-		# C키: 전투 진입 (주변에 적이 있을 때만 동작)
 		if Input.is_action_just_pressed("enter_combat"):
 			_cancel_preview()
 			var gl = get_node("/root/Main/GameLoop")
@@ -93,7 +97,6 @@ func _process(_delta: float) -> void:
 
 ## ─── Real-time two-click preview system ───
 
-## HUD 패널(인벤토리/장비)이 열려 있고 클릭이 그 위에 있으면 true.
 func _is_click_on_hud_panel() -> bool:
 	var hud = get_node_or_null("/root/Main/HUD")
 	if not hud:
@@ -106,12 +109,32 @@ func _is_click_on_hud_panel() -> bool:
 	return false
 
 
-## Handle mouse input events for real-time mode (left click, right click).
+## 3D 마우스 위치 → 월드 좌표 (RayCast3D 사용).
+func _get_mouse_world_position() -> Vector3:
+	var camera: Camera3D = get_viewport().get_camera_3d()
+	if not camera:
+		return Vector3.ZERO
+
+	var mouse_pos: Vector2 = get_viewport().get_mouse_position()
+	var from := camera.project_ray_origin(mouse_pos)
+	var dir := camera.project_ray_normal(mouse_pos)
+
+	# 지면(Y=0)과의 교점 계산
+	if abs(dir.y) < 0.001:
+		return Vector3.ZERO  # 레이 거의 수평
+
+	var t := -from.y / dir.y
+	if t < 0:
+		return Vector3.ZERO  # 카메라 위쪽
+
+	return from + dir * t
+
+
+## Handle mouse input events for real-time mode.
 func _handle_realtime_input(event: InputEvent) -> void:
 	if not event is InputEventMouseButton or not event.pressed:
 		return
 
-	# HUD 패널 위 클릭은 게임 이동/액션으로 소비하지 않음 (닫기 버튼 등 UI 동작 보장)
 	if _is_click_on_hud_panel():
 		return
 
@@ -126,8 +149,6 @@ func _handle_realtime_input(event: InputEvent) -> void:
 
 
 ## First click previews, second click on SAME tile confirms and moves.
-## Clicking a DIFFERENT tile updates the preview.
-## If there is a MapItem at the clicked tile, picks it up instead.
 func _click_preview_or_move() -> void:
 	if _movement.is_moving:
 		return
@@ -136,42 +157,31 @@ func _click_preview_or_move() -> void:
 	if not grid_world:
 		return
 
-	# Use viewport mouse position + camera offset for accurate world coords
-	var mouse_viewport: Vector2 = get_viewport().get_mouse_position()
-	var camera: Camera2D = get_viewport().get_camera_2d()
-	var mouse_world: Vector2 = mouse_viewport
-	if camera:
-		mouse_world = camera.get_global_mouse_position()
-
+	var mouse_world: Vector3 = _get_mouse_world_position()
 	var mouse_grid: Vector2i = grid_world.world_to_grid(mouse_world)
 
-	# Check if there is a pickable MapItem at the clicked tile
 	if _click_pickup_at(mouse_grid):
 		_cancel_preview()
 		return
 
 	if not _preview_active:
-		# First click: show preview path
 		_preview_active = true
 		_preview_target_world = grid_world.grid_to_world(mouse_grid)
 		_preview_target_grid = mouse_grid
 		if _path_preview and _path_preview.has_method("preview_to"):
 			_path_preview.preview_to(mouse_grid)
 	elif mouse_grid == _preview_target_grid:
-		# Second click on the SAME tile: confirm and move
 		_preview_active = false
 		if _path_preview and _path_preview.has_method("clear"):
 			_path_preview.clear()
 		_movement.navigate_to(_preview_target_world)
 	else:
-		# Click on a DIFFERENT tile: update preview
 		_preview_target_world = grid_world.grid_to_world(mouse_grid)
 		_preview_target_grid = mouse_grid
 		if _path_preview and _path_preview.has_method("preview_to"):
 			_path_preview.preview_to(mouse_grid)
 
 
-## Cancel active preview without moving.
 func _cancel_preview() -> void:
 	_preview_active = false
 	if _path_preview and _path_preview.has_method("clear"):
@@ -180,9 +190,7 @@ func _cancel_preview() -> void:
 
 ## ─── Inventory & Equipment ───
 
-## Toggle the inventory panel visibility.
 func _toggle_inventory() -> void:
-	"""I키: HUD 아래 InventoryPanel의 toggle()을 호출하여 표시/숨김 전환."""
 	var hud = get_node_or_null("/root/Main/HUD")
 	if hud:
 		var inv_panel = hud.get_node_or_null("InventoryPanel")
@@ -190,7 +198,6 @@ func _toggle_inventory() -> void:
 			inv_panel.toggle()
 
 
-## U키: 장비 패널 표시/숨김 전환.
 func _toggle_equipment() -> void:
 	var hud = get_node_or_null("/root/Main/HUD")
 	if hud:
@@ -199,8 +206,6 @@ func _toggle_equipment() -> void:
 			eq_panel.toggle()
 
 
-## E키로 호출: 바닥에 있는 아이템 또는 시체 중 가장 가까운(거리 ≤1) 것을 처리.
-## 탐험 모드: 아이템 우선, 없으면 시체 수색.
 func _pickup_nearest_item() -> void:
 	var grid_world = _movement.get_grid_world() if _movement else null
 	if not grid_world:
@@ -212,7 +217,6 @@ func _pickup_nearest_item() -> void:
 
 	var player_gp: Vector2i = grid_world.world_to_grid(_unit.global_position)
 
-	# 1. Try picking up a MapItem first
 	var map_items: Array[Node] = get_tree().get_nodes_in_group("map_items")
 	var nearest_item: Node = null
 	var nearest_item_dist: int = 999
@@ -231,15 +235,9 @@ func _pickup_nearest_item() -> void:
 		_do_pickup_item(nearest_item)
 		return
 
-	# 2. No MapItem — try looting a nearby corpse
 	_try_loot_corpse(player_gp, grid_world, inv)
 
 
-## Try to pick up a MapItem at a specific grid position.
-## Returns true if an item was found and picked up at that position.
-## 좌클릭으로 호출: grid_pos 위치에 MapItem이 있으면 획득한다.
-## 거리 ≤1 (플레이어 타일 또는 인접 8방향)인 경우에만 가능.
-## 반환값: 아이템을 집었으면 true, 아니면 false.
 func _click_pickup_at(grid_pos: Vector2i) -> bool:
 	var grid_world = _movement.get_grid_world() if _movement else null
 	if not grid_world:
@@ -252,9 +250,8 @@ func _click_pickup_at(grid_pos: Vector2i) -> bool:
 	var player_gp: Vector2i = grid_world.world_to_grid(_unit.global_position)
 	var pickup_dist: int = max(abs(grid_pos.x - player_gp.x), abs(grid_pos.y - player_gp.y))
 	if pickup_dist > 1:
-		return false                                       # 거리 초과 → 무시
+		return false
 
-	# 해당 타일에 있는 MapItem 찾기
 	var map_items_grp: Array[Node] = get_tree().get_nodes_in_group("map_items")
 	for mi in map_items_grp:
 		if not is_instance_valid(mi):
@@ -273,8 +270,6 @@ func _click_pickup_at(grid_pos: Vector2i) -> bool:
 	return false
 
 
-## 아이템을 인벤토리에 추가하고, 픽업 애니메이션 재생, 로그에 기록한다.
-## E키와 좌클릭 모두 이 함수를 통해 처리된다.
 func _do_pickup_item(map_node: Node) -> void:
 	if not is_instance_valid(map_node):
 		return
@@ -283,9 +278,8 @@ func _do_pickup_item(map_node: Node) -> void:
 	if not item or typeof(item) != TYPE_OBJECT or not ("id" in item) or not ("item_name" in item):
 		return
 
-	# Gold → directly add to wallet
-	if "item_type" in item and item.item_type == 4:  # GOLD
-		var amount = item.value  # value = gold amount
+	if "item_type" in item and item.item_type == 4:
+		var amount = item.value
 		if "gold" in _unit:
 			_unit.gold += amount
 			EventBus.gold_changed.emit(_unit, amount)
@@ -299,7 +293,6 @@ func _do_pickup_item(map_node: Node) -> void:
 				event_log.add_entry("+%d gold" % amount, Color(1.0, 0.8, 0.0))
 			return
 
-	# Normal item → add to inventory
 	var inv = _unit.get_node_or_null("Inventory")
 	if not inv:
 		return
@@ -310,15 +303,11 @@ func _do_pickup_item(map_node: Node) -> void:
 			map_node.animate_pickup()
 		else:
 			map_node.queue_free()
-		# Log the pickup
 		var event_log = get_node_or_null("/root/Main/HUD/EventLog")
 		if event_log and event_log.has_method("add_entry"):
 			event_log.add_entry("Picked up %s" % item.item_name, Color(0.4, 1.0, 0.4))
 
 
-## E키/좌클릭에서 호출: 인접한(거리 ≤1) 시체를 찾아 수색한다.
-## 시체가 있으면 gold/items를 플레이어 인벤토리로 이동시키고 시체 제거.
-## 반환값: 시체를 수색했으면 true, 없으면 false.
 func _try_loot_corpse(player_gp: Vector2i, grid_world, inv: Node) -> bool:
 	var corpses: Array[Node] = get_tree().get_nodes_in_group("corpses")
 	if corpses.is_empty():
@@ -342,7 +331,6 @@ func _try_loot_corpse(player_gp: Vector2i, grid_world, inv: Node) -> bool:
 
 ## ─── Turn-based input ───
 
-## Clear end-turn confirmation and hide any center prompt.
 func _reset_turn_confirm() -> void:
 	_turn_end_confirm = false
 	_hide_center_prompt()
@@ -359,9 +347,7 @@ func _do_key_move(dir: Vector2i, is_turn: bool) -> void:
 
 
 func _handle_turn_input(event: InputEvent) -> void:
-	# ── 마우스 클릭 처리 (전투 중 이동/공격) ──
 	if event is InputEventMouseButton and event.pressed:
-		# HUD 패널(인벤토리/장비) 위 클릭은 게임 입력으로 소비하지 않음
 		if _is_click_on_hud_panel():
 			return
 		get_viewport().set_input_as_handled()
@@ -371,7 +357,6 @@ func _handle_turn_input(event: InputEvent) -> void:
 				return
 			MOUSE_BUTTON_RIGHT:
 				_cancel_preview()
-				# 타겟 해제
 				var hud = get_node_or_null("/root/Main/HUD")
 				if hud:
 					var tgt = hud.get_node_or_null("Targeting")
@@ -379,13 +364,11 @@ func _handle_turn_input(event: InputEvent) -> void:
 						tgt.clear_target()
 				return
 
-	# E → attack adjacent enemy, or loot corpse if none nearby
 	if event.is_action_pressed("attack_action"):
 		_reset_turn_confirm()
 		if _try_attack_adjacent():
 			_auto_end_turn_if_ap_empty()
 			return
-		# No adjacent enemy — try looting a corpse instead
 		var g = _movement.get_grid_world() if _movement else null
 		if g:
 			var pg: Vector2i = g.world_to_grid(_unit.global_position)
@@ -394,23 +377,19 @@ func _handle_turn_input(event: InputEvent) -> void:
 				_auto_end_turn_if_ap_empty()
 		return
 
-	# Space → confirm-once if AP remains, else instant
 	if event.is_action_pressed("ui_accept") or event.is_action_pressed("skip_turn"):
 		var ap = _unit.get("current_action_points") if "current_action_points" in _unit else 0
 		if ap > 0:
 			if not _turn_end_confirm:
-				# First Space: show warning, set confirm flag
 				_turn_end_confirm = true
 				turn_indicator_set("Press Space again to end turn")
 				get_viewport().set_input_as_handled()
 				return
-			# Second Space: confirm end turn
 		_turn_end_confirm = false
 		turn_indicator_set("")
 		_end_player_turn()
 		return
 
-	# Tab → cycle through targets
 	if event is InputEventKey and event.keycode == KEY_TAB and event.pressed and not event.echo:
 		var hud = get_node_or_null("/root/Main/HUD")
 		if hud:
@@ -423,7 +402,6 @@ func _handle_turn_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 
-	# Directional movement
 	for action_name in DIRECTION_MAP:
 		if event.is_action_pressed(action_name):
 			_reset_turn_confirm()
@@ -436,18 +414,16 @@ func _handle_turn_input(event: InputEvent) -> void:
 
 ## ─── Turn-based mouse click ───
 
-## 전투 중 좌클릭 처리: 적 클릭 → 타겟+공격, 빈 타일 클릭 → 경로 이동.
 func _handle_turn_click() -> void:
 	if not _movement or not _movement.get_grid_world():
 		return
 
 	var grid_world = _movement.get_grid_world()
-	var mouse_world = _unit.get_global_mouse_position()
+	var mouse_world: Vector3 = _get_mouse_world_position()
 	var mouse_grid: Vector2i = grid_world.world_to_grid(mouse_world)
 
 	_reset_turn_confirm()
 
-	# 1. 적 클릭 → 타겟 설정 + 인접 시 공격
 	var occupant = grid_world.get_occupant(mouse_grid)
 	if occupant and occupant != _unit \
 			and occupant.get("is_player") == false \
@@ -460,7 +436,6 @@ func _handle_turn_click() -> void:
 			_try_attack_adjacent()
 		return
 
-	# 2. 빈 타일 클릭 → 경로 탐색 + 이동
 	var ap = _unit.get("current_action_points") if "current_action_points" in _unit else 0
 	if ap <= 0 or not grid_world.is_walkable(mouse_grid):
 		return
@@ -473,7 +448,6 @@ func _handle_turn_click() -> void:
 	_move_along_path(path)
 
 
-## 경로를 따라 한 칸씩 이동 (AP 소모).
 func _move_along_path(path: Array) -> void:
 	for step in path:
 		var from: Vector2i = _movement.get_grid_world().world_to_grid(_unit.global_position)
@@ -486,7 +460,6 @@ func _move_along_path(path: Array) -> void:
 			break
 
 
-## HUD Targeting 시스템에서 특정 노드를 타겟으로 선택.
 func _select_target_node(node: Node) -> void:
 	var hud = get_node_or_null("/root/Main/HUD")
 	if not hud:
@@ -499,21 +472,18 @@ func _select_target_node(node: Node) -> void:
 		targeting.select_target_by_node(node)
 
 
-## Update the turn indicator label in HUD (if available).
 func turn_indicator_set(text: String) -> void:
 	var hud = get_node_or_null("/root/Main/HUD")
 	if hud and hud.has_method("set_turn_indicator"):
 		hud.set_turn_indicator(text)
 
 
-## Show center-screen prompt (AP 0 message, etc.).
 func _show_center_prompt(text: String) -> void:
 	var hud = get_node_or_null("/root/Main/HUD")
 	if hud and hud.has_method("show_center_prompt"):
 		hud.show_center_prompt(text)
 
 
-## Hide center-screen prompt.
 func _hide_center_prompt() -> void:
 	var hud = get_node_or_null("/root/Main/HUD")
 	if hud and hud.has_method("hide_center_prompt"):
@@ -522,15 +492,12 @@ func _hide_center_prompt() -> void:
 
 ## ─── Turn management ───
 
-## End the player's turn explicitly.
 func _end_player_turn() -> void:
 	get_viewport().set_input_as_handled()
 	_hide_center_prompt()
 	EventBus.player_ended_turn.emit(_unit)
 
 
-## Ask if player wants to end turn when AP = 0 (instead of auto-ending).
-## Returns false if AP is empty (movement should stop).
 func _auto_end_turn_if_ap_empty() -> bool:
 	var ap = _unit.get("current_action_points") if "current_action_points" in _unit else 0
 	if ap <= 0:
@@ -538,13 +505,12 @@ func _auto_end_turn_if_ap_empty() -> bool:
 			_turn_end_confirm = true
 			_show_center_prompt("AP 0 — Press SPACE to end turn")
 			get_viewport().set_input_as_handled()
-		return false  # AP depleted, stop moving
-	return true  # AP remains, can continue
+		return false
+	return true
 
 
 ## ─── Attack ───
 
-## Try to attack an adjacent enemy. Returns true if attack happened.
 func _try_attack_adjacent() -> bool:
 	if not _movement:
 		return false
@@ -553,14 +519,12 @@ func _try_attack_adjacent() -> bool:
 	if not grid_world:
 		return false
 
-	# Check AP
 	var ap = _unit.get("current_action_points") if "current_action_points" in _unit else 0
 	if ap < 1:
 		return false
 
 	var my_pos: Vector2i = grid_world.world_to_grid(_unit.global_position)
 
-	# 공격 헬퍼: elevation + back attack + cover 포함 resolve 후 attack 수행
 	var _do_attack = func(occupant: Node, occ_pos: Vector2i) -> void:
 		_unit.current_action_points -= 1
 		EventBus.ap_changed.emit(_unit)
@@ -577,9 +541,9 @@ func _try_attack_adjacent() -> bool:
 		else:
 			EventBus.unit_evaded.emit(occupant, _unit)
 
-	# 1. 바라보는 방향 우선 공격
-	var facing_dir: Vector2 = _unit.get("facing_direction") if "facing_direction" in _unit else Vector2.DOWN
-	var facing_tile: Vector2i = my_pos + Vector2i(roundi(facing_dir.x), roundi(facing_dir.y))
+	# 1. 바라보는 방향 우선 공격 — 3D: facing_direction is Vector3
+	var facing_dir: Vector3 = _unit.get("facing_direction") if "facing_direction" in _unit else Vector3(0, 0, 1)
+	var facing_tile: Vector2i = my_pos + Vector2i(roundi(facing_dir.x), roundi(facing_dir.z))
 	var facing_occ = grid_world.get_occupant(facing_tile)
 	if facing_occ and facing_occ != _unit \
 			and facing_occ.get("is_player") == false \

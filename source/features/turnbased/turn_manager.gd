@@ -2,13 +2,6 @@
 class_name TurnManager
 extends Node
 
-## Emitted when any combatant's turn begins.
-signal turn_started(combatant: Node)
-## Emitted when a combatant's turn ends.
-signal turn_ended(combatant: Node)
-## Emitted when a full round completes.
-signal round_ended(round_number: int)
-
 ## All combatants in the battle.
 var combatants: Array[Node] = []
 ## Turn order for the current round (sorted by speed).

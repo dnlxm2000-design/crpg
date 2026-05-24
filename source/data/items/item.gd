@@ -33,6 +33,7 @@ extends Resource
 ## Weapon class: "melee" or "ranged"
 @export var weapon_class: String = "melee"
 ## Attack range: 1=melee, 2+=ranged (tiles)
+@warning_ignore("shadowed_global_identifier")
 @export var range: int = 1
 ## Ammunition type required (for bows/crossbows/slings): "arrow", "bolt", "dart"
 @export var ammo_type: String = ""

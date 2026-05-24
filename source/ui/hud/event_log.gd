@@ -157,8 +157,8 @@ func _on_round_ended(round_num: int) -> void:
 func _on_turn_started(unit: Node) -> void:
 	if not unit or not is_instance_valid(unit):
 		return
-	var name = _get_name(unit)
-	add_entry("%s의 턴" % name, Color(0.9, 0.9, 0.95))
+	var unit_name = _get_name(unit)
+	add_entry("%s의 턴" % unit_name, Color(0.9, 0.9, 0.95))
 
 
 func _on_unit_damaged(unit: Node, amount: int, source: Node) -> void:
@@ -184,16 +184,16 @@ func _on_unit_damaged(unit: Node, amount: int, source: Node) -> void:
 func _on_unit_destroyed(unit: Node) -> void:
 	if not unit or not is_instance_valid(unit):
 		return
-	var name = _get_name(unit)
+	var unit_name = _get_name(unit)
 	if unit == _player_unit:
-		add_entry("★ %s 사망!" % name, Color(1.0, 0.3, 0.3))
+		add_entry("★ %s 사망!" % unit_name, Color(1.0, 0.3, 0.3))
 	else:
-		add_entry("%s 쓰러짐!" % name, Color(0.3, 1.0, 0.3))
+		add_entry("%s 쓰러짐!" % unit_name, Color(0.3, 1.0, 0.3))
 
 
 func _on_player_ended_turn(unit: Node) -> void:
-	var name = _get_name(unit)
-	add_entry("  %s 턴 종료" % name, Color(0.55, 0.55, 0.6))
+	var unit_name = _get_name(unit)
+	add_entry("  %s 턴 종료" % unit_name, Color(0.55, 0.55, 0.6))
 
 
 func _on_game_mode_changed(mode: String) -> void:
@@ -211,8 +211,8 @@ func _on_realtime_mode_entered() -> void:
 func _log_unit_moved(unit: Node) -> void:
 	if not unit or not is_instance_valid(unit):
 		return
-	var name = _get_name(unit)
-	add_entry("  %s 이동" % name, Color(0.5, 0.7, 0.9))
+	var unit_name = _get_name(unit)
+	add_entry("  %s 이동" % unit_name, Color(0.5, 0.7, 0.9))
 
 
 func _on_ap_changed(unit: Node) -> void:

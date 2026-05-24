@@ -85,8 +85,8 @@ func _render() -> void:
 	if not _img:
 		return
 	_img.fill(Color(0.08, 0.08, 0.08))
-	var cx := MAP_SIZE / 2
-	var cy := MAP_SIZE / 2
+	var cx := int(MAP_SIZE * 0.5)
+	var cy := int(MAP_SIZE * 0.5)
 	var radius := cx - 1
 	var sx: float = float(MAP_SIZE) / float(GRID_W)
 	var sy: float = float(MAP_SIZE) / float(GRID_H)
@@ -116,7 +116,7 @@ func _process(_delta: float) -> void:
 	if not _player or not _grid_world:
 		return
 
-	var wp: Vector2 = _player.global_position
+	var wp: Vector3 = _player.global_position
 	var gp: Vector2i = _grid_world.world_to_grid(wp)
 	_coord_label.text = "x:%d  y:%d" % [gp.x, gp.y]
 
@@ -130,7 +130,9 @@ func _draw_dot(gp: Vector2i) -> void:
 	var px := int(float(gp.x) * sx)
 	var py := int(float(gp.y) * sy)
 
+	@warning_ignore("integer_division")
 	var cx := MAP_SIZE / 2
+	@warning_ignore("integer_division")
 	var cy := MAP_SIZE / 2
 	var dx := px - cx
 	var dy := py - cy

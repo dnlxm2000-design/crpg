@@ -1,37 +1,38 @@
-# projectile.gd — Visual projectile that flies from attacker to target.
-# Used by EnemyAI for ranged attacks. Self-destructs after animation.
-extends Node2D
+# projectile.gd — Visual projectile that flies from attacker to target. 3D version.
+extends Node3D
 
-## How long the projectile takes to reach target (seconds).
 @export var flight_time: float = 0.3
-
-## Travel speed (pixels/sec). Overrides flight_time if > 0.
 @export var speed: float = 0.0
-
-## Color of the projectile sprite.
 @export var projectile_color: Color = Color(1.0, 0.6, 0.1)
 
 var _target: Node = null
 var _hit: bool = false
 
 
-func setup(from_pos: Vector2, to_pos: Vector2, _attacker: Node, target: Node) -> void:
+func setup(from_pos: Vector3, to_pos: Vector3, _attacker: Node, target: Node) -> void:
 	global_position = from_pos
 	_target = target
 
-	# Create a small colored arrow/bullet sprite
-	var sprite := Sprite2D.new()
-	sprite.name = "ProjectileSprite"
-	var img := Image.create(8, 8, false, Image.FORMAT_RGBA8)
-	img.fill(projectile_color)
-	sprite.texture = ImageTexture.create_from_image(img)
-	sprite.centered = true
+	# Create a small colored sphere
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = projectile_color
+	mat.flags_unshaded = true
+	mat.emission_enabled = true
+	mat.emission = projectile_color
+	mat.emission_energy_multiplier = 0.5
+
+	var sphere := SphereMesh.new()
+	sphere.radius = 0.1
+	sphere.height = 0.1
+
+	var sprite := MeshInstance3D.new()
+	sprite.name = "ProjectileMesh"
+	sprite.mesh = sphere
+	sprite.material_override = mat
 	add_child(sprite)
 
-	# Determine target world position
-	var target_world: Vector2 = to_pos
+	var target_world: Vector3 = to_pos
 
-	# Animate toward target
 	var tween := create_tween()
 	tween.set_parallel(false)
 
@@ -49,13 +50,21 @@ func _on_arrived() -> void:
 		return
 	_hit = true
 
-	# Small impact flash
-	var flash := Sprite2D.new()
-	var flash_img := Image.create(12, 12, false, Image.FORMAT_RGBA8)
-	flash_img.fill(Color(1.0, 0.8, 0.2, 0.6))
-	flash.texture = ImageTexture.create_from_image(flash_img)
-	flash.centered = true
-	flash.modulate = Color(1.0, 1.0, 1.0, 0.8)
+	# Impact flash
+	var flash_mat := StandardMaterial3D.new()
+	flash_mat.albedo_color = Color(1.0, 0.8, 0.2, 0.6)
+	flash_mat.flags_unshaded = true
+	flash_mat.emission_enabled = true
+	flash_mat.emission = Color(1.0, 0.8, 0.2)
+
+	var flash_mesh := SphereMesh.new()
+	flash_mesh.radius = 0.2
+	flash_mesh.height = 0.05
+
+	var flash := MeshInstance3D.new()
+	flash.mesh = flash_mesh
+	flash.material_override = flash_mat
+	flash.position = Vector3(0, 0.05, 0)
 	add_child(flash)
 
 	var fade_tween := create_tween()

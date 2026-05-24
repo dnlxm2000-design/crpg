@@ -1,4 +1,4 @@
-# game_loop.gd — Orchestrates real-time ↔ turn-based mode switching.
+# game_loop.gd — Orchestrates real-time <-> turn-based mode switching.
 # This is the top-level controller. Attach as Autoload "GameLoop" or
 # as the main scene's root script.
 extends Node
@@ -28,7 +28,7 @@ func _ready() -> void:
 	# Combat outcome handlers
 	EventBus.combat_victory.connect(_on_combat_victory)
 	EventBus.combat_defeat.connect(_on_combat_defeat)
-	# Combat end → return to realtime
+	# Combat end -> return to realtime
 	EventBus.combat_ended.connect(_on_combat_ended)
 
 
@@ -68,7 +68,7 @@ func request_combat_entry(player: Node) -> void:
 		_entering_combat = false
 		return
 	
-	# Spawn 2 test enemies near the player
+	# Spawn test enemies near the player
 	var turn_manager = $TurnManager
 	var enemies = _spawn_test_enemies(player, grid)
 	
@@ -81,76 +81,161 @@ func request_combat_entry(player: Node) -> void:
 
 
 ## Spawn enemy units near player for testing combat.
-## Creates 2 melee enemies (closer) + 1 ranged enemy (further).
+## Creates 3~5 goblins randomly, with terrain-aware spawn positions.
 func _spawn_test_enemies(player: Node, grid: Node) -> Array:
 	var enemies: Array = []
 	var player_gp: Vector2i = grid.world_to_grid(player.global_position)
-	
-	# ── Melee goblins (index 0, 1) ──
-	var melee_data = [
-		{offset = Vector2i(3, 0),  name = "Goblin", speed = 8,  color = Color(0.3, 0.7, 0.2)},
-		{offset = Vector2i(0, 3),  name = "Warrior", speed = 6,  color = Color(0.25, 0.6, 0.15)},
-	]
-	# Load potion for enemy drops
-	var health_potion_res = load("res://source/data/items/resources/health_potion.tres")
-	# ── Goblin Archer (index 2) ──
-	var ranged_data = [
-		{offset = Vector2i(-4, -2), name = "Goblin Archer", speed = 10, color = Color(0.35, 0.55, 0.15)},
-	]
-	
-	# Combine: melee first, then ranged
-	var spawn_data = melee_data + ranged_data
-	
-	for i in range(spawn_data.size()):
-		var data = spawn_data[i]
+
+	# 3~5 random
+	var count: int = randi_range(3, 5)
+	print("[GameLoop] Spawning %d enemies" % count)
+
+	# Enemy ID pool
+	var enemy_pool: Array = ["goblin", "goblin_warrior", "goblin_archer", "goblin_thief"]
+
+	# Collect valid spawn positions (4~8 tiles around player, terrain check)
+	var spawn_positions: Array = _find_valid_spawn_positions(grid, player_gp, count, 4, 8)
+
+	for i in range(count):
+		var enemy_id: String = enemy_pool[randi_range(0, enemy_pool.size() - 1)]
+		var e_def: Dictionary = EnemyData.ENEMIES.get(enemy_id)
+		if not e_def:
+			push_error("EnemyData: unknown enemy_id '%s'" % enemy_id)
+			continue
+
 		var enemy = load("res://source/features/shared/unit.gd").new()
-		enemy.unit_name = data.name
+		enemy.unit_name = e_def.name
 		enemy.is_player = false
-		enemy.max_hp = 30
-		enemy.current_hp = 30
-		enemy.speed = data.speed
+		enemy.max_hp = e_def.hp
+		enemy.current_hp = e_def.hp
+		enemy.speed = e_def.speed
+		enemy.accuracy = e_def.accuracy
+		enemy.evasion = e_def.evasion
+		enemy.attack = e_def.attack
+		enemy.defense = e_def.defense
+		if e_def.has("attack_range"):
+			enemy.attack_range = e_def.attack_range
+		else:
+			enemy.attack_range = 1
 		enemy.max_action_points = 3
 		enemy.current_action_points = 3
-		enemy.attack = 5
-		enemy.defense = 2
-		enemy.corpse_color = Color(data.color.r * 0.4, data.color.g * 0.3, data.color.b * 0.3)
+		enemy.corpse_color = Color(e_def.color.r * 0.4, e_def.color.g * 0.3, e_def.color.b * 0.3)
 
-		# Melee_2 drops a health potion
-		if i == 1 and health_potion_res:
-			enemy.item_drops = [{item = health_potion_res, chance = 1.0}]
+		# Apply skills
+		var skill_levels: Dictionary = {}
+		if e_def.has("skill_levels"):
+			skill_levels = e_def.skill_levels
+		for sid in skill_levels:
+			enemy.learned_skills[sid] = skill_levels[sid]
 
-		# Ranged enemy: higher attack, longer range, drops gold
-		if i >= melee_data.size():
-			enemy.attack_range = 3
-			enemy.attack = 8
-			enemy.gold_drop = 15  # Ranged enemy drops gold on death
-		
-		var spawn_gp = player_gp + data.offset
-		enemy.global_position = grid.grid_to_world(spawn_gp)
-		
+		# Convert drop table
+		var drops: Array = []
+		if e_def.has("drops"):
+			drops = e_def.drops
+		var drop_entry: Dictionary
+		var item_id: String
+		var item_def: Dictionary
+		for d in drops:
+			item_id = d.item_id
+			item_def = ItemData.ITEMS.get(item_id)
+			if not item_def:
+				continue
+			drop_entry = {}
+			drop_entry["item_id"] = item_id
+			drop_entry["chance"] = d.get("chance", 1.0)
+			drop_entry["qty_min"] = d.get("qty_min", 1)
+			drop_entry["qty_max"] = d.get("qty_max", 1)
+			enemy.item_drops.append(drop_entry)
+
+		# Terrain-based spawn position
+		var spawn_gp: Vector2i
+		if i < spawn_positions.size():
+			spawn_gp = spawn_positions[i]
+		else:
+			# Fallback: random offset
+			spawn_gp = _find_valid_spawn_position(grid, player_gp, 4, 8)
+
+		# terrain height Y adjustment
+		var spawn_world: Vector3 = grid.grid_to_world(spawn_gp)
+		var terrain := get_node_or_null("/root/Main/Terrain")
+		if terrain and terrain.has_method("get_height_at"):
+			spawn_world.y = terrain.get_height_at(spawn_world)
+		enemy.position = spawn_world
+
 		# Attach movement for grid registration
 		var movement = load("res://source/features/shared/unit_movement.gd").new()
 		movement.name = "UnitMovement"
 		enemy.add_child(movement)
 
-		# Attach EnemyAI for turn-based combat behavior
+		# Attach EnemyAI for patrol + turn-based combat behavior
 		var ai = load("res://source/features/shared/enemy_ai.gd").new()
 		ai.name = "EnemyAI"
 		enemy.add_child(ai)
-		
-		# Visual: Placeholder 사각형 (나중에 SpriteSheet로 교체)
-		enemy.setup_placeholder_visual(data.color)
-		# z_index 제거: Main의 y_sort에 위임
+
+		# Visual: Placeholder rectangle (replace with SpriteSheet later)
+		enemy.setup_placeholder_visual(e_def.color)
 
 		# Register on grid
 		if grid.has_method("set_occupied"):
 			grid.set_occupied(spawn_gp, enemy)
-		
+
 		# Add to scene tree (GameLoop -> Main -> /root)
 		get_parent().add_child(enemy)
 		enemies.append(enemy)
-	
+
+		print("[GameLoop] Spawned %s at %s (terrain: %s)" % [
+			e_def.name, spawn_gp, _get_terrain_name(grid, spawn_gp)])
+
 	return enemies
+
+
+## Find valid spawn positions around player, checking terrain walkability.
+func _find_valid_spawn_positions(grid: Node, player_gp: Vector2i, count: int, min_radius: int, max_radius: int) -> Array:
+	var positions: Array = []
+	var attempts: int = 0
+	var max_attempts: int = count * 10
+
+	while positions.size() < count and attempts < max_attempts:
+		attempts += 1
+		var pos: Vector2i = _find_valid_spawn_position(grid, player_gp, min_radius, max_radius)
+		if pos != Vector2i.ZERO and not _position_in_array(pos, positions):
+			positions.append(pos)
+
+	return positions
+
+
+## Find a single valid spawn position.
+func _find_valid_spawn_position(grid: Node, player_gp: Vector2i, min_radius: int, max_radius: int) -> Vector2i:
+	for _i in range(50):
+		var angle: float = randf() * PI * 2.0
+		var radius: int = randi_range(min_radius, max_radius)
+		var offset: Vector2i = Vector2i(roundi(cos(angle) * radius), roundi(sin(angle) * radius))
+		var candidate: Vector2i = player_gp + offset
+
+		if grid.has_method("is_walkable") and grid.is_walkable(candidate, true):
+			var occupant = grid.get_occupant(candidate)
+			if not occupant:
+				return candidate
+
+	return Vector2i.ZERO
+
+
+func _position_in_array(pos: Vector2i, arr: Array) -> bool:
+	for p in arr:
+		if p == pos:
+			return true
+	return false
+
+
+func _get_terrain_name(grid: Node, gp: Vector2i) -> String:
+	var elv: int = grid.get_elevation(gp) if grid.has_method("get_elevation") else 1
+	if grid.has_method("blocked") and grid.blocked.has("%d,%d" % [gp.x, gp.y]):
+		return "BLOCKED"
+	match elv:
+		0: return "WATER"
+		1: return "PLAINS"
+		2: return "HILLS"
+		_: return "MOUNTAIN"
 
 
 ## Pause/unpause all real-time processing (e.g. when menus open).
@@ -159,12 +244,12 @@ func set_paused(paused: bool) -> void:
 
 
 func _on_combat_victory() -> void:
-	print("[GameLoop] Combat victory — all enemies defeated")
+	print("[GameLoop] Combat victory - all enemies defeated")
 	enter_realtime()
 
 
 func _on_combat_defeat() -> void:
-	print("[GameLoop] Combat defeat — player slain")
+	print("[GameLoop] Combat defeat - player slain")
 	# Show defeat panel with restart option
 	var panel = load("res://source/ui/screens/defeat_panel.gd").new()
 	panel.name = "DefeatPanel"
@@ -174,7 +259,7 @@ func _on_combat_defeat() -> void:
 
 ## Restart the game scene after defeat.
 func _on_restart_requested() -> void:
-	print("[GameLoop] Restart requested — reloading scene")
+	print("[GameLoop] Restart requested - reloading scene")
 	get_tree().reload_current_scene()
 
 
@@ -184,12 +269,12 @@ func _on_realtime_entered() -> void:
 
 
 func _on_combat_ended() -> void:
-	# 안전망: victory/defeat 경로 외 전투 종료 시 실시간 복귀
+	# Safety net: return to realtime on combat end outside victory/defeat
 	if is_turn_mode:
-		print("[GameLoop] Combat ended — returning to real-time mode")
+		print("[GameLoop] Combat ended - returning to real-time mode")
 		enter_realtime()
 	
-	# 플레이어 AP 복구 (전투 후 0 상태 방지)
+	# Restore player AP after combat (prevent 0 state)
 	var rt = get_node_or_null("/root/Main/RealTimeManager")
 	if rt and rt.get("player_ref"):
 		var player = rt.player_ref

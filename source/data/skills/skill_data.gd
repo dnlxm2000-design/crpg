@@ -285,7 +285,7 @@ const SKILLS: Dictionary = {
 		str = 0.0, dex = 0.0, con = 0.0, int = 0.2, wis = 0.05, cha = 0.0,
 	},
 	"parrying": {
-		name = "방패 막기(Parrying)",
+		name = "패링(Parrying)",
 		type = 1,
 		accuracy = 0.0,
 		damage = 0.0,

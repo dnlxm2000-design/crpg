@@ -250,12 +250,12 @@ func _on_mode_changed(mode: String) -> void:
 		mode_label.text = mode.to_upper()
 
 
-func _on_round_started(round: int) -> void:
-	mode_label.text = Localization.t("round_label", [round])
+func _on_round_started(round_number: int) -> void:
+	mode_label.text = Localization.t("round_label", [round_number])
 
 
-func _on_round_ended(round: int) -> void:
-	print("[HUD] Round %d ended" % round)
+func _on_round_ended(round_number: int) -> void:
+	print("[HUD] Round %d ended" % round_number)
 
 
 func _on_combat_started(participants: Array) -> void:

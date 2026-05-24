@@ -12,7 +12,7 @@
 #   ├── HUD (hud.gd)
 #   ├── MovementRangeOverlay (movement_range_overlay.gd)  [turn-based reachable tiles]
 #   └── PathPreview (path_preview.gd)                     [real-time mouse path line]
-extends Node2D
+extends Node3D
 
 @onready var _game_loop: Node = $GameLoop
 @onready var _grid_world: Node = $GameLoop/GridWorld
@@ -25,22 +25,50 @@ func _ready() -> void:
 	assert(EventBus != null, "EventBus autoload is required")
 	assert(GameState != null, "GameState autoload is required")
 
+	# ── WorldEnvironment — Ambient Light + 배경 ──
+	var env := WorldEnvironment.new()
+	env.name = "WorldEnvironment"
+	var env_res := Environment.new()
+	# 쿼터뷰: 배경 제거 — 지형만 보임
+	env_res.background_mode = Environment.BG_COLOR
+	env_res.background_color = Color(0.0, 0.0, 0.0)  # 검정 — 지형 밖 영역 숨김
+	# Ambient light: 밝게 → 그림자 투명도 증가
+	env_res.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env_res.ambient_light_color = Color(0.55, 0.55, 0.55) # 중립 회색
+	env_res.ambient_light_energy = 0.25
+	env_res.ambient_light_sky_contribution = 0.0
+	# Fog: 옅은 안개로 먼 거리 자연스럽게 블렌딩
+	env_res.fog_enabled = true
+	env_res.fog_density = 0.003
+	env_res.fog_height = 0.0
+	env_res.fog_height_density = 0.005
+	env_res.fog_light_color = Color(0.0, 0.0, 0.0) # 배경 검정과 일치
+	env_res.fog_aerial_perspective = 0.5
+	env.environment = env_res
+	add_child(env)
+
+	# ── DirectionalLight — 태양광 ──
+	var sun := DirectionalLight3D.new()
+	sun.name = "SunLight"
+	sun.light_energy = 1.5
+	sun.shadow_enabled = true
+	sun.shadow_bias = 0.05
+	sun.directional_shadow_blend_splits = true
+	sun.directional_shadow_max_distance = 500.0
+	sun.rotation_degrees = Vector3(-35, -30, 0)  # 측면광 — 낮은 각도로 긴 그림자 → 3D 입체감
+	add_child(sun)
+
 	# ── Movement Range Overlay (turn-based reachable tiles) ──
 	var range_overlay = load("res://source/features/shared/effects/movement_range_overlay.gd").new()
 	range_overlay.name = "MovementRangeOverlay"
 	add_child(range_overlay)
 	if _grid_world and range_overlay.has_method("setup"):
 		range_overlay.setup(_grid_world)
-		# Draw above terrain (z=1..6) but below HUD
-		range_overlay.z_index = -5
-		range_overlay.z_as_relative = false
 
 	# ── Path Preview (real-time mouse path line) ──
 	var path_preview = load("res://source/features/shared/effects/path_preview.gd").new()
 	path_preview.name = "PathPreview"
 	add_child(path_preview)
-	path_preview.z_index = 11
-	path_preview.z_as_relative = false
 	# Wire references after player is spawned
 	path_preview.visible = false
 
@@ -49,7 +77,7 @@ func _ready() -> void:
 		var rt_manager: Node = $RealTimeManager
 		if rt_manager and rt_manager.has_method("spawn_player"):
 			var spawn_grid := Vector2i(30, 61)
-			var spawn_pos: Vector2 = _grid_world.grid_to_world(spawn_grid) if _grid_world else Vector2(0, 320)
+			var spawn_pos: Vector3 = _grid_world.grid_to_world(spawn_grid) if _grid_world else Vector3(0, 0, 320)
 			var player = rt_manager.spawn_player(spawn_pos)
 			print("[Main] Player spawned at iso grid %s → world %s" % [str(spawn_grid), str(spawn_pos)])
 			# Wire path preview to player + grid

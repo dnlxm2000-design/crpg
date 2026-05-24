@@ -401,7 +401,7 @@ func _create_inv_row(item_data: Dictionary) -> Control:
 		row.add_child(qty_label)
 
 	# Equip button (for equippable items, disabled in combat)
-	if item and item.get("item_type") in ["WEAPON", "ARMOR", "HELMET", "NECKLACE", "CLOAK", "BELT", "RING", "GLOVE", "BOOTS", "OFF_HAND"] and GameState.current_mode != GameState.GameMode.TURNBASED:
+	if item and item.get("item_type") in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] and GameState.current_mode != GameState.GameMode.TURNBASED:
 		var equip_btn := Button.new()
 		equip_btn.text = Localization.t("btn_equip")
 		equip_btn.custom_minimum_size = Vector2(60, 22)
@@ -421,7 +421,7 @@ func _create_inv_row(item_data: Dictionary) -> Control:
 		row.add_child(equip_btn)
 
 	# Use button (for consumables)
-	if item and item.get("item_type") == "CONSUMABLE":
+	if item and item.get("item_type") == 0:  # CONSUMABLE
 		var use_btn := Button.new()
 		use_btn.text = Localization.t("btn_use")
 		use_btn.custom_minimum_size = Vector2(50, 22)
@@ -547,9 +547,9 @@ func _format_skills(unit: Node) -> String:
 	for skill_id in unit.learned_skills:
 		var level: float = unit.get_skill_level(skill_id)
 		var skill_def = SkillData.SKILLS.get(skill_id)
-		var name = skill_def.get("name", skill_id) if skill_def else skill_id
+		var skill_name = skill_def.get("name", skill_id) if skill_def else skill_id
 		var title = _get_skill_title(level)
-		lines.append("  %s: %.1f (%s)" % [name, level, title])
+		lines.append("  %s: %.1f (%s)" % [skill_name, level, title])
 
 	return "\n".join(lines)
 

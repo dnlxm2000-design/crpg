@@ -1,10 +1,16 @@
-# path_preview.gd — Shows frozen path preview on first mouse click.
-# Second click confirms movement. No clicks → nothing shown.
-extends Node2D
+# path_preview.gd — Shows frozen path preview on first mouse click. 3D version.
+extends Node3D
 
 var _player: Node = null
 var _grid_world: Node = null
 var _path: Array[Vector2i] = []
+var _preview_mesh: MeshInstance3D = null
+
+
+func _ready() -> void:
+	_preview_mesh = MeshInstance3D.new()
+	_preview_mesh.name = "PathPreviewMesh"
+	add_child(_preview_mesh)
 
 
 func setup(grid_world: Node, player_node: Node) -> void:
@@ -12,7 +18,6 @@ func setup(grid_world: Node, player_node: Node) -> void:
 	_player = player_node
 
 
-## Compute and display path from player to target grid position.
 func preview_to(target_grid: Vector2i) -> void:
 	if not _grid_world or not _player or not is_instance_valid(_player):
 		return
@@ -20,46 +25,61 @@ func preview_to(target_grid: Vector2i) -> void:
 	if from_grid == target_grid:
 		_path.clear()
 		visible = false
-		queue_redraw()
+		_preview_mesh.mesh = null
 		return
 	_path = _grid_world.find_path_grid(from_grid, target_grid)
 	visible = not _path.is_empty()
-	queue_redraw()
+	_draw_path()
 
 
-## Hide the preview path.
 func clear() -> void:
 	_path.clear()
 	visible = false
-	queue_redraw()
+	_preview_mesh.mesh = null
 
 
-func _draw() -> void:
+func _draw_path() -> void:
 	if _path.is_empty() or not _grid_world:
+		_preview_mesh.mesh = null
 		return
 
-	# Draw semi-transparent dots at each step
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_LINES)
+
+	var line_mat := StandardMaterial3D.new()
+	line_mat.albedo_color = Color(1.0, 1.0, 1.0, 0.4)
+	line_mat.flags_unshaded = true
+	line_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	st.set_material(line_mat)
+
+	# Line from player through all path points
+	var prev_pos: Vector3 = _player.global_position
 	for point in _path:
-		var world_pos: Vector2 = _grid_world.grid_to_world(point)
-		draw_circle(world_pos, 5, Color(1.0, 1.0, 1.0, 0.5))
+		var world_pos: Vector3 = _grid_world.grid_to_world(point)
+		st.add_vertex(prev_pos)
+		st.add_vertex(world_pos)
+		prev_pos = world_pos
 
-	# Draw connecting line from player through all path points
-	var pts: PackedVector2Array = []
-	pts.append(_player.global_position)
+	# Dots at each step
+	var dot_mat := StandardMaterial3D.new()
+	dot_mat.albedo_color = Color(1.0, 1.0, 1.0, 0.5)
+	dot_mat.flags_unshaded = true
+	dot_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+
+	var dot_mesh := SphereMesh.new()
+	dot_mesh.radius = 0.1
+	dot_mesh.height = 0.05
+
 	for point in _path:
-		pts.append(_grid_world.grid_to_world(point))
+		var world_pos: Vector3 = _grid_world.grid_to_world(point)
+		var dot := MeshInstance3D.new()
+		dot.mesh = dot_mesh
+		dot.material_override = dot_mat
+		dot.position = Vector3(world_pos.x, 0.05, world_pos.z)
+		# Add as sibling, not child of preview_mesh
+		if not has_node("Dot_%d_%d" % [point.x, point.y]):
+			dot.name = "Dot_%d_%d" % [point.x, point.y]
+			add_child(dot)
 
-	if pts.size() >= 2:
-		for i in range(pts.size() - 1):
-			draw_line(pts[i], pts[i + 1], Color(1.0, 1.0, 1.0, 0.35), 2.0)
-
-	# Highlight destination tile (isometric diamond)
-	var dest: Vector2 = _grid_world.grid_to_world(_path[_path.size() - 1])
-	var diamond := PackedVector2Array([
-		Vector2(dest.x,     dest.y - 16),
-		Vector2(dest.x + 32, dest.y),
-		Vector2(dest.x,     dest.y + 16),
-		Vector2(dest.x - 32, dest.y),
-	])
-	draw_colored_polygon(diamond, Color(1.0, 1.0, 0.3, 0.25))
-	draw_polyline(diamond, Color(1.0, 1.0, 0.3, 0.6), 1.5, true)
+	st.index()
+	_preview_mesh.mesh = st.commit()

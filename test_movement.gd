@@ -11,8 +11,8 @@ func _init() -> void:
 	root.add_child(main)
 	
 	# Wait a frame for _ready() to fire
-	await get_tree().process_frame
-	await get_tree().process_frame
+	await process_frame
+	await process_frame
 	
 	# Find player
 	var rt = main.get_node("RealTimeManager")
@@ -45,7 +45,7 @@ func _init() -> void:
 	
 	# Run frames to let movement happen
 	for i in range(60):
-		await get_tree().process_frame
+		await process_frame
 		if not movement.is_moving:
 			break
 	

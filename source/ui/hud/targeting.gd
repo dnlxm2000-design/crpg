@@ -58,7 +58,7 @@ func _ready() -> void:
 	_grid_world = get_node_or_null("/root/Main/GameLoop/GridWorld")
 
 
-func _on_combat_started(participants: Array) -> void:
+func _on_combat_started(_participants: Array) -> void:
 	# 전투 시작 시 타겟 목록 업데이트
 	_targets = _find_targetable_enemies()
 	if _targets.size() > 0:
@@ -91,7 +91,7 @@ func _on_unit_destroyed(unit: Node) -> void:
 		select_first_target()
 
 
-func _on_unit_moved(unit: Node, _from: Vector2, _to: Vector2) -> void:
+func _on_unit_moved(unit: Node, _from: Vector3, _to: Vector3) -> void:
 	if unit == current_target:
 		_update_highlight()
 
@@ -195,15 +195,15 @@ func _update_highlight() -> void:
 		return
 
 	var grid_pos: Vector2i = _grid_world.world_to_grid(current_target.global_position)
-	var world_pos: Vector2 = _grid_world.grid_to_world(grid_pos)
+	var world_pos: Vector3 = _grid_world.grid_to_world(grid_pos)
 
-	_highlight.position = world_pos
-	_highlight.visible = true
-
-	# 타겟 정보 레이블 (하이라이트 위에 표시)
-	var unit_name = current_target.get("unit_name") if "unit_name" in current_target else Localization.t("enemy_default")
-	var hp = current_target.get("current_hp") if "current_hp" in current_target else 0
-	var max_hp = current_target.get_max_hp() if current_target.has_method("get_max_hp") else (current_target.get("max_hp") if "max_hp" in current_target else 100)
-	_target_label.text = "%s\n%s" % [unit_name, Localization.t("target_hp", [hp, max_hp])]
-	_target_label.position = world_pos - Vector2(40, 60)
+	# 3D 월드 좌표 → HUD 2D 좌표 (카메라 투영 사용)
+	var camera: Camera3D = get_viewport().get_camera_3d()
+	if camera:
+		var screen_pos: Vector2 = camera.unproject_position(world_pos)
+		_highlight.position = screen_pos
+		_target_label.position = screen_pos - Vector2(40, 60)
+	else:
+		_highlight.position = Vector2(world_pos.x, world_pos.z)
+		_target_label.position = Vector2(world_pos.x, world_pos.z) - Vector2(40, 60)
 	_target_label.visible = true

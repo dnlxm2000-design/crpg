@@ -112,13 +112,12 @@ func _highlight_current() -> void:
 func _resolve_color(unit: Node) -> Color:
 	if unit.get("is_player"):
 		return Color(0.2, 0.6, 1.0)
-	# Enemies: try reading sprite texture, otherwise hash-based
-	var sprite = unit.get_node_or_null("Sprite2D")
-	if sprite and sprite.texture:
-		# Godot 4 ImageTexture get_image approach — fallible
-		var img = sprite.texture.get_image() if sprite.texture.has_method("get_image") else null
-		if img:
-			return img.get_pixel(16, 16)
+	# Enemies: try reading material color from mesh, otherwise hash-based
+	var mesh = unit.get_node_or_null("UnitBoxBody")
+	if mesh and mesh is MeshInstance3D and mesh.material_override:
+		var mat = mesh.material_override as StandardMaterial3D
+		if mat:
+			return mat.albedo_color
 	# Fallback: hash unit name or instance ID for a stable color
 	var name_str: String = unit.get("unit_name") if "unit_name" in unit else str(unit.get_instance_id())
 	var h: int = abs(hash(name_str))

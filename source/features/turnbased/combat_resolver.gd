@@ -125,13 +125,23 @@ static func resolve_attack(
 	# 후방 공격 데미지 배율
 	var dmg_mult: float = BACK_ATTACK_DAMAGE_MULTIPLIER if back_attack else 1.0
 
-	# 치명타 판정
-	var crit_chance: float = attacker.get("crit_chance") if "crit_chance" in attacker else BASE_CRIT_CHANCE
+	# 전술(Tactics) 스킬 데미지 배율 적용
+	if attacker.has_method("get_skill_bonus"):
+		var tactics_bonus: float = attacker.get_skill_bonus("tactics", "damage")
+		dmg_mult += tactics_bonus / 100.0
+
+	# 치명타 판정 — 해부학(Anatomy)이 크리티컬 확률 증가
+	var base_crit: float = BASE_CRIT_CHANCE
+	if attacker.has_method("get_skill_bonus"):
+		# anatomy damage_per_100 = 0.2 → GM 시 +0.2 → crit chance +20%p
+		base_crit += attacker.get_skill_bonus("anatomy", "damage") / 100.0
+	var crit_chance: float = attacker.get("crit_chance") if "crit_chance" in attacker else base_crit
 	var crit_mult: float = attacker.get("crit_multiplier") if "crit_multiplier" in attacker else BASE_CRIT_MULTIPLIER
 
 	var crit_threshold: float = hit_chance * (1.0 - crit_chance)
 	if roll >= crit_threshold:
 		result[KEY_CRIT] = true
+		@warning_ignore("confusable_local_declaration")
 		var raw_damage: int = ceili(base_atk * crit_mult * dmg_mult)
 		result[KEY_DAMAGE] = raw_damage
 		_apply_damage(result, target, raw_damage, attacker)
@@ -141,6 +151,7 @@ static func resolve_attack(
 	var graze_threshold: float = hit_chance * GRAZE_THRESHOLD
 	if roll >= graze_threshold:
 		result[KEY_GRAZE] = true
+		@warning_ignore("confusable_local_declaration", "integer_division")
 		var raw_damage: int = max(1, roundi(base_atk / 2 * dmg_mult))
 		result[KEY_DAMAGE] = raw_damage
 		_apply_damage(result, target, raw_damage, attacker)
@@ -156,9 +167,9 @@ static func resolve_attack(
 ## 후방 공격 여부 판정.
 ## target의 facing_direction과 attack_dir이 같은 방향이면 후방 공격.
 static func is_back_attack(attacker_pos: Vector2i, target: Node) -> bool:
-	var facing: Vector2 = target.get("facing_direction") if "facing_direction" in target else Vector2.DOWN
-	if facing == Vector2.ZERO:
-		facing = Vector2.DOWN
+	var facing: Vector3 = target.get("facing_direction") if "facing_direction" in target else Vector3(0, 0, 1)
+	if facing == Vector3.ZERO:
+		facing = Vector3(0, 0, 1)
 	# 공격 방향 = 타겟 위치 - 공격자 위치
 	var target_pos: Vector2i
 	var grid_world = _find_grid_world(target)
@@ -171,10 +182,9 @@ static func is_back_attack(attacker_pos: Vector2i, target: Node) -> bool:
 	if attack_dir == Vector2i.ZERO:
 		return false
 
-	# facing_direction은 정규화된 Vector2 (예: (0, 1) = 아래)
-	# attack_dir을 정규화
-	var ad_norm: Vector2 = Vector2(attack_dir).normalized()
-	var dot: float = ad_norm.dot(facing.normalized())
+	# attack_dir을 3D 벡터로 변환 (XZ 평면)
+	var ad_3d: Vector3 = Vector3(attack_dir.x, 0, attack_dir.y).normalized()
+	var dot: float = ad_3d.dot(facing.normalized())
 	# dot > 0.5면 같은 방향 (후방)
 	return dot > 0.5
 

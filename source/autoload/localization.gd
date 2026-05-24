@@ -69,7 +69,7 @@ const UI_STRINGS: Dictionary = {
 
 ## 문자열 조회. args가 있으면 % 포맷팅 적용.
 ## 키가 없으면 키 자체를 반환 (디버깅 용이).
-static func t(key: String, args = []) -> String:
+func t(key: String, args = []) -> String:
 	var s: String = UI_STRINGS.get(key, key)
 	if args is Array and not args.is_empty():
 		return s % args
