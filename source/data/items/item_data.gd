@@ -116,6 +116,16 @@ const ITEMS: Dictionary = {
 		ap_cost = 0,
 		stackable = true,
 	},
+	"empty_bottle": {
+		name = "빈 병(Empty Bottle)",
+		type = 0,
+		description = "연금술 기본 재료. 물약/폭탄 용기.",
+		value = 2,
+		heal_amount = 0,
+		ap_cost = 0,
+		stackable = true,
+		drop_from = ["humanoid", "imp", "goblin"],
+	},
 
 	# ── 연금술 폭탄 (ALCHEMICAL BOMB) ──
 	"alchemist_fire": {
@@ -290,6 +300,46 @@ const ITEMS: Dictionary = {
 		heal_amount = 0,
 		ap_cost = 0,
 		stackable = true,
+	},
+	"stinger": {
+		name = "독침(Stinger)",
+		type = 0,
+		description = "전갈/벌레 독침. 폭탄 재료.",
+		value = 15,
+		heal_amount = 0,
+		ap_cost = 0,
+		stackable = true,
+		drop_from = ["scorpion", "giant_beetle", "wasp"],
+	},
+	"lightning_bug": {
+		name = "번개벌레(Lightning Bug)",
+		type = 0,
+		description = "전기를 머금은 벌레. 번개 폭탄 재료.",
+		value = 20,
+		heal_amount = 0,
+		ap_cost = 0,
+		stackable = true,
+		drop_from = ["lightning_bug", "will_o_wisp"],
+	},
+	"spectral_essence": {
+		name = "유령 잔여물(Spectral Essence)",
+		type = 0,
+		description = "유령/망령의 잔재. 신성 폭탄 재료.",
+		value = 30,
+		heal_amount = 0,
+		ap_cost = 0,
+		stackable = true,
+		drop_from = ["ghost", "wraith", "spectre"],
+	},
+	"dragon_scale": {
+		name = "용 비늘(Dragon Scale)",
+		type = 0,
+		description = "고룡의 비늘. 최상급 연금술 재료.",
+		value = 80,
+		heal_amount = 0,
+		ap_cost = 0,
+		stackable = true,
+		drop_from = ["dragon", "wyvern"],
 	},
 
 	# ── 검술 (SWORDSMANSHIP) ──

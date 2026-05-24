@@ -6,55 +6,40 @@ extends RefCounted
 ## 제조법: {result_id: {ingredients: [{item_id, qty}, ...], skill_req, xp}}
 const RECIPES: Dictionary = {
 	# ═══════════════════════════════════════
-	# ── 화염 플라스크 (Flame Flask) ──
+	# ── 연금술사의 불 (Alchemist's Fire) ──
 	# ═══════════════════════════════════════
-	"flame_flask": {
-		name = "화염 플라스크",
+	"alchemist_fire": {
+		name = "연금술사의 불",
 		ingredients = [
 			{item_id = "empty_bottle", qty = 1},
 			{item_id = "lard", qty = 1},
 			{item_id = "reagent", qty = 1},
 		],
-		skill_req = {"alchemy": 20.0},
+		skill_req = {"alchemy": 20.0, "poison_crafting": 10.0},
 		xp = 15,
 		result_qty = 1,
 	},
-	"flame_flask_oil": {
-		name = "화염 플라스크 (늑대기름)",
+	"alchemist_fire_wolf": {
+		name = "연금술사의 불 (늑대기름)",
 		ingredients = [
 			{item_id = "empty_bottle", qty = 1},
 			{item_id = "wolf_oil", qty = 1},
 			{item_id = "reagent", qty = 1},
 		],
-		skill_req = {"alchemy": 25.0},
+		skill_req = {"alchemy": 25.0, "poison_crafting": 15.0},
 		xp = 20,
-		result_qty = 1,
+		result_qty = 2,
 	},
-	"flame_flask_bear": {
-		name = "화염 플라스크 (곰기름)",
+	"alchemist_fire_bear": {
+		name = "연금술사의 불 (곰기름)",
 		ingredients = [
 			{item_id = "empty_bottle", qty = 1},
 			{item_id = "bear_fat", qty = 1},
 			{item_id = "reagent", qty = 1},
 		],
-		skill_req = {"alchemy": 30.0},
+		skill_req = {"alchemy": 30.0, "poison_crafting": 20.0},
 		xp = 25,
-		result_qty = 1,
-	},
-
-	# ═══════════════════════════════════════
-	# ── 냉기 플라스크 (Frost Flask) ──
-	# ═══════════════════════════════════════
-	"frost_flask": {
-		name = "냉기 플라스크",
-		ingredients = [
-			{item_id = "empty_bottle", qty = 1},
-			{item_id = "slime_gel", qty = 1},
-			{item_id = "reagent", qty = 1},
-		],
-		skill_req = {"alchemy": 25.0},
-		xp = 20,
-		result_qty = 1,
+		result_qty = 3,
 	},
 
 	# ═══════════════════════════════════════
@@ -67,38 +52,99 @@ const RECIPES: Dictionary = {
 			{item_id = "spider_oil", qty = 1},
 			{item_id = "herb", qty = 1},
 		],
-		skill_req = {"alchemy": 20.0},
+		skill_req = {"alchemy": 20.0, "poison_crafting": 15.0},
 		xp = 15,
 		result_qty = 1,
 	},
 
 	# ═══════════════════════════════════════
-	# ── 독 플라스크 (Poison Flask) ──
+	# ── 병에 담긴 번개 (Bottled Lightning) ──
 	# ═══════════════════════════════════════
-	"poison_flask": {
-		name = "독 플라스크",
+	"bottled_lightning": {
+		name = "병에 담긴 번개",
 		ingredients = [
 			{item_id = "empty_bottle", qty = 1},
-			{item_id = "poison_vial", qty = 1},
-			{item_id = "spider_oil", qty = 1},
+			{item_id = "lightning_bug", qty = 2},
+			{item_id = "reagent", qty = 2},
 		],
-		skill_req = {"alchemy": 30.0},
+		skill_req = {"alchemy": 35.0, "enhancement_elixir": 20.0},
+		xp = 30,
+		result_qty = 1,
+	},
+
+	# ═══════════════════════════════════════
+	# ── 빙결 유리병 (Frost Vial) ──
+	# ═══════════════════════════════════════
+	"frost_vial": {
+		name = "빙결 유리병",
+		ingredients = [
+			{item_id = "empty_bottle", qty = 1},
+			{item_id = "slime_gel", qty = 1},
+			{item_id = "reagent", qty = 1},
+		],
+		skill_req = {"alchemy": 25.0, "enhancement_elixir": 10.0},
+		xp = 20,
+		result_qty = 1,
+	},
+
+	# ═══════════════════════════════════════
+	# ── 천둥의 돌 (Thunderstone) ──
+	# ═══════════════════════════════════════
+	"thunderstone": {
+		name = "천둥의 돌",
+		ingredients = [
+			{item_id = "stinger", qty = 1},
+			{item_id = "reagent", qty = 2},
+			{item_id = "herb", qty = 1},
+		],
+		skill_req = {"alchemy": 30.0, "enhancement_elixir": 15.0},
 		xp = 25,
 		result_qty = 1,
 	},
 
 	# ═══════════════════════════════════════
-	# ── 점착 플라스크 (Sticky Flask) ──
+	# ── 엉겅퀴 가방 (Tanglefoot Bag) ──
 	# ═══════════════════════════════════════
-	"sticky_flask": {
-		name = "점착 플라스크",
+	"tanglefoot_bag": {
+		name = "엉겅퀴 가방",
 		ingredients = [
 			{item_id = "empty_bottle", qty = 1},
 			{item_id = "slime_gel", qty = 2},
 			{item_id = "herb", qty = 1},
 		],
-		skill_req = {"alchemy": 15.0},
+		skill_req = {"alchemy": 15.0, "herbal_remedy": 10.0},
 		xp = 10,
+		result_qty = 1,
+	},
+
+	# ═══════════════════════════════════════
+	# ── 유령 충전물 (Ghost Charge) ──
+	# ═══════════════════════════════════════
+	"ghost_charge": {
+		name = "유령 충전물",
+		ingredients = [
+			{item_id = "empty_bottle", qty = 1},
+			{item_id = "spectral_essence", qty = 1},
+			{item_id = "reagent", qty = 3},
+		],
+		skill_req = {"alchemy": 40.0, "poison_crafting": 25.0},
+		xp = 35,
+		result_qty = 1,
+	},
+
+	# ═══════════════════════════════════════
+	# ── 브레인 수류탄 (Brain Grenade) ──
+	# ═══════════════════════════════════════
+	"brain_grenade": {
+		name = "브레인 수류탄",
+		ingredients = [
+			{item_id = "empty_bottle", qty = 1},
+			{item_id = "dragon_scale", qty = 1},
+			{item_id = "spectral_essence", qty = 1},
+			{item_id = "reagent", qty = 3},
+		],
+		skill_req = {"alchemy": 60.0, "enhancement_elixir": 40.0},
+		xp = 60,
 		result_qty = 1,
 	},
 
