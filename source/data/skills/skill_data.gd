@@ -1,7 +1,35 @@
-# skill_data.gd — 13개 스킬 정의 (상수 방식, .tres 불필요).
-# CombatResolver, Unit, equipment_panel에서 참조.
+# skill_data.gd — 52개 스킬 정의 (상수 방식, .tres 불필요).
+# 12등급 (0~120, 10단위 버킷) / CombatResolver, Unit, equipment_panel에서 참조.
 class_name SkillData
 extends RefCounted
+
+## ── 12등급 명칭 (0~120, 10단위 버킷) ──
+const TIER_NAMES: Dictionary = {
+	0: "견습생(Neophyte)",
+	10: "초보(Novice)",
+	20: "수습(Apprentice)",
+	30: "기술자(Journeyman)",
+	40: "숙련자(Craftsman)",
+	50: "장인(Artisan)",
+	60: "전문가(Adept)",
+	70: "상급자(Expert)",
+	80: "달인(Master)",
+	90: "거장(Grand Master)",
+	100: "명장(Elder)",
+	110: "전설(Legendary)",
+}
+
+## 10단위 버킷 반환. 모든 게임 로직은 이 값으로 동작.
+static func get_bucket(level: float) -> float:
+	return floor(level / 10.0) * 10.0
+
+## 버킷에 대응하는 등급명 반환.
+static func get_tier_name(level: float) -> String:
+	var bucket: int = int(get_bucket(level))
+	# 120은 버킷 120 → TIER_NAMES에 없으면 110 사용
+	if bucket >= 120:
+		return TIER_NAMES.get(110, "전설(Legendary)")
+	return TIER_NAMES.get(bucket, "견습생(Neophyte)")
 
 ## 스킬 정의: {id: {name, type, accuracy_per_100, damage_per_100, evasion_per_100, str, dex, con, int, wis}}
 const SKILLS: Dictionary = {
@@ -429,6 +457,32 @@ const SKILLS: Dictionary = {
 		damage = 0.25,    # 도끼류 데미지 보너스
 		evasion = 0.0,
 		str = 0.15, dex = 0.0, con = 0.05, int = 0.0, wis = 0.0, cha = 0.0,
+	},
+
+	# ── 포션 제조 (POTION_CRAFTING) ──
+	"poison_crafting": {
+		name = "독포션 제조(Poison Crafting)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.0, int = 0.15, wis = 0.05, cha = 0.0,
+	},
+	"herbal_remedy": {
+		name = "회복포션 제조(Herbal Remedy)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.0, int = 0.1, wis = 0.15, cha = 0.0,
+	},
+	"enhancement_elixir": {
+		name = "강화포션 제조(Enhancement Elixir)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.0, con = 0.0, int = 0.15, wis = 0.1, cha = 0.0,
 	},
 
 	# ── 특수 무예 (MARTIAL) ──

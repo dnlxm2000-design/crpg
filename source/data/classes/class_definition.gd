@@ -14,3 +14,6 @@ extends Resource
 
 ## 시작 아이템: [{item_path: "...", quantity: 1}, ...]
 @export var starting_items: Array = []
+
+## 스킬 상한 돌파: {skill_id: max_level} (기본 100, 예외만 지정)
+@export var skill_caps: Dictionary = {}

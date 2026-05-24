@@ -31,8 +31,17 @@ extends CharacterBody3D
 ## 직업
 @export var character_class: String = ""
 
-## 학습된 스킬: {skill_id: level}
+## 신분: slave/criminal/serf/commoner/freeman/merchant/noble/clergy/tribesman/otherworlder
+@export var social_status: String = "commoner"
+
+## 조직/길드 직급: {organization_id: rank_id}
+var organization_ranks: Dictionary = {}
+
+## 학습된 스킬: {skill_id: level} (raw float, 10단위 버킷은 get_skill_level에서 처리)
 var learned_skills: Dictionary = {}
+
+## 스킬별 상한: {skill_id: max_level} (기본 100)
+var skill_caps: Dictionary = {}
 
 ## 스킬 XP 로그
 var _skill_xp_log: Dictionary = {}
@@ -272,15 +281,44 @@ func apply_class(class_def: Resource) -> void:
 	if not class_def:
 		return
 	character_class = class_def.class_id
+	learned_skills.clear()
+	skill_caps.clear()
 	for skill_id in class_def.skill_levels:
 		learned_skills[skill_id] = class_def.skill_levels[skill_id]
 	for attr in class_def.stat_modifiers:
 		var current = get(attr)
 		set(attr, current + class_def.stat_modifiers[attr])
+	# 직업 skill_caps 적용 (기본 100, 예외만 저장)
+	for skill_id in class_def.skill_caps:
+		skill_caps[skill_id] = class_def.skill_caps[skill_id]
+
+
+func apply_subclass(class_id: String, subclass_id: String) -> void:
+	var class_entry = ClassData.SUBCLASSES.get(class_id, {})
+	var sub_entry = class_entry.get(subclass_id, {})
+	if sub_entry.is_empty():
+		return
+	# 보너스 스킬 추가
+	var bonus: Dictionary = sub_entry.get("bonus_skills", {})
+	for skill_id in bonus:
+		var current: float = learned_skills.get(skill_id, 0.0)
+		learned_skills[skill_id] = max(current, bonus[skill_id])
+	# 보너스 cap 적용 (기존 cap 오버라이드)
+	var bcaps: Dictionary = sub_entry.get("bonus_caps", {})
+	for skill_id in bcaps:
+		skill_caps[skill_id] = bcaps[skill_id]
 
 
 func get_skill_level(skill_id: String) -> float:
+	## 10단위 버킷 반환 — 모든 게임 로직(명중/데미지/회피)은 이 값 사용
+	return SkillData.get_bucket(learned_skills.get(skill_id, 0.0))
+
+func get_raw_skill_level(skill_id: String) -> float:
+	## 실제 원시 스킬 레벨 (XP 진행 / UI 표시용)
 	return learned_skills.get(skill_id, 0.0)
+
+func get_skill_cap(skill_id: String) -> float:
+	return skill_caps.get(skill_id, 100.0)
 
 
 func add_skill_xp(skill_id: String, xp: int) -> void:
@@ -292,13 +330,14 @@ func add_skill_xp(skill_id: String, xp: int) -> void:
 func process_skill_xp() -> void:
 	for skill_id in _skill_xp_log:
 		var current_level: float = learned_skills.get(skill_id, 0.0)
-		if current_level >= 100.0:
+		var cap: float = get_skill_cap(skill_id)
+		if current_level >= cap:
 			continue
 		var xp: int = _skill_xp_log[skill_id]
 		var adjusted: float = _calculate_xp_gain(xp, current_level)
-		var new_level: float = min(current_level + adjusted / 10.0, 100.0)
+		var new_level: float = min(current_level + adjusted / 10.0, cap)
 		learned_skills[skill_id] = new_level
-		print("[Skill] %s: %.1f → %.1f (+%.1f)" % [skill_id, current_level, new_level, new_level - current_level])
+		print("[Skill] %s: %.1f → %.1f (+%.1f) [cap=%.0f]" % [skill_id, current_level, new_level, new_level - current_level, cap])
 	_skill_xp_log.clear()
 
 

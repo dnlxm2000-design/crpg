@@ -545,27 +545,18 @@ func _format_skills(unit: Node) -> String:
 	lines.append("직업: %s" % class_display)
 
 	for skill_id in unit.learned_skills:
-		var level: float = unit.get_skill_level(skill_id)
+		var level: float = unit.get_raw_skill_level(skill_id)
+		var bucket: float = unit.get_skill_level(skill_id)
 		var skill_def = SkillData.SKILLS.get(skill_id)
 		var skill_name = skill_def.get("name", skill_id) if skill_def else skill_id
-		var title = _get_skill_title(level)
-		lines.append("  %s: %.1f (%s)" % [skill_name, level, title])
+		var title = SkillData.get_tier_name(bucket)
+		var cap = unit.get_skill_cap(skill_id)
+		lines.append("  %s: %.0f [%s] (cap %d)" % [skill_name, bucket, title, cap])
 
 	return "\n".join(lines)
 
 
-## Get skill title based on level.
-func _get_skill_title(level: float) -> String:
-	if level >= 100: return "거장(GM)"
-	elif level >= 90: return "달인"
-	elif level >= 80: return "상급자"
-	elif level >= 70: return "전문가"
-	elif level >= 60: return "장인"
-	elif level >= 50: return "숙련자"
-	elif level >= 40: return "기술자"
-	elif level >= 30: return "수습"
-	elif level >= 20: return "초보"
-	else: return "견습생"
+
 
 
 ## Check if player inventory has ammo of given type.
