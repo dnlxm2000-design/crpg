@@ -149,6 +149,21 @@ const RECIPES: Dictionary = {
 	},
 
 	# ═══════════════════════════════════════
+	# ── 성수 (Holy Water) ──
+	# ═══════════════════════════════════════
+	"holy_water": {
+		name = "성수",
+		ingredients = [
+			{item_id = "empty_bottle", qty = 1},
+			{item_id = "spectral_essence", qty = 1},
+			{item_id = "reagent", qty = 1},
+		],
+		skill_req = {"alchemy": 25.0, "prayer": 20.0},
+		xp = 20,
+		result_qty = 2,
+	},
+
+	# ═══════════════════════════════════════
 	# ── 기타 제조법 ──
 	# ═══════════════════════════════════════
 	"health_potion": {

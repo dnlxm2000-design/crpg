@@ -41,6 +41,13 @@ const EFFECTS: Dictionary = {
 		unit = DurationUnit.TURN,
 		description = "언데드에게 2배 피해",
 	},
+	"cowed": {
+		name = "위축(Cowed)",
+		type = Type.DEBUFF,
+		duration = 2,
+		unit = DurationUnit.TURN,
+		description = "언데드 공격력 -30%, 이속 -25%",
+	},
 
 	# ── 상태 디버프 (CONDITION DEBUFF) ──
 	"flat_footed": {

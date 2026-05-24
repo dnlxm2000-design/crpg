@@ -216,6 +216,18 @@ const ITEMS: Dictionary = {
 		stackable = true,
 		status_effect = "confused",
 	},
+	"holy_water": {
+		name = "성수(Holy Water)",
+		type = 0,
+		element = "positive",
+		description = "양에너지 12, 언데드 2배 + 위축(2턴)",
+		damage = 12,
+		value = 25,
+		ap_cost = 1,
+		stackable = true,
+		status_effect = "radiant",
+		debuff = "cowed",
+	},
 
 	# ── 동물 재료 (ANIMAL MATERIAL) ──
 	"leather": {
