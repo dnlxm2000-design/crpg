@@ -50,9 +50,9 @@ const EFFECTS: Dictionary = {
 	},
 
 	# ── 상태 디버프 (CONDITION DEBUFF) ──
-	"flat_footed": {
+		"flat_footed": {
 		name = "방심(Flat-footed)",
-		type = Type.DEBBUFF,
+		type = Type.DEBUFF,
 		duration = 1,
 		unit = DurationUnit.TURN,
 		description = "회피 불가, 후방 공격 판정",
@@ -84,6 +84,41 @@ const EFFECTS: Dictionary = {
 		duration = 1,
 		unit = DurationUnit.TURN,
 		description = "아군/적 구분 불가, 무작위 행동",
+	},
+	"blinded": {
+		name = "실명(Blinded)",
+		type = Type.DEBUFF,
+		duration = 2,
+		unit = DurationUnit.TURN,
+		description = "명중 -50%",
+	},
+	"poisoned": {
+		name = "중독(Poisoned)",
+		type = Type.DEBUFF,
+		duration = 2,
+		unit = DurationUnit.TURN,
+		description = "턴당 5",
+	},
+	"silenced": {
+		name = "침묵(Silenced)",
+		type = Type.DEBUFF,
+		duration = 2,
+		unit = DurationUnit.TURN,
+		description = "주문 사용 불가",
+	},
+	"cursed": {
+		name = "저주(Cursed)",
+		type = Type.DEBUFF,
+		duration = 3,
+		unit = DurationUnit.TURN,
+		description = "모든 스탯 -3",
+	},
+	"stunned": {
+		name = "기절(Stunned)",
+		type = Type.DEBUFF,
+		duration = 1,
+		unit = DurationUnit.TURN,
+		description = "행동 불가",
 	},
 
 	# ── 버프 (BUFF) ──

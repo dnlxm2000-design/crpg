@@ -149,6 +149,129 @@ const RECIPES: Dictionary = {
 	},
 
 	# ═══════════════════════════════════════
+	# ── 눈멀게 하는 폭탄 (Blinding Bomb) ──
+	# ═══════════════════════════════════════
+	"blinding_bomb": {
+		name = "눈멀게 하는 폭탄",
+		ingredients = [
+			{item_id = "empty_bottle", qty = 1},
+			{item_id = "lightning_bug", qty = 1},
+			{item_id = "reagent", qty = 2},
+		],
+		skill_req = {"alchemy": 30.0, "enhancement_elixir": 20.0},
+		xp = 25,
+		result_qty = 1,
+	},
+
+	# ═══════════════════════════════════════
+	# ── 숨결의 무기 (Breath Weapon Bomb) ──
+	# ═══════════════════════════════════════
+	"breath_weapon_bomb": {
+		name = "숨결의 무기",
+		ingredients = [
+			{item_id = "empty_bottle", qty = 1},
+			{item_id = "spider_oil", qty = 2},
+			{item_id = "reagent", qty = 1},
+		],
+		skill_req = {"alchemy": 30.0, "poison_crafting": 25.0},
+		xp = 25,
+		result_qty = 1,
+	},
+
+	# ═══════════════════════════════════════
+	# ── 질식 폭탄 (Suffocation Bomb) ──
+	# ═══════════════════════════════════════
+	"suffocation_bomb": {
+		name = "질식 폭탄",
+		ingredients = [
+			{item_id = "empty_bottle", qty = 1},
+			{item_id = "spectral_essence", qty = 1},
+			{item_id = "herb", qty = 2},
+		],
+		skill_req = {"alchemy": 35.0, "poison_crafting": 30.0},
+		xp = 30,
+		result_qty = 1,
+	},
+
+	# ═══════════════════════════════════════
+	# ── 저주받은 폭탄 (Cursed Bomb) ──
+	# ═══════════════════════════════════════
+	"cursed_bomb": {
+		name = "저주받은 폭탄",
+		ingredients = [
+			{item_id = "empty_bottle", qty = 1},
+			{item_id = "spectral_essence", qty = 2},
+			{item_id = "reagent", qty = 2},
+			{item_id = "herb", qty = 1},
+		],
+		skill_req = {"alchemy": 45.0, "poison_crafting": 30.0},
+		xp = 40,
+		result_qty = 1,
+	},
+
+	# ═══════════════════════════════════════
+	# ── 폭발성 폭탄 (Explosive Bomb) ──
+	# ═══════════════════════════════════════
+	"explosive_bomb": {
+		name = "폭발성 폭탄",
+		ingredients = [
+			{item_id = "empty_bottle", qty = 1},
+			{item_id = "dragon_scale", qty = 1},
+			{item_id = "lard", qty = 2},
+			{item_id = "reagent", qty = 2},
+		],
+		skill_req = {"alchemy": 50.0, "poison_crafting": 35.0},
+		xp = 45,
+		result_qty = 1,
+	},
+
+	# ═══════════════════════════════════════
+	# ── 역장 폭탄 (Force Field Bomb) ──
+	# ═══════════════════════════════════════
+	"force_field_bomb": {
+		name = "역장 폭탄",
+		ingredients = [
+			{item_id = "empty_bottle", qty = 1},
+			{item_id = "slime_gel", qty = 2},
+			{item_id = "reagent", qty = 2},
+		],
+		skill_req = {"alchemy": 30.0, "enhancement_elixir": 20.0},
+		xp = 25,
+		result_qty = 1,
+	},
+
+	# ═══════════════════════════════════════
+	# ── 충격 폭탄 (Shock Bomb) ──
+	# ═══════════════════════════════════════
+	"shock_bomb": {
+		name = "충격 폭탄",
+		ingredients = [
+			{item_id = "empty_bottle", qty = 1},
+			{item_id = "lightning_bug", qty = 2},
+			{item_id = "stinger", qty = 1},
+			{item_id = "reagent", qty = 2},
+		],
+		skill_req = {"alchemy": 40.0, "enhancement_elixir": 30.0},
+		xp = 35,
+		result_qty = 1,
+	},
+
+	# ═══════════════════════════════════════
+	# ── 성스러운 폭탄 (Holy Bomb) ──
+	# ═══════════════════════════════════════
+	"holy_bomb": {
+		name = "성스러운 폭탄",
+		ingredients = [
+			{item_id = "empty_bottle", qty = 1},
+			{item_id = "spectral_essence", qty = 2},
+			{item_id = "reagent", qty = 3},
+		],
+		skill_req = {"alchemy": 50.0, "prayer": 30.0},
+		xp = 40,
+		result_qty = 1,
+	},
+
+	# ═══════════════════════════════════════
 	# ── 성수 (Holy Water) ──
 	# ═══════════════════════════════════════
 	"holy_water": {

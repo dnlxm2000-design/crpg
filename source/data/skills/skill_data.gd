@@ -400,6 +400,14 @@ const SKILLS: Dictionary = {
 		evasion = 0.0,
 		str = 0.0, dex = 0.0, con = 0.0, int = 0.05, wis = 0.2, cha = 0.0,
 	},
+	"bomb_disposal": {
+		name = "폭탄 제거(Bomb Disposal)",
+		type = 3,
+		accuracy = 0.0,
+		damage = 0.0,
+		evasion = 0.0,
+		str = 0.0, dex = 0.2, con = 0.0, int = 0.1, wis = 0.0, cha = 0.0,
+	},
 
 	# ── 제작/공예 (CRAFTING) ──
 	"blacksmithy": {
