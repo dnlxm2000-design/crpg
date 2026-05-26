@@ -336,9 +336,16 @@ static func recipes() -> Dictionary:
 	},
 }
 
+# Cached recipe lookup
+static var _recipes: Dictionary = {}
+static func _get_recipes() -> Dictionary:
+	if _recipes.is_empty():
+		_recipes = recipes()
+	return _recipes
+
 ## 제조 가능 여부 확인
 static func can_craft(recipe_id: String, player_skills: Dictionary, inventory: Node) -> bool:
-	var recipe = RECIPES.get(recipe_id)
+	var recipe = _get_recipes().get(recipe_id)
 	if not recipe:
 		return false
 
@@ -362,7 +369,7 @@ static func can_craft(recipe_id: String, player_skills: Dictionary, inventory: N
 
 ## 제조 실행. 성공 시 결과 ID 반환, 실패 시 null.
 static func craft(recipe_id: String, inventory: Node) -> String:
-	var recipe = RECIPES.get(recipe_id)
+	var recipe = _get_recipes().get(recipe_id)
 	if not recipe:
 		return ""
 

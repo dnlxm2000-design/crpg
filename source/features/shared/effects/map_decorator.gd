@@ -18,10 +18,10 @@ const BUILDINGS: Array[Dictionary] = [
 	{grid=Vector2i(24,55), path="blue/building_lumbermill_blue", scale=1.5, rot=0.0},
 	{grid=Vector2i(36,65), path="blue/building_windmill_blue", scale=1.5, rot=0.0},
 	# ── Towers (defense) ──
-	{grid=Vector2i(23,50), path="neutral/building_tower_A", scale=1.5, rot=0.0},
-	{grid=Vector2i(37,70), path="neutral/building_tower_B", scale=1.5, rot=0.0},
-	{grid=Vector2i(37,50), path="neutral/building_tower_base", scale=1.5, rot=0.0},
-	{grid=Vector2i(40,58), path="neutral/building_watermill", scale=1.5, rot=0.0},
+	{grid=Vector2i(23,50), path="green/building_tower_A_green", scale=1.5, rot=0.0},
+	{grid=Vector2i(37,70), path="blue/building_tower_B_blue", scale=1.5, rot=0.0},
+	{grid=Vector2i(37,50), path="blue/building_tower_base_blue", scale=1.5, rot=0.0},
+	{grid=Vector2i(40,58), path="blue/building_watermill_blue", scale=1.5, rot=0.0},
 ]
 
 ## Decoration scatter config.
@@ -114,16 +114,16 @@ func _scatter_nature() -> void:
 	# Village center — no nature scatter here
 	var center: Vector2i = Vector2i(30, 60)
 
-	var sx := _grid_world.grid_width if "grid_width" in _grid_world else 63
-	var sz := _grid_world.grid_height if "grid_height" in _grid_world else 126
+	var sx: int = _grid_world.grid_width if "grid_width" in _grid_world else 63
+	var sz: int = _grid_world.grid_height if "grid_height" in _grid_world else 126
 
 	for x in range(scatter_padding, sx - scatter_padding, scatter_step):
 		for z in range(scatter_padding, sz - scatter_padding, scatter_step):
 			var gp := Vector2i(x, z)
 
 			# Skip village area
-			var dx := abs(x - center.x)
-			var dz := abs(z - center.y)
+			var dx: int = abs(x - center.x)
+			var dz: int = abs(z - center.y)
 			if dx <= village_radius and dz <= village_radius:
 				continue
 
@@ -166,7 +166,7 @@ func _place_decoration(gp: Vector2i, d: Dictionary) -> void:
 	var world_pos: Vector3 = _grid_world.grid_to_world(gp)
 	world_pos.y = _get_height_at(world_pos)
 	instance.position = world_pos
-	var s := d.get("scale", 1.0)
+	var s: float = d.get("scale", 1.0)
 	instance.scale = Vector3(s, s, s)
 	instance.rotation.y = _rng.randf_range(0.0, TAU)
 	add_child(instance)
