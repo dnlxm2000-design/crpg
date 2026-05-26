@@ -118,10 +118,12 @@ func _place_building(b: Dictionary) -> void:
 ## Check if a grid tile falls within any forest zone.
 func _is_in_forest_zone(gp: Vector2i) -> bool:
 	for fz in FOREST_ZONES:
-		var dx := gp.x - fz.center.x
-		var dz := gp.y - fz.center.y
+		var center: Vector2i = fz.get("center", Vector2i(0, 0))
+		var radius: int = fz.get("radius", 0)
+		var dx: int = gp.x - center.x
+		var dz: int = gp.y - center.y
 		var dist := sqrt(float(dx * dx + dz * dz))
-		if dist <= float(fz.radius):
+		if dist <= float(radius):
 			return true
 	return false
 
@@ -141,21 +143,23 @@ func _scatter_forests() -> void:
 	var sz: int = _grid_world.grid_height if "grid_height" in _grid_world else 126
 
 	for fz in FOREST_ZONES:
-		var cx := fz.center.x
-		var cz := fz.center.y
-		var r := fz.radius
-		var x0 := maxi(scatter_padding, cx - r)
-		var x1 := mini(sx - scatter_padding, cx + r)
-		var z0 := maxi(scatter_padding, cz - r)
-		var z1 := mini(sz - scatter_padding, cz + r)
+		var fzc: Vector2i = fz.get("center", Vector2i(0, 0))
+		var fzr: int = fz.get("radius", 0)
+		var cx: int = fzc.x
+		var cz: int = fzc.y
+		var r: int = fzr
+		var x0: int = maxi(scatter_padding, cx - r)
+		var x1: int = mini(sx - scatter_padding, cx + r)
+		var z0: int = maxi(scatter_padding, cz - r)
+		var z1: int = mini(sz - scatter_padding, cz + r)
 
 		for x in range(x0, x1 + 1, forest_step):
 			for z in range(z0, z1 + 1, forest_step):
 				var gp := Vector2i(x, z)
 
 				# Must be inside this zone's circle
-				var dx := x - cx
-				var dz := z - cz
+				var dx: int = x - cx
+				var dz: int = z - cz
 				if sqrt(float(dx * dx + dz * dz)) > float(r):
 					continue
 
