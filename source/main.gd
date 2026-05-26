@@ -88,6 +88,9 @@ func _ready() -> void:
 		# Spawn a test health potion near the player
 		_spawn_test_items()
 
+		# ── Map Decorator: KayKit buildings + nature ──
+		_spawn_map_decorator()
+
 		_game_loop.enter_realtime()
 
 
@@ -131,3 +134,14 @@ func _verify_map_item_group() -> void:
 	# var potion_item2 = load("res://source/features/realtime/map_item.gd").new()
 	# potion_item2.setup(health_potion, potion_pos2)
 	# add_child(potion_item2)
+
+
+## Place KayKit 3D buildings and decorations on the terrain.
+func _spawn_map_decorator() -> void:
+	var decorator = load("res://source/features/shared/effects/map_decorator.gd").new()
+	decorator.name = "MapDecorator"
+	add_child(decorator)
+	var terrain := $Terrain
+	if _grid_world and terrain and decorator.has_method("decorate"):
+		decorator.decorate(_grid_world, terrain)
+		print("[Main] MapDecorator placed buildings + decorations")
