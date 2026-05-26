@@ -35,7 +35,7 @@ var lake_tiles: Array[Vector2i] = []
 # ── Lake definitions: center (grid), radius ──
 const LAKES: Array[Dictionary] = [
 	{center=Vector2i(48, 20), radius=7},   # 큰 호수 (북동쪽)
-	{center=Vector2i(25, 58), radius=3},   # 작은 연못 (마을 서쪽)
+	{center=Vector2i(18, 72), radius=3},   # 작은 연못 (마을 서쪽, 건물 회피)
 	{center=Vector2i(22, 100), radius=8},  # 큰 호수 (남쪽)
 ]
 

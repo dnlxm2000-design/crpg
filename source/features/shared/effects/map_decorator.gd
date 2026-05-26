@@ -19,9 +19,9 @@ const BUILDINGS: Array[Dictionary] = [
 	{grid=Vector2i(36,65), path="blue/building_windmill_blue", scale=1.5, rot=0.0},
 	# ── Towers (defense) ──
 	{grid=Vector2i(23,50), path="green/building_tower_A_green", scale=1.5, rot=0.0},
-	{grid=Vector2i(37,70), path="blue/building_tower_B_blue", scale=1.5, rot=0.0},
+	{grid=Vector2i(43,70), path="blue/building_tower_B_blue", scale=1.5, rot=0.0},
 	{grid=Vector2i(37,50), path="blue/building_tower_base_blue", scale=1.5, rot=0.0},
-	{grid=Vector2i(40,58), path="blue/building_watermill_blue", scale=1.5, rot=0.0},
+	{grid=Vector2i(42,60), path="blue/building_watermill_blue", scale=1.5, rot=0.0},
 ]
 
 ## Decoration scatter config.
