@@ -22,7 +22,7 @@ const WATER_HEIGHT: float = -1.5
 ## Riverbed radius at start (narrow).
 @export var river_width_start: float = 1.5
 ## Riverbed radius at end (wide).
-@export var river_width_end: float = 4.0
+@export var river_width_end: float = 3.0
 ## Bank smoothing radius beyond riverbed edge.
 @export var river_bank_width: float = 1.5
 
