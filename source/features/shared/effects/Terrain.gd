@@ -15,8 +15,33 @@ const TILE_SIZE: float = 2.0
 
 ## Above this height → grass; height ≤ 0 → sand.
 const WATER_HEIGHT: float = -1.5
+## Water feature carving enabled.
+@export var features_enabled: bool = true
 
 var coords: Array[Vector3] = []
+## Grid positions of river tiles (for decorator queries)
+var river_tiles: Array[Vector2i] = []
+## Grid positions of lake tiles (for decorator queries)
+var lake_tiles: Array[Vector2i] = []
+
+# ── Lake definitions: center (grid), radius ──
+const LAKES: Array[Dictionary] = [
+	{center=Vector2i(48, 20), radius=7},   # 큰 호수 (북동쪽)
+	{center=Vector2i(25, 58), radius=3},   # 작은 연못 (마을 서쪽)
+	{center=Vector2i(22, 100), radius=8},  # 큰 호수 (남쪽)
+]
+
+# ── River definitions: waypoints (grid) ──
+const RIVERS: Array[Array] = [
+	# 강 1: 북동쪽 호수 → 마을 동쪽 → 남쪽
+	[
+		Vector2i(48, 20),
+		Vector2i(44, 26), Vector2i(40, 32), Vector2i(38, 40),
+		Vector2i(36, 48), Vector2i(34, 56), Vector2i(33, 64),
+		Vector2i(32, 72), Vector2i(30, 80), Vector2i(28, 88),
+		Vector2i(26, 96), Vector2i(23, 103),
+	],
+]
 
 
 func _ready() -> void:
@@ -48,8 +73,140 @@ func generate_coords() -> void:
 
 			coords[x * stride + z] = Vector3(x * TILE_SIZE, h, z * TILE_SIZE)
 
+	# ── Carve lakes and rivers ──
+	if features_enabled:
+		_apply_water_features()
+
 	generate_mesh()
 	_sync_water_plane()
+
+
+# ══════════════════════════════════════════════
+#  Water feature carving (lakes + rivers)
+# ══════════════════════════════════════════════
+
+func _apply_water_features() -> void:
+	for lake in LAKES:
+		_carve_lake(lake.center, lake.radius)
+	for river_points in RIVERS:
+		_carve_river(river_points)
+
+
+## Carve a circular lake depression into the heightmap.
+func _carve_lake(center: Vector2i, radius: int) -> void:
+	var sx := map_size.x
+	var sz := map_size.y
+	var stride := sz + 1
+	var inner := float(radius)
+	var outer := inner + 2.0
+
+	var x0 := maxi(0, center.x - radius - 3)
+	var x1 := mini(sx, center.x + radius + 3)
+	var z0 := maxi(0, center.y - radius - 3)
+	var z1 := mini(sz, center.y + radius + 3)
+
+	for x in range(x0, x1 + 1):
+		for z in range(z0, z1 + 1):
+			var dx := x - center.x
+			var dz := z - center.y
+			var dist := sqrt(float(dx * dx + dz * dz))
+
+			var idx := x * stride + z
+			var orig_y := coords[idx].y
+
+			var new_y: float
+			if dist <= inner:
+				new_y = WATER_HEIGHT
+				lake_tiles.append(Vector2i(x, z))
+			elif dist < outer:
+				var t := (dist - inner) / (outer - inner)
+				t = t * t * (3.0 - 2.0 * t)  # smoothstep
+				new_y = lerp(WATER_HEIGHT, orig_y, t)
+			else:
+				continue
+
+			coords[idx] = Vector3(coords[idx].x, new_y, coords[idx].z)
+
+
+## Carve a river channel along a list of waypoints.
+func _carve_river(waypoints: Array) -> void:
+	if waypoints.size() < 2:
+		return
+	var sx := map_size.x
+	var sz := map_size.y
+	var stride := sz + 1
+
+	# River carving radius (half-width in tiles)
+	var river_radius: float = 2.5
+	var bank_radius: float = 4.0
+
+	# Subdivide waypoints for smooth curves
+	var pts := _subdivide_path(waypoints, 0.5)
+
+	# For each river point, carve a circle
+	var seen: Array[Vector2i] = []
+	for p in pts:
+		var cx := clampi(p.x, 0, sx)
+		var cz := clampi(p.y, 0, sz)
+		var x0 := maxi(0, cx - ceili(bank_radius))
+		var x1 := mini(sx, cx + ceili(bank_radius))
+		var z0 := maxi(0, cz - ceili(bank_radius))
+		var z1 := mini(sz, cz + ceili(bank_radius))
+
+		for x in range(x0, x1 + 1):
+			for z in range(z0, z1 + 1):
+				var dx := x - cx
+				var dz := z - cz
+				var dist := sqrt(float(dx * dx + dz * dz))
+
+				if dist > bank_radius:
+					continue
+
+				var idx := x * stride + z
+				var orig_y := coords[idx].y
+				var new_y: float
+
+				if dist <= river_radius:
+					# Riverbed: at water level with slight variation
+					var variation := (noise.get_noise_2d(float(x) * 0.5, float(z) * 0.5)) * 0.3
+					new_y = WATER_HEIGHT + variation
+					var gp := Vector2i(x, z)
+					if not gp in seen:
+						river_tiles.append(gp)
+						seen.append(gp)
+				elif dist <= bank_radius:
+					# Bank: smooth rise to terrain
+					var t := (dist - river_radius) / (bank_radius - river_radius)
+					t = t * t * (3.0 - 2.0 * t)
+					new_y = lerp(WATER_HEIGHT, orig_y, t)
+				else:
+					continue
+
+				# Only lower, never raise terrain
+				if new_y < orig_y:
+					coords[idx] = Vector3(coords[idx].x, new_y, coords[idx].z)
+
+
+## Subdivide a polyline path by inserting interpolated points.
+func _subdivide_path(points: Array, step: float) -> Array:
+	var result: Array = []
+	if points.is_empty():
+		return result
+	result.append(points[0])
+	for i in range(1, points.size()):
+		var a := points[i - 1] as Vector2i
+		var b := points[i] as Vector2i
+		var dx := float(b.x - a.x)
+		var dz := float(b.y - a.y)
+		var seg_len := sqrt(dx * dx + dz * dz)
+		var steps := maxi(1, ceili(seg_len / step))
+		for j in range(1, steps):
+			var t := float(j) / float(steps)
+			var px := roundi(float(a.x) + dx * t)
+			var pz := roundi(float(a.y) + dz * t)
+			result.append(Vector2i(px, pz))
+		result.append(b)
+	return result
 
 
 ## Auto-create a water plane as a child if none was wired.

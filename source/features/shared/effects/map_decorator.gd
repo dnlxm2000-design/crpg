@@ -54,6 +54,15 @@ const DECO_BASE: String = "res://addons/kaykit_medieval_hexagon_pack/Assets/gltf
 @export var scatter_padding: int = 3  # tiles from map edge
 @export var village_radius: int = 6  # tiles around center kept clear of nature
 
+# ── Forest zones — dense tree clusters ──
+const FOREST_ZONES: Array[Dictionary] = [
+	{center=Vector2i(12, 35), radius=14},   # 서쪽 큰 숲
+	{center=Vector2i(50, 35), radius=10},   # 동쪽 숲
+	{center=Vector2i(25, 85), radius=12},   # 남쪽 숲
+]
+@export var forest_step: int = 2       # 숲 내 설치 간격 (1=최대밀집)
+@export var forest_density: float = 0.75  # 숲 내 배치 확률
+
 var _grid_world: Node = null
 var _terrain: Node = null
 var _rng: RandomNumberGenerator = null
@@ -73,10 +82,13 @@ func decorate(grid_world: Node, terrain_node: Node) -> void:
 	for b in BUILDINGS:
 		_place_building(b)
 
+	print("[MapDecorator] Planting forests...")
+	_scatter_forests()
+
 	print("[MapDecorator] Scattering decorations...")
 	_scatter_nature()
 
-	print("[MapDecorator] Done — %d buildings + nature decorations" % [BUILDINGS.size()])
+	print("[MapDecorator] Done — %d buildings + nature decorations + forests" % [BUILDINGS.size()])
 
 
 ## Place a single building on the grid.
@@ -103,6 +115,74 @@ func _place_building(b: Dictionary) -> void:
 	_grid_world.set_blocked(b.grid, true)
 
 
+## Check if a grid tile falls within any forest zone.
+func _is_in_forest_zone(gp: Vector2i) -> bool:
+	for fz in FOREST_ZONES:
+		var dx := gp.x - fz.center.x
+		var dz := gp.y - fz.center.y
+		var dist := sqrt(float(dx * dx + dz * dz))
+		if dist <= float(fz.radius):
+			return true
+	return false
+
+
+## Plant dense forests within defined forest zones.
+func _scatter_forests() -> void:
+	var total: int = 0
+	var tree_decos: Array[Dictionary] = []
+	for d in NATURE_DECORATIONS:
+		if d.path.begins_with("nature/tree") or d.path.begins_with("nature/trees"):
+			tree_decos.append(d)
+			total += d.weight
+	if tree_decos.is_empty() or total <= 0:
+		return
+
+	var sx: int = _grid_world.grid_width if "grid_width" in _grid_world else 63
+	var sz: int = _grid_world.grid_height if "grid_height" in _grid_world else 126
+
+	for fz in FOREST_ZONES:
+		var cx := fz.center.x
+		var cz := fz.center.y
+		var r := fz.radius
+		var x0 := maxi(scatter_padding, cx - r)
+		var x1 := mini(sx - scatter_padding, cx + r)
+		var z0 := maxi(scatter_padding, cz - r)
+		var z1 := mini(sz - scatter_padding, cz + r)
+
+		for x in range(x0, x1 + 1, forest_step):
+			for z in range(z0, z1 + 1, forest_step):
+				var gp := Vector2i(x, z)
+
+				# Must be inside this zone's circle
+				var dx := x - cx
+				var dz := z - cz
+				if sqrt(float(dx * dx + dz * dz)) > float(r):
+					continue
+
+				# Skip water
+				if not _grid_world.is_walkable(gp, true):
+					continue
+				var wp: Vector3 = _grid_world.grid_to_world(gp)
+				if _get_height_at(wp) <= -1.0:
+					continue
+
+				# Density check
+				if _rng.randf() > forest_density:
+					continue
+
+				# Weighted random tree
+				var roll: int = _rng.randi_range(0, total - 1)
+				var acc: int = 0
+				var chosen: Dictionary = tree_decos[0]
+				for d in tree_decos:
+					acc += d.weight
+					if roll < acc:
+						chosen = d
+						break
+
+				_place_decoration(gp, chosen)
+
+
 ## Scatter trees, rocks, and props across unoccupied terrain tiles.
 func _scatter_nature() -> void:
 	var total_weights: int = 0
@@ -125,6 +205,10 @@ func _scatter_nature() -> void:
 			var dx: int = abs(x - center.x)
 			var dz: int = abs(z - center.y)
 			if dx <= village_radius and dz <= village_radius:
+				continue
+
+			# Skip forest zones (already populated by _scatter_forests)
+			if _is_in_forest_zone(gp):
 				continue
 
 			# Skip occupied/blocked/walkable? try to place only on walkable grass
