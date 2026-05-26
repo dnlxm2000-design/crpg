@@ -89,6 +89,11 @@ func generate_coords() -> void:
 	_sync_water_plane()
 
 
+## Returns true if the grid tile was carved by a river or lake.
+func is_water_tile(gp: Vector2i) -> bool:
+	return gp in river_tiles or gp in lake_tiles
+
+
 # ══════════════════════════════════════════════
 #  Water feature carving (lakes + rivers)
 # ══════════════════════════════════════════════

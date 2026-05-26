@@ -93,6 +93,12 @@ func decorate(grid_world: Node, terrain_node: Node) -> void:
 
 ## Place a single building on the grid.
 func _place_building(b: Dictionary) -> void:
+	# Skip if tile is river or lake
+	if _terrain and _terrain.has_method("is_water_tile"):
+		if _terrain.is_water_tile(b.grid):
+			push_warning("[MapDecorator] Skipping building on water tile: %s at %s" % [b.path, b.grid])
+			return
+
 	var full_path: String = GLTF_BASE + b.path + ".gltf"
 	var model = load(full_path)
 	if not model:
@@ -163,7 +169,11 @@ func _scatter_forests() -> void:
 				if sqrt(float(dx * dx + dz * dz)) > float(r):
 					continue
 
-				# Skip water
+				# Skip river / lake tiles
+				if _terrain and _terrain.has_method("is_water_tile"):
+					if _terrain.is_water_tile(gp):
+						continue
+				# Skip water (original noise height)
 				if not _grid_world.is_walkable(gp, true):
 					continue
 				var wp: Vector3 = _grid_world.grid_to_world(gp)
@@ -214,6 +224,11 @@ func _scatter_nature() -> void:
 			# Skip forest zones (already populated by _scatter_forests)
 			if _is_in_forest_zone(gp):
 				continue
+
+			# Skip river / lake tiles
+			if _terrain and _terrain.has_method("is_water_tile"):
+				if _terrain.is_water_tile(gp):
+					continue
 
 			# Skip occupied/blocked/walkable? try to place only on walkable grass
 			if not _grid_world.is_walkable(gp, true):
