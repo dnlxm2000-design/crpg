@@ -463,8 +463,8 @@ func _ranged_attack(target: Node) -> void:
 		var ProjScript = load("res://source/features/shared/effects/projectile.gd")
 		if ProjScript:
 			var proj = ProjScript.new()
-			proj.setup(parent_pos, target_pos, _parent, target)
 			scene.add_child(proj)
+			proj.setup(parent_pos, target_pos, _parent, target)
 
 	var e_name = "Enemy"
 	if "unit_name" in _parent:

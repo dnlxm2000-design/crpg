@@ -569,8 +569,8 @@ func _spawn_corpse(grid_world, corpse_gold: int, items: Array) -> void:
 		return
 	var gp: Vector2i = grid_world.world_to_grid(global_position)
 	var corpse = load("res://source/features/shared/corpse.gd").new()
-	corpse.setup(grid_world, gp, unit_name, corpse_color, corpse_gold, items)
 	get_tree().current_scene.add_child(corpse)
+	corpse.setup(grid_world, gp, unit_name, corpse_color, corpse_gold, items)
 
 
 func _drop_loot() -> void:
