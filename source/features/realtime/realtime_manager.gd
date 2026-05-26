@@ -87,7 +87,7 @@ func spawn_player(at_position: Vector3, race: String = "Human", class_id: String
 
 	_give_starting_items(inventory, class_id)
 
-	player.setup_placeholder_visual(Color(0.2, 0.6, 1.0))
+	_setup_player_model(player, class_id)
 
 	player.name = "PlayerUnit"
 	var main_node := get_node_or_null("/root/Main")
@@ -116,6 +116,49 @@ func spawn_player(at_position: Vector3, race: String = "Human", class_id: String
 
 	print("[RealTimeManager] Player spawned at %s (race=%s, class=%s)" % [at_position, race, class_id])
 	return player
+
+
+# ── KayKit character model mapping ──
+const CHARACTER_MODELS: Dictionary = {
+	"fighter": "res://addons/kaykit_character_pack_adventures/Characters/gltf/Barbarian.glb",
+	"paladin": "res://addons/kaykit_character_pack_adventures/Characters/gltf/Knight.glb",
+	"mage": "res://addons/kaykit_character_pack_adventures/Characters/gltf/Mage.glb",
+	"rogue": "res://addons/kaykit_character_pack_adventures/Characters/gltf/Rogue.glb",
+}
+
+func _get_character_model(class_id: String) -> PackedScene:
+	var path = CHARACTER_MODELS.get(class_id, CHARACTER_MODELS["fighter"])
+	var model = load(path)
+	if model:
+		return model
+	return null
+
+
+## Replace placeholder visual with a KayKit character model.
+func _setup_player_model(player: Node, class_id: String) -> void:
+	# Keep collision, remove placeholder box meshes
+	for child in player.get_children():
+		if child is MeshInstance3D and child.name in ["UnitBoxBody", "UnitBoxHead", "UnitSprite"]:
+			player.remove_child(child)
+			child.queue_free()
+
+	# Load and attach character model
+	var model = _get_character_model(class_id)
+	if not model:
+		# Fallback: placeholder
+		player.setup_placeholder_visual(Color(0.2, 0.6, 1.0))
+		return
+
+	var instance = model.instantiate()
+	if not instance:
+		player.setup_placeholder_visual(Color(0.2, 0.6, 1.0))
+		return
+
+	instance.name = "CharacterModel"
+	instance.scale = Vector3(0.8, 0.8, 0.8)
+	instance.position = Vector3(0, -0.4, 0)  # Adjust to ground level
+	player.add_child(instance)
+	instance.owner = player
 
 
 func _apply_class_to_unit(unit: Node, class_def: Dictionary, class_id: String) -> void:
