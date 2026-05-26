@@ -17,6 +17,14 @@ const TILE_SIZE: float = 2.0
 const WATER_HEIGHT: float = -1.5
 ## Water feature carving enabled.
 @export var features_enabled: bool = true
+## Use Curve3D-based river carving (true) or linear waypoints (false, fallback).
+@export var river_curve_enabled: bool = true
+## Riverbed radius at start (narrow).
+@export var river_width_start: float = 1.5
+## Riverbed radius at end (wide).
+@export var river_width_end: float = 4.0
+## Bank smoothing radius beyond riverbed edge.
+@export var river_bank_width: float = 1.5
 
 var coords: Array[Vector3] = []
 ## Grid positions of river tiles (for decorator queries)
@@ -128,63 +136,99 @@ func _carve_lake(center: Vector2i, radius: int) -> void:
 			coords[idx] = Vector3(coords[idx].x, new_y, coords[idx].z)
 
 
-## Carve a river channel along a list of waypoints.
+## Dispatch to selected river carving method.
 func _carve_river(waypoints: Array) -> void:
 	if waypoints.size() < 2:
 		return
+	if river_curve_enabled:
+		_carve_river_curve(waypoints)
+	else:
+		_carve_river_linear(waypoints)
+
+
+## Carve river using Curve3D (Catmull-Rom smooth interpolation).
+func _carve_river_curve(waypoints: Array) -> void:
+	# Build Curve3D from waypoints (z is height, so waypoint y → curve z)
+	var curve := Curve3D.new()
+	for i in range(waypoints.size()):
+		var wp := waypoints[i] as Vector2i
+		var pos := Vector3(float(wp.x * TILE_SIZE), 0.0, float(wp.y * TILE_SIZE))
+		curve.add_point(pos)
+
+	curve.bake_interval = 0.5
+	var total := curve.get_baked_length()
+	var seen: Array[Vector2i] = []
+	var step := 0.5  # sample every 0.5 world units
+
+	for d in range(0, ceili(total / step)):
+		var t := float(d) * step
+		if t > total:
+			t = total
+		var p := curve.sample_baked(t)
+		var gx := clampi(roundi(p.x / TILE_SIZE), 0, map_size.x)
+		var gz := clampi(roundi(p.z / TILE_SIZE), 0, map_size.y)
+
+		# Variable width: narrow at start, wide at end
+		var progress := t / maxf(total, 0.01)
+		var radius := lerpf(river_width_start, river_width_end, progress)
+
+		_carve_river_at_point(Vector2i(gx, gz), radius, seen)
+
+
+## Carve river using linear waypoint subdivision (fallback).
+func _carve_river_linear(waypoints: Array) -> void:
+	var river_radius: float = 2.5
+	var bank_radius: float = 4.0
+	var pts := _subdivide_path(waypoints, 0.5)
+	var seen: Array[Vector2i] = []
+	for p in pts:
+		var gp := Vector2i(clampi(p.x, 0, map_size.x), clampi(p.y, 0, map_size.y))
+		_carve_river_at_point(gp, river_radius, seen)
+
+
+## Carve a single river cross-section at a grid position.
+func _carve_river_at_point(gp: Vector2i, river_radius: float, seen: Array[Vector2i]) -> void:
 	var sx := map_size.x
 	var sz := map_size.y
 	var stride := sz + 1
+	var bank_radius := river_radius + river_bank_width
 
-	# River carving radius (half-width in tiles)
-	var river_radius: float = 2.5
-	var bank_radius: float = 4.0
+	var cx := gp.x
+	var cz := gp.y
+	var x0 := maxi(0, cx - ceili(bank_radius))
+	var x1 := mini(sx, cx + ceili(bank_radius))
+	var z0 := maxi(0, cz - ceili(bank_radius))
+	var z1 := mini(sz, cz + ceili(bank_radius))
 
-	# Subdivide waypoints for smooth curves
-	var pts := _subdivide_path(waypoints, 0.5)
+	for x in range(x0, x1 + 1):
+		for z in range(z0, z1 + 1):
+			var dx := x - cx
+			var dz := z - cz
+			var dist := sqrt(float(dx * dx + dz * dz))
 
-	# For each river point, carve a circle
-	var seen: Array[Vector2i] = []
-	for p in pts:
-		var cx := clampi(p.x, 0, sx)
-		var cz := clampi(p.y, 0, sz)
-		var x0 := maxi(0, cx - ceili(bank_radius))
-		var x1 := mini(sx, cx + ceili(bank_radius))
-		var z0 := maxi(0, cz - ceili(bank_radius))
-		var z1 := mini(sz, cz + ceili(bank_radius))
+			if dist > bank_radius:
+				continue
 
-		for x in range(x0, x1 + 1):
-			for z in range(z0, z1 + 1):
-				var dx := x - cx
-				var dz := z - cz
-				var dist := sqrt(float(dx * dx + dz * dz))
+			var idx := x * stride + z
+			var orig_y := coords[idx].y
+			var new_y: float
 
-				if dist > bank_radius:
-					continue
+			if dist <= river_radius:
+				var variation := (noise.get_noise_2d(float(x) * 0.5, float(z) * 0.5)) * 0.3
+				new_y = WATER_HEIGHT + variation
+				var tile := Vector2i(x, z)
+				if not tile in seen:
+					river_tiles.append(tile)
+					seen.append(tile)
+			elif dist <= bank_radius:
+				var t := (dist - river_radius) / (bank_radius - river_radius)
+				t = t * t * (3.0 - 2.0 * t)
+				new_y = lerp(WATER_HEIGHT, orig_y, t)
+			else:
+				continue
 
-				var idx := x * stride + z
-				var orig_y := coords[idx].y
-				var new_y: float
-
-				if dist <= river_radius:
-					# Riverbed: at water level with slight variation
-					var variation := (noise.get_noise_2d(float(x) * 0.5, float(z) * 0.5)) * 0.3
-					new_y = WATER_HEIGHT + variation
-					var gp := Vector2i(x, z)
-					if not gp in seen:
-						river_tiles.append(gp)
-						seen.append(gp)
-				elif dist <= bank_radius:
-					# Bank: smooth rise to terrain
-					var t := (dist - river_radius) / (bank_radius - river_radius)
-					t = t * t * (3.0 - 2.0 * t)
-					new_y = lerp(WATER_HEIGHT, orig_y, t)
-				else:
-					continue
-
-				# Only lower, never raise terrain
-				if new_y < orig_y:
-					coords[idx] = Vector3(coords[idx].x, new_y, coords[idx].z)
+			if new_y < orig_y:
+				coords[idx] = Vector3(coords[idx].x, new_y, coords[idx].z)
 
 
 ## Subdivide a polyline path by inserting interpolated points.
