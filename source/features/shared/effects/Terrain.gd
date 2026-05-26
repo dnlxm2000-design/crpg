@@ -41,13 +41,14 @@ const LAKES: Array[Dictionary] = [
 
 # ── River definitions: waypoints (grid) ──
 const RIVERS: Array[Array] = [
-	# 강 1: 북동쪽 호수 → 마을 동쪽 → 남쪽
+	# 강 1: 북동쪽 호수(48,20) → 마을 동쪽 우회 → 남쪽 호수(22,100)
+	# 마을 중심부(24~36, 55~65)는 건물 밀집 지역 — 강은 동쪽으로 우회
 	[
 		Vector2i(48, 20),
-		Vector2i(44, 26), Vector2i(40, 32), Vector2i(38, 40),
-		Vector2i(36, 48), Vector2i(34, 56), Vector2i(33, 64),
-		Vector2i(32, 72), Vector2i(30, 80), Vector2i(28, 88),
-		Vector2i(26, 96), Vector2i(23, 103),
+		Vector2i(46, 26), Vector2i(44, 32), Vector2i(42, 40),
+		Vector2i(40, 48), Vector2i(41, 56), Vector2i(40, 64),
+		Vector2i(37, 72), Vector2i(35, 80), Vector2i(32, 88),
+		Vector2i(28, 96), Vector2i(24, 103),
 	],
 ]
 
