@@ -1,7 +1,7 @@
-# unit.gd — Base class for all game entities (player, enemies, NPCs).
+# unit.gd ??Base class for all game entities (player, enemies, NPCs).
 # Shared between real-time and turn-based modes. 3D version.
-class_name Unit
 extends CharacterBody3D
+class_name Unit
 
 ## Core stats
 @export var unit_name: String = "Unit"
@@ -17,7 +17,7 @@ extends CharacterBody3D
 @export var crit_chance: float = 0.05
 @export var crit_multiplier: float = 2.0
 
-## RPG 기본 스탯 (D&D 6속성)
+## RPG 湲곕낯 ?ㅽ꺈 (D&D 6?띿꽦)
 @export var strength: int = 10
 @export var dexterity: int = 10
 @export var constitution: int = 10
@@ -25,25 +25,25 @@ extends CharacterBody3D
 @export var wisdom: int = 10
 @export var charisma: int = 10
 
-## 종족
+## 醫낆”
 @export var race: String = "Human"
 
-## 직업
+## 吏곸뾽
 @export var character_class: String = ""
 
-## 신분: slave/criminal/serf/commoner/freeman/merchant/noble/clergy/tribesman/otherworlder
+## ?좊텇: slave/criminal/serf/commoner/freeman/merchant/noble/clergy/tribesman/otherworlder
 @export var social_status: String = "commoner"
 
-## 조직/길드 직급: {organization_id: rank_id}
+## 議곗쭅/湲몃뱶 吏곴툒: {organization_id: rank_id}
 var organization_ranks: Dictionary = {}
 
-## 학습된 스킬: {skill_id: level} (raw float, 10단위 버킷은 get_skill_level에서 처리)
+## ?숈뒿???ㅽ궗: {skill_id: level} (raw float, 10?⑥쐞 踰꾪궥? get_skill_level?먯꽌 泥섎━)
 var learned_skills: Dictionary = {}
 
-## 스킬별 상한: {skill_id: max_level} (기본 100)
+## ?ㅽ궗蹂??곹븳: {skill_id: max_level} (湲곕낯 100)
 var skill_caps: Dictionary = {}
 
-## 스킬 XP 로그
+## ?ㅽ궗 XP 濡쒓렇
 var _skill_xp_log: Dictionary = {}
 
 ## Runtime state
@@ -53,7 +53,7 @@ var max_action_points: int = 3
 var is_alive: bool = true
 var status_effects: Array = []
 
-## 엄폐 레벨
+## ?꾪룓 ?덈꺼
 enum CoverLevel {
 	NONE = 0,
 	HALF = 1,
@@ -62,11 +62,11 @@ enum CoverLevel {
 }
 var current_cover: CoverLevel = CoverLevel.NONE
 
-## 바라보는 방향 (마지막 이동 방향) — 3D: XZ 평면
+## 諛붾씪蹂대뒗 諛⑺뼢 (留덉?留??대룞 諛⑺뼢) ??3D: XZ ?됰㈃
 var facing_direction: Vector3 = Vector3(0, 0, 1)
-## 방향 표시용 메쉬
+## 諛⑺뼢 ?쒖떆??硫붿돩
 var _direction_indicator: MeshInstance3D = null
-## 그림자 메쉬
+## 洹몃┝??硫붿돩
 var _shadow_mesh: MeshInstance3D = null
 
 ## Equipment slots
@@ -100,7 +100,7 @@ func _ready() -> void:
 	current_hp = get_max_hp()
 	movement = get_node_or_null("UnitMovement")
 
-	# ── 그림자 (반투명 검은 원반) ──
+	# ?? 洹몃┝??(諛섑닾紐?寃? ?먮컲) ??
 	var shadow_mat := StandardMaterial3D.new()
 	shadow_mat.albedo_color = Color(0.0, 0.0, 0.0, 0.3)
 	shadow_mat.flags_unshaded = true
@@ -118,7 +118,7 @@ func _ready() -> void:
 	_shadow_mesh.position = Vector3(0, 0.01, 0)
 	add_child(_shadow_mesh)
 
-	# 방향 표시용 화살표
+	# 諛⑺뼢 ?쒖떆???붿궡??
 	_direction_indicator = MeshInstance3D.new()
 	_direction_indicator.name = "DirectionIndicator"
 	var arrow_mat := StandardMaterial3D.new()
@@ -133,23 +133,23 @@ func _ready() -> void:
 	_direction_indicator.mesh = arrow_mesh
 	_direction_indicator.material_override = arrow_mat
 	_direction_indicator.position = Vector3(0, 0.6, 0)
-	_direction_indicator.rotation.x = PI / 2  # 화살표를 수평으로
+	_direction_indicator.rotation.x = PI / 2  # ?붿궡?쒕? ?섑룊?쇰줈
 	add_child(_direction_indicator)
 
 
-## 실시간 모드 흔들림(Bobbing).
+## ?ㅼ떆媛?紐⑤뱶 ?붾뱾由?Bobbing).
 func _process(_delta: float) -> void:
 	if not is_alive:
 		return
 
 	var is_moving_flag: bool = false
 	if movement:
-		is_moving_flag = movement.get("is_moving") or movement.get("is_keyboard_moving")
+		is_moving_flag = movement.get("is_moving") or movement.get("is_tween_moving")
 
 	var in_realtime: bool = (GameState.current_mode == GameState.GameMode.REALTIME) or \
 		(GameState.current_mode == GameState.GameMode.MENU)
 
-	# Bobbing — 3D: Y축 이동
+	# Bobbing ??3D: Y異??대룞
 	if is_moving_flag and in_realtime:
 		var bob_offset: float = sin(Time.get_ticks_msec() * 0.01) * 0.05
 		_sprite_position_y(bob_offset)
@@ -157,7 +157,7 @@ func _process(_delta: float) -> void:
 		_sprite_position_y(0.0)
 
 
-## 자식 메쉬의 y 위치 조정 (bobbing).
+## ?먯떇 硫붿돩??y ?꾩튂 議곗젙 (bobbing).
 func _sprite_position_y(offset: float) -> void:
 	for child in get_children():
 		if child is MeshInstance3D and child.name.begins_with("UnitBox"):
@@ -168,7 +168,7 @@ func _sprite_position_y(offset: float) -> void:
 
 
 func setup_placeholder_visual(body_color: Color, _collision_size: Vector2i = Vector2i(28, 20), _sprite_size: Vector2i = Vector2i(32, 48)) -> void:
-	# ── CollisionShape3D ──
+	# ?? CollisionShape3D ??
 	var collision := CollisionShape3D.new()
 	var shape := CylinderShape3D.new()
 	shape.radius = 0.4
@@ -176,7 +176,7 @@ func setup_placeholder_visual(body_color: Color, _collision_size: Vector2i = Vec
 	collision.shape = shape
 	add_child(collision)
 
-	# ── 3D 박스: low-poly 캐릭터 ──
+	# ?? 3D 諛뺤뒪: low-poly 罹먮┃????
 	var box_color: Color = body_color
 	var side_l_color: Color = body_color.darkened(0.35)
 	var side_r_color: Color = body_color.darkened(0.55)
@@ -193,7 +193,7 @@ func setup_placeholder_visual(body_color: Color, _collision_size: Vector2i = Vec
 	mat_side_r.albedo_color = side_r_color
 	mat_side_r.flags_unshaded = true
 
-	# 몸통 (박스)
+	# 紐명넻 (諛뺤뒪)
 	var body := MeshInstance3D.new()
 	body.name = "UnitBoxBody"
 	var body_mesh := BoxMesh.new()
@@ -203,7 +203,7 @@ func setup_placeholder_visual(body_color: Color, _collision_size: Vector2i = Vec
 	body.position = Vector3(0, 0.5, 0)
 	add_child(body)
 
-	# 머리
+	# 癒몃━
 	var head := MeshInstance3D.new()
 	head.name = "UnitBoxHead"
 	var head_mesh := BoxMesh.new()
@@ -213,20 +213,20 @@ func setup_placeholder_visual(body_color: Color, _collision_size: Vector2i = Vec
 	head.position = Vector3(0, 1.05, 0)
 	add_child(head)
 
-	# 더미 Sprite2D 호환용
+	# ?붾? Sprite2D ?명솚??
 	var _dummy := Sprite3D.new()
 	_dummy.name = "UnitSprite"
 	_dummy.visible = false
 	add_child(_dummy)
 
 
-## 마지막 이동 방향에 맞춰 방향 표시기 업데이트.
+## 留덉?留??대룞 諛⑺뼢??留욎떠 諛⑺뼢 ?쒖떆湲??낅뜲?댄듃.
 func update_facing_direction(dir: Vector3) -> void:
 	if dir == Vector3.ZERO:
 		return
 	facing_direction = dir.normalized()
 	if _direction_indicator:
-		# XZ 평면에서 방향을 Y축 회전으로 변환
+		# XZ ?됰㈃?먯꽌 諛⑺뼢??Y異??뚯쟾?쇰줈 蹂??
 		var angle: float = atan2(dir.x, dir.z)
 		_direction_indicator.rotation.y = angle
 
@@ -240,7 +240,7 @@ static func _attr_mod(score: int) -> int:
 	return floori((score - 10) / 2.0)
 
 
-## 종족 보정표
+## 醫낆” 蹂댁젙??
 const RACE_MODIFIERS: Dictionary = {
 	"Human":    {str =  1, dex =  1, con =  1, int =  1, wis =  1, cha =  1},
 	"Dwarf":    {str =  2, dex = -1, con =  3, int =  0, wis =  1, cha = -1},
@@ -275,7 +275,7 @@ func get_effective_cha() -> int:
 	return charisma + get_race_modifier("cha")
 
 
-## ─── 직업/스킬 시스템 ───
+## ??? 吏곸뾽/?ㅽ궗 ?쒖뒪?????
 
 func apply_class(class_def: Resource) -> void:
 	if not class_def:
@@ -288,33 +288,33 @@ func apply_class(class_def: Resource) -> void:
 	for attr in class_def.stat_modifiers:
 		var current = get(attr)
 		set(attr, current + class_def.stat_modifiers[attr])
-	# 직업 skill_caps 적용 (기본 100, 예외만 저장)
+	# 吏곸뾽 skill_caps ?곸슜 (湲곕낯 100, ?덉쇅留????
 	for skill_id in class_def.skill_caps:
 		skill_caps[skill_id] = class_def.skill_caps[skill_id]
 
 
 func apply_subclass(class_id: String, subclass_id: String) -> void:
-	var class_entry = ClassData.SUBCLASSES.get(class_id, {})
+	var class_entry = ClassData.subclasses().get(class_id, {})
 	var sub_entry = class_entry.get(subclass_id, {})
 	if sub_entry.is_empty():
 		return
-	# 보너스 스킬 추가
+	# 蹂대꼫???ㅽ궗 異붽?
 	var bonus: Dictionary = sub_entry.get("bonus_skills", {})
 	for skill_id in bonus:
 		var current: float = learned_skills.get(skill_id, 0.0)
 		learned_skills[skill_id] = max(current, bonus[skill_id])
-	# 보너스 cap 적용 (기존 cap 오버라이드)
+	# 蹂대꼫??cap ?곸슜 (湲곗〈 cap ?ㅻ쾭?쇱씠??
 	var bcaps: Dictionary = sub_entry.get("bonus_caps", {})
 	for skill_id in bcaps:
 		skill_caps[skill_id] = bcaps[skill_id]
 
 
 func get_skill_level(skill_id: String) -> float:
-	## 10단위 버킷 반환 — 모든 게임 로직(명중/데미지/회피)은 이 값 사용
+	## 10?⑥쐞 踰꾪궥 諛섑솚 ??紐⑤뱺 寃뚯엫 濡쒖쭅(紐낆쨷/?곕?吏/?뚰뵾)? ??媛??ъ슜
 	return SkillData.get_bucket(learned_skills.get(skill_id, 0.0))
 
 func get_raw_skill_level(skill_id: String) -> float:
-	## 실제 원시 스킬 레벨 (XP 진행 / UI 표시용)
+	## ?ㅼ젣 ?먯떆 ?ㅽ궗 ?덈꺼 (XP 吏꾪뻾 / UI ?쒖떆??
 	return learned_skills.get(skill_id, 0.0)
 
 func get_skill_cap(skill_id: String) -> float:
@@ -337,7 +337,7 @@ func process_skill_xp() -> void:
 		var adjusted: float = _calculate_xp_gain(xp, current_level)
 		var new_level: float = min(current_level + adjusted / 10.0, cap)
 		learned_skills[skill_id] = new_level
-		print("[Skill] %s: %.1f → %.1f (+%.1f) [cap=%.0f]" % [skill_id, current_level, new_level, new_level - current_level, cap])
+		print("[Skill] %s: %.1f ??%.1f (+%.1f) [cap=%.0f]" % [skill_id, current_level, new_level, new_level - current_level, cap])
 	_skill_xp_log.clear()
 
 
@@ -368,7 +368,7 @@ func get_total_skill_levels() -> float:
 
 func get_skill_bonus(skill_id: String, stat: String) -> float:
 	var level: float = get_skill_level(skill_id)
-	var skill_def = SkillData.SKILLS.get(skill_id)
+	var skill_def = SkillData.skills().get(skill_id)
 	if not skill_def:
 		return 0.0
 	return skill_def.get(stat, 0.0) * (level / 100.0)
@@ -390,8 +390,8 @@ func get_attack() -> int:
 func _get_equipped_weapon_skill_id() -> String:
 	if not equipped_weapon:
 		return ""
-	var wclass = equipped_weapon.get("weapon_class", "")
-	var wtype = equipped_weapon.get("weapon_subtype", "")
+	var wclass = equipped_weapon.weapon_class
+	var wtype = equipped_weapon.weapon_subtype
 	if wtype in ["spear", "lance", "pike"]:
 		return "spear"
 	elif wtype in ["dagger", "dagger", "sai", "fork"]:
@@ -467,7 +467,7 @@ static func check_hit(attacker, target) -> bool:
 	return roll * 100.0 < hit_chance
 
 
-## item_type → slot variable name mapping.
+## item_type ??slot variable name mapping.
 var _slot_map: Dictionary = {
 	1: "equipped_weapon",
 	2: "equipped_armor",
@@ -602,7 +602,7 @@ func _drop_loot() -> void:
 func _spawn_drop(item_res, grid_pos: Vector2i) -> void:
 	var map_item = load("res://source/features/realtime/map_item.gd").new()
 	map_item.setup(item_res, grid_pos)
-	# 3D: GridWorld의 grid_to_world 사용
+	# 3D: GridWorld??grid_to_world ?ъ슜
 	var gw = movement.get_grid_world() if movement else null
 	if gw:
 		map_item.global_position = gw.grid_to_world(grid_pos)
