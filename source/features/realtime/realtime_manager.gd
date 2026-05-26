@@ -64,7 +64,7 @@ func spawn_player(at_position: Vector3, race: String = "Human", class_id: String
 	player.position = Vector3(at_position.x, terrain_h, at_position.z)
 
 	# Class application
-	var class_def = ClassData.CLASSES.get(class_id)
+	var class_def = ClassData.classes().get(class_id)
 	if class_def:
 		_apply_class_to_unit(player, class_def, class_id)
 
@@ -133,11 +133,11 @@ func _apply_class_to_unit(unit: Node, class_def: Dictionary, class_id: String) -
 
 
 func _give_starting_items(inventory: Node, class_id: String) -> void:
-	var starting = ItemData.CLASS_STARTING_ITEMS.get(class_id, [])
+	var starting = ItemData.class_starting_items().get(class_id, [])
 	for entry in starting:
 		var item_id: String = entry.item_id
 		var qty: int = entry.get("quantity", 1)
-		var item_def = ItemData.ITEMS.get(item_id)
+		var item_def = ItemData.items().get(item_id)
 		if not item_def:
 			print("[RealTimeManager] WARNING: unknown starting item '%s'" % item_id)
 			continue

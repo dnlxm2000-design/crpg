@@ -1,6 +1,6 @@
-# map_item.gd — An item sitting on the game map, ready to be picked up. 3D version.
-class_name MapItem
+# map_item.gd ??An item sitting on the game map, ready to be picked up. 3D version.
 extends Node3D
+class_name MapItem
 
 ## The item resource this map object represents.
 var item = null
@@ -18,7 +18,7 @@ func setup(item_resource, grid_pos: Vector2i) -> void:
 	item = item_resource
 	grid_position = grid_pos
 
-	# ── Visual: colored box as placeholder icon ──
+	# ?? Visual: colored box as placeholder icon ??
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = _pick_color_for_item(item)
 	mat.flags_unshaded = true
@@ -33,7 +33,7 @@ func setup(item_resource, grid_pos: Vector2i) -> void:
 	_mesh.position = Vector3(0, 0.2, 0)
 	add_child(_mesh)
 
-	# ── Label: 3D label above item ──
+	# ?? Label: 3D label above item ??
 	var label := Label3D.new()
 	label.text = item.item_name if item else "?"
 	label.font_size = 24

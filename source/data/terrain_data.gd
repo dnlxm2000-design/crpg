@@ -1,20 +1,20 @@
-# terrain_data.gd — 지형 설정 리소스 (Editor에서 실시간 편집 가능).
-# @tool 스크립트로 Inspector에서 직접 값을 조정할 수 있음.
-class_name TerrainData
+# terrain_data.gd ??吏???ㅼ젙 由ъ냼??(Editor?먯꽌 ?ㅼ떆媛??몄쭛 媛??.
+# @tool ?ㅽ겕由쏀듃濡?Inspector?먯꽌 吏곸젒 媛믪쓣 議곗젙?????덉쓬.
 extends Resource
+class_name TerrainData
 
-## 지형 타입별 설정
+## 吏????낅퀎 ?ㅼ젙
 @export var terrain_types: Array[TerrainTypeDefinition] = []
 
-## 고도별 추가 색상 변형 (0=변형 없음, 1=완전 어두움)
+## 怨좊룄蹂?異붽? ?됱긽 蹂??(0=蹂???놁쓬, 1=?꾩쟾 ?대몢?)
 @export var height_darken: float = 0.12
 
-## 물 설정
+## 臾??ㅼ젙
 @export var water_color: Color = Color(0.2, 0.4, 0.7, 0.8)
-@export var water_height: int = 0  # 이 고도 이하는 물
+@export var water_height: int = 0  # ??怨좊룄 ?댄븯??臾?
 
 
-## 지형 타입 정의 (리소스에 포함된 inner class)
+## 吏??????뺤쓽 (由ъ냼?ㅼ뿉 ?ы븿??inner class)
 func _init() -> void:
 	if terrain_types.is_empty():
 		_default_types()
@@ -33,7 +33,7 @@ func _default_types() -> void:
 	]
 
 
-## 특정 타입 ID의 정의 반환
+## ?뱀젙 ???ID???뺤쓽 諛섑솚
 func get_type(id: int) -> TerrainTypeDefinition:
 	for t in terrain_types:
 		if t.id == id:
@@ -41,7 +41,7 @@ func get_type(id: int) -> TerrainTypeDefinition:
 	return terrain_types[0] if terrain_types.size() > 0 else null
 
 
-## 특정 타입 이름의 정의 반환
+## ?뱀젙 ????대쫫???뺤쓽 諛섑솚
 func get_type_by_name(name: String) -> TerrainTypeDefinition:
 	for t in terrain_types:
 		if t.name == name:

@@ -1,6 +1,6 @@
-# item.gd — Base item resource for the inventory system.
-class_name Item
+# item.gd ??Base item resource for the inventory system.
 extends Resource
+class_name Item
 
 ## Unique identifier for this item type (e.g. "health_potion").
 @export var id: String = ""

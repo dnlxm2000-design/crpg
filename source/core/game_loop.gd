@@ -98,7 +98,7 @@ func _spawn_test_enemies(player: Node, grid: Node) -> Array:
 
 	for i in range(count):
 		var enemy_id: String = enemy_pool[randi_range(0, enemy_pool.size() - 1)]
-		var e_def: Dictionary = EnemyData.ENEMIES.get(enemy_id)
+		var e_def: Dictionary = EnemyData.enemies().get(enemy_id)
 		if not e_def:
 			push_error("EnemyData: unknown enemy_id '%s'" % enemy_id)
 			continue
@@ -137,7 +137,7 @@ func _spawn_test_enemies(player: Node, grid: Node) -> Array:
 		var item_def: Dictionary
 		for d in drops:
 			item_id = d.item_id
-			item_def = ItemData.ITEMS.get(item_id)
+			item_def = ItemData.items().get(item_id)
 			if not item_def:
 				continue
 			drop_entry = {}

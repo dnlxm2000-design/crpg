@@ -1,6 +1,6 @@
-# turn_manager.gd — Speed-based turn queue with action points and phases.
-class_name TurnManager
+# turn_manager.gd ??Speed-based turn queue with action points and phases.
 extends Node
+class_name TurnManager
 
 ## All combatants in the battle.
 var combatants: Array[Node] = []
@@ -15,7 +15,7 @@ var is_combat_active: bool = false
 
 
 func _ready() -> void:
-	# Connect to player turn end (Stoneshard: player acts → enemies react)
+	# Connect to player turn end (Stoneshard: player acts ??enemies react)
 	EventBus.player_ended_turn.connect(_on_player_ended_turn)
 	# Track unit deaths for combat end detection
 	EventBus.unit_destroyed.connect(_on_unit_destroyed)
@@ -44,10 +44,10 @@ func start_combat(participants: Array[Node] = []) -> void:
 
 func end_combat() -> void:
 	if not is_combat_active:
-		return  # 이미 종료됨 (중복 호출 방지)
+		return  # ?대? 醫낅즺??(以묐났 ?몄텧 諛⑹?)
 	is_combat_active = false
 	
-	# 그리드 점유 정리 (죽은 적 시체 제외)
+	# 洹몃━???먯쑀 ?뺣━ (二쎌? ???쒖껜 ?쒖쇅)
 	var grid = get_node_or_null("/root/Main/GameLoop/GridWorld")
 	if grid and grid.has_method("set_occupied"):
 		for c in combatants:
@@ -58,7 +58,7 @@ func end_combat() -> void:
 			if occupant == c:
 				grid.set_occupied(gp, null)
 	
-	# 전투원 목록 초기화 (다음 전투에 영향 방지)
+	# ?꾪닾??紐⑸줉 珥덇린??(?ㅼ쓬 ?꾪닾???곹뼢 諛⑹?)
 	combatants.clear()
 	turn_order.clear()
 	current_turn_index = 0
@@ -87,7 +87,7 @@ func _start_new_round() -> void:
 
 
 func _calculate_turn_order() -> void:
-	# Dexterity-based initiative로 정렬.
+	# Dexterity-based initiative濡??뺣젹.
 	turn_order = combatants.duplicate()
 	turn_order.sort_custom(
 		func(a: Node, b: Node) -> bool:
@@ -174,7 +174,7 @@ func _on_unit_destroyed(unit: Node) -> void:
 		end_combat()
 
 
-## Listen for player ending their turn (Stoneshard: player moves/skips → next).
+## Listen for player ending their turn (Stoneshard: player moves/skips ??next).
 func _on_player_ended_turn(unit: Node) -> void:
 	# Only process if this unit is the current combatant
 	if turn_order.size() > 0 and turn_order[current_turn_index] == unit:

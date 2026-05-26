@@ -1,6 +1,6 @@
-# realtime_state.gd — Active when the game is in real-time mode.
-class_name RealtimeState
+# realtime_state.gd ??Active when the game is in real-time mode.
 extends State
+class_name RealtimeState
 
 
 func enter(_prev_state: State = null) -> void:

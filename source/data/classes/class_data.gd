@@ -2,11 +2,12 @@
 # 캐릭터 생성: STARTING_CLASSES 중 선택.
 # 서브클래스: base 클래스 유지 + 특화 경로.
 # 해금: 조건 충족 시 새 직업으로 전환 가능.
-class_name ClassData
 extends RefCounted
+class_name ClassData
 
 # ── 모든 직업 데이터 ──
-const CLASSES: Dictionary = {
+static func classes() -> Dictionary:
+	return {
 	"fighter": {
 		display_name = "전사(Fighter)",
 		description = "근접전 특화. 높은 HP와 데미지.",
@@ -242,7 +243,8 @@ const STARTING_CLASSES: PackedStringArray = [
 # - 서브클래스 선택 시 bonus_skills가 현재 스킬에 추가/오버라이드됨.
 # - 서브클래스는 추가 전직 개념이 아니라 동일 직업 내 성장 방향.
 #   (예: 메이지가 사령술을 익히면 → 네크로멘서 서브클래스, 여전히 메이지)
-const SUBCLASSES: Dictionary = {
+static func subclasses() -> Dictionary:
+	return {
 	# ── 전사(Fighter) ──
 	"fighter": {
 		"gladiator": {
@@ -419,7 +421,8 @@ const SUBCLASSES: Dictionary = {
 # key: 해금되는 직업 ID (CLASSES에 정의된)
 # skill: 필요한 스킬 ID
 # min_level: 필요한 스킬 최소 수치
-const UNLOCKS: Dictionary = {
+static func unlocks() -> Dictionary:
+	return {
 	"assassin": {
 		skill = "poisoning",
 		min_level = 30.0,

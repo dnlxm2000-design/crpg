@@ -1,19 +1,19 @@
-# terrain_type_definition.gd — 단일 지형 타입 정의.
-# TerrainData 리소스에서 배열로 사용됨.
-class_name TerrainTypeDefinition
+# terrain_type_definition.gd ???⑥씪 吏??????뺤쓽.
+# TerrainData 由ъ냼?ㅼ뿉??諛곗뿴濡??ъ슜??
 extends Resource
+class_name TerrainTypeDefinition
 
-## 표시 이름
+## ?쒖떆 ?대쫫
 @export var name: String = "GRASS"
-## 고유 ID (아틀라스 열 인덱스, -1 = side-only)
+## 怨좎쑀 ID (?꾪??쇱뒪 ???몃뜳?? -1 = side-only)
 @export var id: int = 0
-## 아틀라스 열(윗면), -1이면 별도 윗면 없음
+## ?꾪??쇱뒪 ???쀫㈃), -1?대㈃ 蹂꾨룄 ?쀫㈃ ?놁쓬
 @export var atlas_top_col: int = 0
-## 아틀라스 열(옆면)
+## ?꾪??쇱뒪 ???녿㈃)
 @export var atlas_side_col: int = 0
-## 이 타입이 물인가?
+## ????낆씠 臾쇱씤媛?
 @export var is_water: bool = false
-## 기본 색상 (Editor 표시용)
+## 湲곕낯 ?됱긽 (Editor ?쒖떆??
 @export var base_color: Color = Color.WHITE
 
 

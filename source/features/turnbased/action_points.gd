@@ -1,7 +1,7 @@
-# action_points.gd — Action Point component for turn-based units.
+# action_points.gd ??Action Point component for turn-based units.
 # Attach to any unit that needs AP management.
-class_name ActionPoints
 extends Node
+class_name ActionPoints
 
 ## Maximum AP per turn.
 @export var max_ap: int = 4

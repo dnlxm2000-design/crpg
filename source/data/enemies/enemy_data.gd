@@ -1,7 +1,7 @@
 # enemy_data.gd — 적 몬스터 데이터베이스.
 # 스탯, 드롭, AI 행동, 스킬 레벨, 서식지를 정의한다.
-class_name EnemyData
 extends RefCounted
+class_name EnemyData
 
 ## 서식지 카테고리
 const HABITAT_FOREST: String = "forest"      # 숲
@@ -11,7 +11,8 @@ const HABITAT_RUINS: String = "ruins"        # 유적
 const HABITAT_MOUNTAIN: String = "mountain"  # 산악
 
 ## 서식지별 적 목록 (스폰 풀 필터링용)
-const HABITAT_ENEMIES: Dictionary = {
+static func habitat_enemies() -> Dictionary:
+	return {
 	HABITAT_FOREST: ["wolf", "spider", "deer", "boar", "bear"],
 	HABITAT_PLAINS: ["horse", "cow", "sheep"],
 	HABITAT_CAVE: ["slime", "skeleton", "skeleton_archer", "giant_rat", "snake"],
@@ -20,7 +21,8 @@ const HABITAT_ENEMIES: Dictionary = {
 }
 
 ## 적 정의: {id: {name, hp, attack, defense, speed, accuracy, evasion, habitat, ...}}
-const ENEMIES: Dictionary = {
+static func enemies() -> Dictionary:
+	return {
 	# ═══════════════════════════════════════
 	# ── 숲 (Forest) 동물 ──
 	# ═══════════════════════════════════════

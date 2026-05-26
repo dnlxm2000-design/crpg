@@ -1,4 +1,4 @@
-﻿extends Camera3D
+extends Camera3D
 
 var _target: Node3D
 const OFFSET_Y: float = 6.0

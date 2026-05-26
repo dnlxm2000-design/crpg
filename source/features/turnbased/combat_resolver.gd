@@ -1,38 +1,38 @@
-# combat_resolver.gd — Hit/miss/crit/graze system with elevation & back attack.
-# 통합 전투 판정 엔진. 고도 우세, 후방 공격, 거리 패널티를 처리한다.
-class_name CombatResolver
+# combat_resolver.gd ??Hit/miss/crit/graze system with elevation & back attack.
+# ?듯빀 ?꾪닾 ?먯젙 ?붿쭊. 怨좊룄 ?곗꽭, ?꾨갑 怨듦꺽, 嫄곕━ ?⑤꼸?곕? 泥섎━?쒕떎.
 extends Node
+class_name CombatResolver
 
-## 최소/최대 명중률 (%)
+## 理쒖냼/理쒕? 紐낆쨷瑜?(%)
 const MIN_HIT_CHANCE: int = 5
 const MAX_HIT_CHANCE: int = 95
 
-## 기본 치명타 확률 (0.05 = 5%)
+## 湲곕낯 移섎챸? ?뺣쪧 (0.05 = 5%)
 const BASE_CRIT_CHANCE: float = 0.05
-## 치명타 데미지 배율
+## 移섎챸? ?곕?吏 諛곗쑉
 const BASE_CRIT_MULTIPLIER: float = 2.0
 
-## 빗맞힘(Graze) 임계: roll이 hit_chance의 이 비율 이상이면 빗맞힘
+## 鍮쀫쭪??Graze) ?꾧퀎: roll??hit_chance????鍮꾩쑉 ?댁긽?대㈃ 鍮쀫쭪??
 const GRAZE_THRESHOLD: float = 0.90
 
-## 최적 사거리 초과 시 타일당 명중률 패널티 (%)
+## 理쒖쟻 ?ш굅由?珥덇낵 ????쇰떦 紐낆쨷瑜??⑤꼸??(%)
 const DISTANCE_PENALTY_PER_TILE: int = -5
 
-## 고도 우세 시 명중률 보너스 (%)
+## 怨좊룄 ?곗꽭 ??紐낆쨷瑜?蹂대꼫??(%)
 const ELEVATION_ADVANTAGE_BONUS: int = 10
-## 고도 열세 시 명중률 패널티 (%)
+## 怨좊룄 ?댁꽭 ??紐낆쨷瑜??⑤꼸??(%)
 const ELEVATION_DISADVANTAGE_PENALTY: int = -10
 
-## 후방 공격 명중률 보너스 (%)
+## ?꾨갑 怨듦꺽 紐낆쨷瑜?蹂대꼫??(%)
 const BACK_ATTACK_ACCURACY_BONUS: int = 15
-## 후방 공격 데미지 배율
+## ?꾨갑 怨듦꺽 ?곕?吏 諛곗쑉
 const BACK_ATTACK_DAMAGE_MULTIPLIER: float = 1.5
 
-## 엄폐 보너스: 절반 엄폐 → AC/DEX +2, 3/4 엄폐 → AC/DEX +5
+## ?꾪룓 蹂대꼫?? ?덈컲 ?꾪룓 ??AC/DEX +2, 3/4 ?꾪룓 ??AC/DEX +5
 const HALF_COVER_BONUS: int = 2
 const THREE_QUARTER_COVER_BONUS: int = 5
 
-## 결과 키
+## 寃곌낵 ??
 const KEY_HIT_CHANCE: String = "hit_chance"
 const KEY_ROLL: String = "roll"
 const KEY_HIT: String = "hit"
@@ -42,10 +42,10 @@ const KEY_DAMAGE: String = "damage"
 const KEY_ACTUAL_DAMAGE: String = "actual_damage"
 const KEY_BACK_ATTACK: String = "back_attack"
 const KEY_ELEVATION_DIFF: String = "elevation_diff"
-const KEY_BASE_ATK: String = "base_atk"  # 디버깅용 순수 공격력
-const KEY_COVER_LEVEL: String = "cover_level"  # 0=없음, 1=절반, 2=3/4, 3=완전
+const KEY_BASE_ATK: String = "base_atk"  # ?붾쾭源낆슜 ?쒖닔 怨듦꺽??
+const KEY_COVER_LEVEL: String = "cover_level"  # 0=?놁쓬, 1=?덈컲, 2=3/4, 3=?꾩쟾
 
-## 명중률 계산 (equipment + 거리 + 고도 + 후방 + 엄폐 포함).
+## 紐낆쨷瑜?怨꾩궛 (equipment + 嫄곕━ + 怨좊룄 + ?꾨갑 + ?꾪룓 ?ы븿).
 static func calculate_hit_chance(
 	attacker: Node, target: Node, distance: int = 1,
 	elevation_diff: int = 0, back_attack: bool = false, cover_level: int = 0
@@ -53,38 +53,38 @@ static func calculate_hit_chance(
 	var atk_acc: int = attacker.get_accuracy() if attacker.has_method("get_accuracy") else 90
 	var tgt_ev: int = target.get_evasion() if target.has_method("get_evasion") else 10
 
-	# 거리 패널티
+	# 嫄곕━ ?⑤꼸??
 	var optimal_range: int = attacker.get("attack_range") if "attack_range" in attacker else 1
 	var distance_penalty: int = 0
 	if distance > optimal_range:
 		distance_penalty = (distance - optimal_range) * DISTANCE_PENALTY_PER_TILE
 
-	# 고도 보너스/패널티
+	# 怨좊룄 蹂대꼫???⑤꼸??
 	var elevation_bonus: int = 0
 	if elevation_diff > 0:
 		elevation_bonus = ELEVATION_ADVANTAGE_BONUS
 	elif elevation_diff < 0:
 		elevation_bonus = ELEVATION_DISADVANTAGE_PENALTY
 
-	# 후방 공격 보너스
+	# ?꾨갑 怨듦꺽 蹂대꼫??
 	var back_bonus: int = BACK_ATTACK_ACCURACY_BONUS if back_attack else 0
 
-	# 엄폐 보너스 (방어자 회피 증가)
+	# ?꾪룓 蹂대꼫??(諛⑹뼱???뚰뵾 利앷?)
 	var cover_bonus: int = 0
 	match cover_level:
-		1: cover_bonus = HALF_COVER_BONUS        # 절반 엄폐: +2
-		2: cover_bonus = THREE_QUARTER_COVER_BONUS  # 3/4 엄폐: +5
-		3: return 0  # 완전 엄폐: 직접 공격 불가
+		1: cover_bonus = HALF_COVER_BONUS        # ?덈컲 ?꾪룓: +2
+		2: cover_bonus = THREE_QUARTER_COVER_BONUS  # 3/4 ?꾪룓: +5
+		3: return 0  # ?꾩쟾 ?꾪룓: 吏곸젒 怨듦꺽 遺덇?
 
 	return clampi(atk_acc - tgt_ev + distance_penalty + elevation_bonus + back_bonus + cover_bonus,
 		MIN_HIT_CHANCE, MAX_HIT_CHANCE)
 
 
-## 공격 판정 실행.
+## 怨듦꺽 ?먯젙 ?ㅽ뻾.
 ## Parameters:
-##   elevation_diff: 공격자 고도 - 방어자 고도 (양수 = 공격자가 높음)
-##   back_attack: 방어자 뒷면에서 공격했는가?
-##   cover_level: 0=없음, 1=절반, 2=3/4, 3=완전
+##   elevation_diff: 怨듦꺽??怨좊룄 - 諛⑹뼱??怨좊룄 (?묒닔 = 怨듦꺽?먭? ?믪쓬)
+##   back_attack: 諛⑹뼱???룸㈃?먯꽌 怨듦꺽?덈뒗媛?
+##   cover_level: 0=?놁쓬, 1=?덈컲, 2=3/4, 3=?꾩쟾
 static func resolve_attack(
 	attacker: Node, target: Node, distance: int = 1,
 	elevation_diff: int = 0, back_attack: bool = false, cover_level: int = 0
@@ -105,7 +105,7 @@ static func resolve_attack(
 		KEY_COVER_LEVEL: cover_level,
 	}
 
-	# 완전 엄폐: 직접 공격 불가
+	# ?꾩쟾 ?꾪룓: 吏곸젒 怨듦꺽 遺덇?
 	if cover_level == 3:
 		return result
 
@@ -119,21 +119,21 @@ static func resolve_attack(
 	if roll >= hit_chance:
 		return result
 
-	# ── 맞음! ──
+	# ?? 留욎쓬! ??
 	result[KEY_HIT] = true
 
-	# 후방 공격 데미지 배율
+	# ?꾨갑 怨듦꺽 ?곕?吏 諛곗쑉
 	var dmg_mult: float = BACK_ATTACK_DAMAGE_MULTIPLIER if back_attack else 1.0
 
-	# 전술(Tactics) 스킬 데미지 배율 적용
+	# ?꾩닠(Tactics) ?ㅽ궗 ?곕?吏 諛곗쑉 ?곸슜
 	if attacker.has_method("get_skill_bonus"):
 		var tactics_bonus: float = attacker.get_skill_bonus("tactics", "damage")
 		dmg_mult += tactics_bonus / 100.0
 
-	# 치명타 판정 — 해부학(Anatomy)이 크리티컬 확률 증가
+	# 移섎챸? ?먯젙 ???대???Anatomy)???щ━?곗뺄 ?뺣쪧 利앷?
 	var base_crit: float = BASE_CRIT_CHANCE
 	if attacker.has_method("get_skill_bonus"):
-		# anatomy damage_per_100 = 0.2 → GM 시 +0.2 → crit chance +20%p
+		# anatomy damage_per_100 = 0.2 ??GM ??+0.2 ??crit chance +20%p
 		base_crit += attacker.get_skill_bonus("anatomy", "damage") / 100.0
 	var crit_chance: float = attacker.get("crit_chance") if "crit_chance" in attacker else base_crit
 	var crit_mult: float = attacker.get("crit_multiplier") if "crit_multiplier" in attacker else BASE_CRIT_MULTIPLIER
@@ -147,7 +147,7 @@ static func resolve_attack(
 		_apply_damage(result, target, raw_damage, attacker)
 		return result
 
-	# 빗맞힘
+	# 鍮쀫쭪??
 	var graze_threshold: float = hit_chance * GRAZE_THRESHOLD
 	if roll >= graze_threshold:
 		result[KEY_GRAZE] = true
@@ -157,20 +157,20 @@ static func resolve_attack(
 		_apply_damage(result, target, raw_damage, attacker)
 		return result
 
-	# 일반 명중
+	# ?쇰컲 紐낆쨷
 	var raw_damage: int = ceili(base_atk * dmg_mult)
 	result[KEY_DAMAGE] = raw_damage
 	_apply_damage(result, target, raw_damage, attacker)
 	return result
 
 
-## 후방 공격 여부 판정.
-## target의 facing_direction과 attack_dir이 같은 방향이면 후방 공격.
+## ?꾨갑 怨듦꺽 ?щ? ?먯젙.
+## target??facing_direction怨?attack_dir??媛숈? 諛⑺뼢?대㈃ ?꾨갑 怨듦꺽.
 static func is_back_attack(attacker_pos: Vector2i, target: Node) -> bool:
 	var facing: Vector3 = target.get("facing_direction") if "facing_direction" in target else Vector3(0, 0, 1)
 	if facing == Vector3.ZERO:
 		facing = Vector3(0, 0, 1)
-	# 공격 방향 = 타겟 위치 - 공격자 위치
+	# 怨듦꺽 諛⑺뼢 = ?寃??꾩튂 - 怨듦꺽???꾩튂
 	var target_pos: Vector2i
 	var grid_world = _find_grid_world(target)
 	if grid_world:
@@ -182,10 +182,10 @@ static func is_back_attack(attacker_pos: Vector2i, target: Node) -> bool:
 	if attack_dir == Vector2i.ZERO:
 		return false
 
-	# attack_dir을 3D 벡터로 변환 (XZ 평면)
+	# attack_dir??3D 踰≫꽣濡?蹂??(XZ ?됰㈃)
 	var ad_3d: Vector3 = Vector3(attack_dir.x, 0, attack_dir.y).normalized()
 	var dot: float = ad_3d.dot(facing.normalized())
-	# dot > 0.5면 같은 방향 (후방)
+	# dot > 0.5硫?媛숈? 諛⑺뼢 (?꾨갑)
 	return dot > 0.5
 
 
@@ -193,7 +193,7 @@ static func _find_grid_world(from: Node) -> Node:
 	return from.get_node_or_null("/root/Main/GameLoop/GridWorld")
 
 
-## 데미지 적용 (방어력 차감 후 take_damage 호출).
+## ?곕?吏 ?곸슜 (諛⑹뼱??李④컧 ??take_damage ?몄텧).
 static func _apply_damage(result: Dictionary, target: Node, raw_damage: int, attacker: Node) -> void:
 	var target_def: int = target.get_defense() if target.has_method("get_defense") else (target.get("defense") if "defense" in target else 5)
 	var actual: int = max(1, raw_damage - target_def)

@@ -1,6 +1,6 @@
 # class_definition.gd — 직업 정의 리소스.
-class_name ClassDefinition
 extends Resource
+class_name ClassDefinition
 
 @export var class_id: String = ""           # "fighter", "mage", "ranger", "rogue"
 @export var display_name: String = ""       # "전사(Fighter)"

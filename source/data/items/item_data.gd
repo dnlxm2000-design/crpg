@@ -1,10 +1,11 @@
 # item_data.gd — 전체 아이템 DB (상수 방식, .tres 불필요).
 # 인벤토리, 장비, 상점, 드롭, 시작 아이템에서 참조.
-class_name ItemData
 extends RefCounted
+class_name ItemData
 
 ## 아이템 정의: {id: {name, type, description, value, ...}}
-const ITEMS: Dictionary = {
+static func items() -> Dictionary:
+	return {
 	# ── 소모품 (CONSUMABLE) ──
 	"health_potion": {
 		name = "건강 물약(Health Potion)",
@@ -139,8 +140,8 @@ const ITEMS: Dictionary = {
 		stackable = true,
 		status_effect = "burning",
 	},
-	"acid_flask": {
-		name = "산성 플라스크(Acid Flask)",
+	"acid_vial": {
+		name = "산성 약병(Acid Vial)",
 		type = 0,
 		element = "acid",
 		description = "산성 12, 방어구 -3 (3턴)",
@@ -1209,7 +1210,7 @@ const ITEMS: Dictionary = {
 		value = 15,
 		stackable = false,
 	},
-	"empty_bottle": {
+	"empty_bottle_key": {
 		name = "빈병(Empty Bottle)",
 		type = 3,  # KEY_ITEM
 		description = "시약 보관용.",
@@ -1279,7 +1280,8 @@ const ITEMS: Dictionary = {
 
 
 ## 직업별 시작 아이템: {class_id: [{item_id, quantity}]}
-const CLASS_STARTING_ITEMS: Dictionary = {
+static func class_starting_items() -> Dictionary:
+	return {
 	"fighter": [
 		{item_id = "long_sword", quantity = 1},
 		{item_id = "robe", quantity = 1},

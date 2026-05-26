@@ -1,8 +1,8 @@
-# timeline_manager.gd — ATB (Active Time Battle) timeline manager.
+# timeline_manager.gd ??ATB (Active Time Battle) timeline manager.
 # Units accumulate speed toward a threshold. When they reach it, they get a turn.
 # Supports haste/slow modifiers and turn interrupts.
-class_name TimelineManager
 extends Node
+class_name TimelineManager
 
 ## Signal when a unit's turn is ready.
 signal unit_ready(unit: Node)
@@ -11,7 +11,7 @@ signal unit_ready(unit: Node)
 @export var turn_threshold: float = 1000.0
 
 ## All tracked units with their current timeline progress.
-var _progress: Dictionary = {}  # Node → float
+var _progress: Dictionary = {}  # Node ??float
 ## Queue of units ready to act.
 var _ready_queue: Array[Node] = []
 
@@ -33,8 +33,8 @@ func tick(delta: float) -> void:
 		if unit in _ready_queue:
 			continue  # Already waiting for their turn.
 
-		var speed = unit.get("speed", 100.0)
-		var haste = unit.get("haste_multiplier", 1.0)
+		var speed = unit.speed
+		var haste = unit.get("haste_multiplier") if "haste_multiplier" in unit else 1.0
 		_progress[unit] += speed * haste * delta
 
 		if _progress[unit] >= turn_threshold:

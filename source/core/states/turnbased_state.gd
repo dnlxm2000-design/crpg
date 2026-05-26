@@ -1,6 +1,6 @@
-# turnbased_state.gd — Active when the game is in turn-based mode (combat, etc.).
-class_name TurnbasedState
+# turnbased_state.gd ??Active when the game is in turn-based mode (combat, etc.).
 extends State
+class_name TurnbasedState
 
 @onready var turn_manager: Node = $"../../TurnManager"
 

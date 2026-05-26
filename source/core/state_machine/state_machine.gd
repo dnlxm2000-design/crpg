@@ -1,7 +1,7 @@
-# state_machine.gd — Generic finite state machine that manages named state nodes.
+# state_machine.gd ??Generic finite state machine that manages named state nodes.
 # States are child nodes of this node. Each state must extend State.
-class_name StateMachine
 extends Node
+class_name StateMachine
 
 ## Emitted when the state changes.
 signal state_changed(current_state: State, previous_state: State)
@@ -11,7 +11,7 @@ signal state_changed(current_state: State, previous_state: State)
 
 ## The currently active state.
 var current_state: State = null
-var _states: Dictionary = {}  # name → State
+var _states: Dictionary = {}  # name ??State
 
 
 func _ready() -> void:

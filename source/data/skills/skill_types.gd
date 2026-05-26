@@ -1,10 +1,10 @@
-# skill_types.gd — 스킬 타입 enum.
-class_name SkillTypes
+# skill_types.gd ???ㅽ궗 ???enum.
 extends RefCounted
+class_name SkillTypes
 
 enum Type {
-	WEAPON = 0,    # 무기 (검술/창술/펜싱/둔기/궁술/격투)
-	SUPPORT = 1,   # 보조 (전술/해부학/치료/마법저항)
-	MAGIC = 2,     # 마법 (마법학/명상/지능측정)
-	UTILITY = 3,   # 유틸 (은신/추적)
+	WEAPON = 0,    # 臾닿린 (寃??李쎌닠/?쒖떛/?붽린/沅곸닠/寃⑺닾)
+	SUPPORT = 1,   # 蹂댁“ (?꾩닠/?대???移섎즺/留덈쾿???
+	MAGIC = 2,     # 留덈쾿 (留덈쾿??紐낆긽/吏?μ륫??
+	UTILITY = 3,   # ?좏떥 (???異붿쟻)
 }

@@ -1,10 +1,10 @@
-# grid_world.gd — Tile-based grid with A* pathfinding (3D).
-# Grid coords (x, y) map to world (x, 0, y) — one unit per tile.
+# grid_world.gd ??Tile-based grid with A* pathfinding (3D).
+# Grid coords (x, y) map to world (x, 0, y) ??one unit per tile.
 # Isometric view is handled by Camera3D rotation, NOT by grid coords.
-class_name GridWorld
 extends Node
+class_name GridWorld
 
-## 타일 크기 (1 tile = 2 units — matches TerrainManager).
+## ????ш린 (1 tile = 2 units ??matches TerrainManager).
 const TILE_SIZE: float = 2.0
 ## Grid dimensions (tiles).
 @export var grid_width: int = 63
@@ -18,7 +18,7 @@ var astar: AStar3D
 var blocked: Dictionary = {}
 ## Set of occupied grid positions.
 var occupied: Dictionary = {}
-## 고도 데이터 ("x,y" → 0=물, 1=저지대, 2=고지대).
+## 怨좊룄 ?곗씠??("x,y" ??0=臾? 1=?吏?, 2=怨좎??).
 var elevation: Dictionary = {}
 
 ## Cardinal direction offsets (3D: Y=0, XZ plane).
@@ -32,7 +32,7 @@ func _ready() -> void:
 
 
 ## Build the A* graph and connect neighbors.
-## A* 점 위치는 단순 3D 좌표 사용 (x, 0, y).
+## A* ???꾩튂???⑥닚 3D 醫뚰몴 ?ъ슜 (x, 0, y).
 func _build_grid() -> void:
 	astar = AStar3D.new()
 	for xi in grid_width:
@@ -68,7 +68,7 @@ func _build_grid() -> void:
 							astar.connect_points(idi, nid, 1.4)
 
 
-## 그리드 → 월드 좌표 변환 (3D: XZ 평면, 단순 매핑).
+## 洹몃━?????붾뱶 醫뚰몴 蹂??(3D: XZ ?됰㈃, ?⑥닚 留ㅽ븨).
 func _grid_to_world(grid_pos: Vector2i) -> Vector3:
 	return Vector3(
 		grid_pos.x * TILE_SIZE,
@@ -77,7 +77,7 @@ func _grid_to_world(grid_pos: Vector2i) -> Vector3:
 	)
 
 
-## 월드 좌표 → 그리드 좌표 변환.
+## ?붾뱶 醫뚰몴 ??洹몃━??醫뚰몴 蹂??
 func _world_to_grid(world_pos: Vector3) -> Vector2i:
 	return Vector2i(
 		floori(world_pos.x / TILE_SIZE),
@@ -90,25 +90,25 @@ func world_to_grid(world_pos: Vector3) -> Vector2i:
 	return _world_to_grid(world_pos)
 
 
-## Convert grid coordinate to world position — center of tile.
+## Convert grid coordinate to world position ??center of tile.
 func grid_to_world(grid_pos: Vector2i) -> Vector3:
 	return _grid_to_world(grid_pos)
 
 
-## ─── Elevation / Heightmap ───
+## ??? Elevation / Heightmap ???
 
-## 특정 타일의 고도 반환 (기본 1 = 평원).
+## ?뱀젙 ??쇱쓽 怨좊룄 諛섑솚 (湲곕낯 1 = ?됱썝).
 func get_elevation(grid_pos: Vector2i) -> int:
 	var key: String = "%d,%d" % [grid_pos.x, grid_pos.y]
 	return elevation.get(key, 1)
 
 
-## 두 타일 간 고도 차이 반환 (양수 = from이 더 높음).
+## ?????媛?怨좊룄 李⑥씠 諛섑솚 (?묒닔 = from?????믪쓬).
 func get_elevation_difference(from_pos: Vector2i, to_pos: Vector2i) -> int:
 	return get_elevation(from_pos) - get_elevation(to_pos)
 
 
-## 특정 타일의 고도 설정.
+## ?뱀젙 ??쇱쓽 怨좊룄 ?ㅼ젙.
 func set_elevation(grid_pos: Vector2i, value: int) -> void:
 	var key: String = "%d,%d" % [grid_pos.x, grid_pos.y]
 	elevation[key] = value

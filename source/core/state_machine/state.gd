@@ -1,9 +1,9 @@
-# state.gd — Base class for all states in the finite state machine.
+# state.gd ??Base class for all states in the finite state machine.
 # Each state encapsulates behavior for one mode of operation.
-class_name State
 extends Node
+class_name State
 
-## Reference to the state machine owner — set automatically on enter.
+## Reference to the state machine owner ??set automatically on enter.
 var state_machine: StateMachine = null
 
 

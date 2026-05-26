@@ -74,11 +74,22 @@ func _anchor_to_top_right() -> void:
 
 
 func _collect_terrain() -> void:
-	if not _grid_world or not _grid_world.has_method("get_elevation"):
+	var terrain: Node = get_node_or_null("/root/Main/Terrain")
+	if not terrain or not terrain.has_method("get_height_at"):
 		return
+	# Sample terrain heights at each grid position using noise directly
+	var tw: int = GRID_W
+	var th: int = GRID_H
+	if "map_size" in terrain:
+		var ms: Vector2i = terrain.map_size
+		tw = ms.x
+		th = ms.y
 	for x in range(GRID_W):
 		for y in range(GRID_H):
-			_heights["%d,%d" % [x, y]] = _grid_world.get_elevation(Vector2i(x, y))
+			var gp_x: float = float(x) / float(GRID_W) * float(tw)
+			var gp_z: float = float(y) / float(GRID_H) * float(th)
+			var h: float = terrain.get_height_at(Vector3(gp_x * 2.0, 0, gp_z * 2.0))
+			_heights["%d,%d" % [x, y]] = h
 
 
 func _render() -> void:
@@ -93,14 +104,14 @@ func _render() -> void:
 
 	for x in range(GRID_W):
 		for y in range(GRID_H):
-			var h: int = _heights.get("%d,%d" % [x, y], 0)
+			var h: float = _heights.get("%d,%d" % [x, y], 0.0)
 			var color: Color
-			if h <= 0:
+			if h <= 0.0:
 				color = COLOR_WATER
-			elif h == 1:
-				color = COLOR_GRASS
-			else:
+			elif h > 6.0:
 				color = COLOR_MOUNTAIN
+			else:
+				color = COLOR_GRASS
 
 			var px := int(float(x) * sx)
 			var py := int(float(y) * sy)

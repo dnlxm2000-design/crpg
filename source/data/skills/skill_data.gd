@@ -1,10 +1,11 @@
 # skill_data.gd — 52개 스킬 정의 (상수 방식, .tres 불필요).
 # 12등급 (0~120, 10단위 버킷) / CombatResolver, Unit, equipment_panel에서 참조.
-class_name SkillData
 extends RefCounted
+class_name SkillData
 
 ## ── 12등급 명칭 (0~120, 10단위 버킷) ──
-const TIER_NAMES: Dictionary = {
+static func tier_names() -> Dictionary:
+	return {
 	0: "견습생(Neophyte)",
 	10: "초보(Novice)",
 	20: "수습(Apprentice)",
@@ -28,11 +29,12 @@ static func get_tier_name(level: float) -> String:
 	var bucket: int = int(get_bucket(level))
 	# 120은 버킷 120 → TIER_NAMES에 없으면 110 사용
 	if bucket >= 120:
-		return TIER_NAMES.get(110, "전설(Legendary)")
-	return TIER_NAMES.get(bucket, "견습생(Neophyte)")
+		return tier_names().get(110, "전설(Legendary)")
+	return tier_names().get(bucket, "견습생(Neophyte)")
 
 ## 스킬 정의: {id: {name, type, accuracy_per_100, damage_per_100, evasion_per_100, str, dex, con, int, wis}}
-const SKILLS: Dictionary = {
+static func skills() -> Dictionary:
+	return {
 	# ── 무기 스킬 (WEAPON) ──
 	"swordsmanship": {
 		name = "검술(Swordsmanship)",
@@ -540,7 +542,8 @@ const SKILLS: Dictionary = {
 
 
 ## 스킬 콤보 정의: [요구 스킬 배열] → {name, effect, chance/passive}
-const SKILL_COMBOS: Dictionary = {
+static func skill_combos() -> Dictionary:
+	return {
 	"stun_punch": {
 		skills = ["anatomy", "wrestling"],
 		name = "스턴펀치(Stun Punch)",

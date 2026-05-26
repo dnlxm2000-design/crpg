@@ -99,12 +99,14 @@ func _ready() -> void:
 	_stat_label = Label.new()
 	_stat_label.add_theme_font_size_override("font_size", 12)
 	_stat_label.add_theme_color_override("font_color", Color(0.7, 0.9, 1.0))
+	_stat_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	stats_inner.add_child(_stat_label)
 
 	_derived_label = Label.new()
 	_derived_label.name = "DerivedLabel"
 	_derived_label.add_theme_font_size_override("font_size", 12)
 	_derived_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.5))
+	_derived_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	stats_inner.add_child(_derived_label)
 
 	# ── 2. Skill section ──
@@ -132,6 +134,7 @@ func _ready() -> void:
 	_skill_label = Label.new()
 	_skill_label.add_theme_font_size_override("font_size", 11)
 	_skill_label.add_theme_color_override("font_color", Color(0.8, 1.0, 0.7))
+	_skill_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	skill_inner.add_child(_skill_label)
 
 	# ── 3. Equipment slots ──
@@ -168,7 +171,7 @@ func _ready() -> void:
 	right_vbox.add_child(inv_header)
 
 	var inv_title := Label.new()
-	inv_title.text = "장비목록"
+	inv_title.text = "보관함"
 	inv_title.add_theme_font_size_override("font_size", 13)
 	inv_title.add_theme_color_override("font_color", Color(0.8, 0.8, 0.85))
 	inv_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -234,6 +237,10 @@ func _input(event: InputEvent) -> void:
 func open() -> void:
 	is_open = true
 	visible = true
+	# 패널 열 때마다 플레이어/인벤토리 재참조 (타이밍 이슈 방지)
+	if not _player:
+		_find_player()
+		_find_inventory()
 	refresh()
 
 
@@ -253,7 +260,7 @@ func _on_close() -> void:
 	close()
 
 
-func _on_inventory_changed() -> void:
+func _on_inventory_changed(_a = null, _b = null) -> void:
 	if is_open:
 		refresh()
 
@@ -455,8 +462,11 @@ func _on_equip(item: Resource) -> void:
 	var inv = _player.get_node_or_null("Inventory")
 	if not inv:
 		return
+	var item_id: String = item.id if item else ""
+	if item_id.is_empty():
+		return
 	if inv.has_method("equip_item"):
-		inv.equip_item(item, _player)
+		inv.equip_item(item_id, _player)
 		refresh()
 
 
@@ -538,16 +548,16 @@ func _format_skills(unit: Node) -> String:
 	if not unit.has_method("get_skill_level"):
 		return "(no skills)"
 	var class_name_str = unit.get("character_class") if "character_class" in unit else ""
-	var display = ClassData.CLASSES.get(class_name_str, {})
+	var display = ClassData.classes().get(class_name_str, {})
 	var class_display = display.get("display_name", class_name_str)
 
 	var lines: Array[String] = []
 	lines.append("직업: %s" % class_display)
 
 	for skill_id in unit.learned_skills:
-		var level: float = unit.get_raw_skill_level(skill_id)
+		var _level: float = unit.get_raw_skill_level(skill_id)
 		var bucket: float = unit.get_skill_level(skill_id)
-		var skill_def = SkillData.SKILLS.get(skill_id)
+		var skill_def = SkillData.skills().get(skill_id)
 		var skill_name = skill_def.get("name", skill_id) if skill_def else skill_id
 		var title = SkillData.get_tier_name(bucket)
 		var cap = unit.get_skill_cap(skill_id)

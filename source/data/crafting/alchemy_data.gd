@@ -1,10 +1,11 @@
 # alchemy_data.gd — 연금술 제조법 데이터베이스.
 # 기름 + 플라스크 + 재료 = 효과 플라스크 (투척 아이템)
-class_name AlchemyData
 extends RefCounted
+class_name AlchemyData
 
 ## 제조법: {result_id: {ingredients: [{item_id, qty}, ...], skill_req, xp}}
-const RECIPES: Dictionary = {
+static func recipes() -> Dictionary:
+	return {
 	# ═══════════════════════════════════════
 	# ── 연금술사의 불 (Alchemist's Fire) ──
 	# ═══════════════════════════════════════

@@ -1,7 +1,7 @@
 # status_effect_data.gd — 상태이상/버프/디버프 정의.
 # 폭탄, 스킬, 아이템 사용 시 참조.
-class_name StatusEffectData
 extends RefCounted
+class_name StatusEffectData
 
 ## 상태이상 타입
 enum Type {
@@ -18,7 +18,8 @@ enum DurationUnit {
 }
 
 ## 효과 정의: {id: {name, type, duration, description, ...}}
-const EFFECTS: Dictionary = {
+static func effects() -> Dictionary:
+	return {
 	# ── 원소 피해 (ELEMENTAL) ──
 	"burning": {
 		name = "화상(Burning)",

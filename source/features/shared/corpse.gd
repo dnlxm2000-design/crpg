@@ -95,7 +95,7 @@ func loot(player_unit: Node, player_inventory: Node) -> bool:
 
 	for it in loot_items:
 		if it and player_inventory.has_method("add_item") and player_inventory.add_item(it):
-			var item_name = it.get("item_name", "Unknown")
+			var item_name = it.item_name if "item_name" in it else "Unknown"
 			var event_log = _get_event_log()
 			if event_log and event_log.has_method("add_entry"):
 				event_log.add_entry("Looted %s from %s" % [item_name, name], Color(0.4, 1.0, 0.4))
