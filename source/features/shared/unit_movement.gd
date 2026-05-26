@@ -18,8 +18,8 @@ const ZocController = preload("res://source/features/turnbased/zoc_controller.gd
 
 ## Is this unit currently moving along a path?
 var is_moving: bool = false
-## 키보드 연속 이동 중인가? (실시간 모드 WASD)
-var is_keyboard_moving: bool = false
+## 키보드 트윈 이동 중인가?
+var is_tween_moving: bool = false
 ## Current path (grid positions) to follow.
 var path: Array = []
 ## Current target world position for this step.
@@ -57,6 +57,10 @@ func navigate_to(target_world: Vector3) -> void:
 	if is_locked or not _grid_world:
 		return
 
+	# 키보드 트윈이 진행 중이면 취소
+	if _tween and _tween.is_valid():
+		_tween.kill()
+
 	var from_grid: Vector2i = _grid_world.world_to_grid(_unit.global_position)
 	var to_grid: Vector2i = _grid_world.world_to_grid(target_world)
 
@@ -74,6 +78,7 @@ func navigate_to(target_world: Vector3) -> void:
 ## Immediate stop.
 func stop_moving() -> void:
 	is_moving = false
+	is_tween_moving = false
 	path.clear()
 	if _tween and _tween.is_valid():
 		_tween.kill()
@@ -87,6 +92,10 @@ func stop_moving() -> void:
 func move_one_tile(direction: Vector2i, unit_node = null) -> bool:
 	if is_locked or not _grid_world:
 		return false
+
+	# 진행 중인 경로 이동 취소
+	if is_moving:
+		stop_moving()
 
 	var current_grid: Vector2i = _grid_world.world_to_grid(_unit.global_position)
 	var target_grid: Vector2i = current_grid + direction
@@ -120,9 +129,17 @@ func move_one_tile(direction: Vector2i, unit_node = null) -> bool:
 	target_world.y = _get_terrain_height_at(target_world)
 	var from_grid: Vector2i = current_grid
 
+	# 그리드 점유는 즉시 업데이트
 	_grid_world.set_occupied(current_grid, null)
 	_grid_world.set_occupied(target_grid, unit_node if unit_node else _unit)
-	_unit.global_position = target_world
+
+	# 시각적 이동은 트윈 애니메이션 (0.08s)
+	if _tween and _tween.is_valid():
+		_tween.kill()
+	is_tween_moving = true
+	_tween = create_tween()
+	_tween.tween_property(_unit, "global_position", target_world, 0.08).set_ease(Tween.EASE_IN_OUT)
+	_tween.finished.connect(_on_move_tween_finished)
 
 	EventBus.unit_moved.emit(_unit, _grid_world.grid_to_world(current_grid), target_world)
 
@@ -147,7 +164,7 @@ func try_push_facing(unit_node: Node) -> bool:
 	var target_grid: Vector2i = from_grid + direction
 
 	var occupant = _grid_world.get_occupant(target_grid)
-	if not occupant or occupant == _unit or occupant.get("is_alive", false) != true:
+	if not occupant or occupant == _unit or not (occupant.get("is_alive") if "is_alive" in occupant else false):
 		return false
 
 	return _execute_push(unit_node, occupant, from_grid, direction, dir_vec)
@@ -256,6 +273,10 @@ func _pop_next_path_point() -> void:
 	var next_grid: Vector2i = path.pop_front()
 	_target_world = _grid_world.grid_to_world(next_grid)
 	_target_world.y = _get_terrain_height_at(_target_world)
+
+
+func _on_move_tween_finished() -> void:
+	is_tween_moving = false
 
 
 func _can_spend_ap(unit_node: Node) -> bool:

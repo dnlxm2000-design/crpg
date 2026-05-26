@@ -1,19 +1,18 @@
 # player_controller.gd — 플레이어 입력 처리기 (Stoneshard 스타일). 3D version.
-# _input(이벤트 기반) + _process(폴링) 이중 방식으로 안정적인 입력 캡처.
+# 입력: _input 첫 키 즉시 반응 + _process 홀드 반복 (0.12s 간격).
+# 실시간 마우스: 단클릭 즉시 이동 + 경로 미리보기.
+# 방향: 4방향 면이동 (W=북, S=남, A=서, D=동).
 extends Node
 
 const CombatResolver = preload("res://source/features/turnbased/combat_resolver.gd")
 
-# 이동 키 → 그리드 방향 벡터 매핑 (아이소메트릭 8방향).
+# 이동 키 → 그리드 방향 벡터 매핑 (4방향 면이동).
+# W=(0,-1)=북, S=(0,1)=남, A=(-1,0)=서, D=(1,0)=동
 const DIRECTION_MAP: Dictionary = {
-	"move_up": Vector2i(-1, -1),
-	"move_down": Vector2i(1, 1),
-	"move_left": Vector2i(-1, 1),
-	"move_right": Vector2i(1, -1),
-	"move_diag_up_left": Vector2i(-1, 0),
-	"move_diag_up_right": Vector2i(0, -1),
-	"move_diag_down_left": Vector2i(0, 1),
-	"move_diag_down_right": Vector2i(1, 0),
+	"move_up": Vector2i(0, -1),
+	"move_down": Vector2i(0, 1),
+	"move_left": Vector2i(-1, 0),
+	"move_right": Vector2i(1, 0),
 }
 
 var _movement = null
@@ -22,11 +21,9 @@ var _unit = null
 # 턴 종료 확인
 var _turn_end_confirm: bool = false
 
-# 두 번 클릭 프리뷰
-var _preview_active: bool = false
-var _preview_target_world: Vector3 = Vector3.ZERO
-var _preview_target_grid: Vector2i = Vector2i(-1, -1)
-var _path_preview: Node = null
+# 실시간 홀드 이동 반복 타이머
+var _move_hold_timer: float = 0.0
+const MOVE_HOLD_INTERVAL: float = 0.12
 
 # 3D 마우스 피킹용 RayCast3D
 var _mouse_raycast: RayCast3D = null
@@ -39,7 +36,6 @@ func _ready() -> void:
 		print("[PlayerController] Found UnitMovement, parent=", _unit.name)
 	else:
 		push_error("[PlayerController] UnitMovement not found at ../UnitMovement")
-	_path_preview = get_node_or_null("/root/Main/PathPreview")
 
 	# RayCast3D 설정 (마우스 → 3D 월드 피킹)
 	_mouse_raycast = RayCast3D.new()
@@ -53,49 +49,62 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if not _movement or _movement.is_locked:
-		return
-
+	# 패널 토글 (U/I) — 이동 중에도 항상 동작
 	if event.is_action_pressed("toggle_inventory"):
 		_toggle_inventory()
 		get_viewport().set_input_as_handled()
 		return
 
-	if event.is_action_pressed("ui_focus_next") or (event is InputEventKey and event.keycode == KEY_U and event.pressed and not event.echo):
+	if event.is_action_pressed("ui_focus_next") or (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_U or event.physical_keycode == KEY_U)):
 		_toggle_equipment()
 		get_viewport().set_input_as_handled()
+		return
+
+	if not _movement or _movement.is_locked:
 		return
 
 	if GameState.current_mode == GameState.GameMode.TURNBASED:
 		_handle_turn_input(event)
 		return
 
+	# 실시간 모드: 키보드 첫 입력은 _input에서 즉시 처리
+	if event is InputEventKey and not event.echo and event.pressed:
+		for action in DIRECTION_MAP:
+			if event.is_action_pressed(action):
+				_do_key_move(DIRECTION_MAP[action], false)
+				_move_hold_timer = 0.0
+				get_viewport().set_input_as_handled()
+				return
+
 	_handle_realtime_input(event)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if not _movement or _movement.is_locked:
 		return
 
 	var is_turn: bool = (GameState.current_mode == GameState.GameMode.TURNBASED)
 
 	if not is_turn:
-		for action in DIRECTION_MAP:
-			if Input.is_action_just_pressed(action):
-				_do_key_move(DIRECTION_MAP[action], is_turn)
+		# 홀드 연속 이동: is_action_pressed + 타이머로 반복
+		_move_hold_timer += delta
+		if _move_hold_timer >= MOVE_HOLD_INTERVAL:
+			_move_hold_timer = 0.0
+			for action in DIRECTION_MAP:
+				if Input.is_action_pressed(action):
+					_do_key_move(DIRECTION_MAP[action], false)
+					break
 
-	if not is_turn:
 		if Input.is_action_just_pressed("attack_action"):
 			_pickup_nearest_item()
 
 		if Input.is_action_just_pressed("enter_combat"):
-			_cancel_preview()
 			var gl = get_node("/root/Main/GameLoop")
 			if gl and gl.has_method("request_combat_entry"):
 				gl.request_combat_entry(_unit)
 
 
-## ─── Real-time two-click preview system ───
+## ─── Real-time mouse helpers ───
 
 func _is_click_on_hud_panel() -> bool:
 	var hud = get_node_or_null("/root/Main/HUD")
@@ -130,7 +139,7 @@ func _get_mouse_world_position() -> Vector3:
 	return from + dir * t
 
 
-## Handle mouse input events for real-time mode.
+## Handle mouse input events for real-time mode (single-click immediate).
 func _handle_realtime_input(event: InputEvent) -> void:
 	if not event is InputEventMouseButton or not event.pressed:
 		return
@@ -140,16 +149,17 @@ func _handle_realtime_input(event: InputEvent) -> void:
 
 	match event.button_index:
 		MOUSE_BUTTON_LEFT:
-			_click_preview_or_move()
+			_realtime_click_move()
 			get_viewport().set_input_as_handled()
 		MOUSE_BUTTON_RIGHT:
-			if _preview_active:
-				_cancel_preview()
-				get_viewport().set_input_as_handled()
+			var path_preview = get_node_or_null("/root/Main/PathPreview")
+			if path_preview and path_preview.has_method("clear"):
+				path_preview.clear()
+			get_viewport().set_input_as_handled()
 
 
-## First click previews, second click on SAME tile confirms and moves.
-func _click_preview_or_move() -> void:
+## 실시간 모드: 단클릭 즉시 이동 + 경로 미리보기 표시.
+func _realtime_click_move() -> void:
 	if _movement.is_moving:
 		return
 
@@ -160,32 +170,17 @@ func _click_preview_or_move() -> void:
 	var mouse_world: Vector3 = _get_mouse_world_position()
 	var mouse_grid: Vector2i = grid_world.world_to_grid(mouse_world)
 
-	if _click_pickup_at(mouse_grid):
-		_cancel_preview()
+	# 우선 픽업 시도
+	var inv = _unit.get_node_or_null("Inventory")
+	if inv and _click_pickup_at(mouse_grid):
 		return
 
-	if not _preview_active:
-		_preview_active = true
-		_preview_target_world = grid_world.grid_to_world(mouse_grid)
-		_preview_target_grid = mouse_grid
-		if _path_preview and _path_preview.has_method("preview_to"):
-			_path_preview.preview_to(mouse_grid)
-	elif mouse_grid == _preview_target_grid:
-		_preview_active = false
-		if _path_preview and _path_preview.has_method("clear"):
-			_path_preview.clear()
-		_movement.navigate_to(_preview_target_world)
-	else:
-		_preview_target_world = grid_world.grid_to_world(mouse_grid)
-		_preview_target_grid = mouse_grid
-		if _path_preview and _path_preview.has_method("preview_to"):
-			_path_preview.preview_to(mouse_grid)
-
-
-func _cancel_preview() -> void:
-	_preview_active = false
-	if _path_preview and _path_preview.has_method("clear"):
-		_path_preview.clear()
+	# 경로 미리보기 표시 + 즉시 이동 시작
+	var target_world: Vector3 = grid_world.grid_to_world(mouse_grid)
+	var path_preview = get_node_or_null("/root/Main/PathPreview")
+	if path_preview and path_preview.has_method("preview_to"):
+		path_preview.preview_to(mouse_grid)
+	_movement.navigate_to(target_world)
 
 
 ## ─── Inventory & Equipment ───
@@ -200,6 +195,7 @@ func _toggle_inventory() -> void:
 
 func _toggle_equipment() -> void:
 	var hud = get_node_or_null("/root/Main/HUD")
+	print("[PlayerController] _toggle_equipment: hud=", hud != null, " eq_panel=", hud != null and hud.get_node_or_null("EquipmentPanel") != null)
 	if hud:
 		var eq_panel = hud.get_node_or_null("EquipmentPanel")
 		if eq_panel and eq_panel.has_method("toggle"):
@@ -343,7 +339,6 @@ func _do_key_move(dir: Vector2i, is_turn: bool) -> void:
 			_auto_end_turn_if_ap_empty()
 	else:
 		_movement.move_one_tile(dir)
-		_cancel_preview()
 
 
 func _handle_turn_input(event: InputEvent) -> void:
@@ -356,7 +351,9 @@ func _handle_turn_input(event: InputEvent) -> void:
 				_handle_turn_click()
 				return
 			MOUSE_BUTTON_RIGHT:
-				_cancel_preview()
+				var path_preview = get_node_or_null("/root/Main/PathPreview")
+				if path_preview and path_preview.has_method("clear"):
+					path_preview.clear()
 				var hud = get_node_or_null("/root/Main/HUD")
 				if hud:
 					var tgt = hud.get_node_or_null("Targeting")
