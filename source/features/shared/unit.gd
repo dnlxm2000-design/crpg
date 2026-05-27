@@ -283,10 +283,16 @@ func update_facing_direction(dir: Vector3) -> void:
 	if dir == Vector3.ZERO:
 		return
 	facing_direction = dir.normalized()
+	var angle: float = atan2(dir.x, dir.z)
+
+	# 諛⑺뼢 ?쒖떆湲? (硫붾돱 ?꾩튂)
 	if _direction_indicator:
-		# XZ ?됰㈃?먯꽌 諛⑺뼢??Y異??뚯쟾?쇰줈 蹂??
-		var angle: float = atan2(dir.x, dir.z)
 		_direction_indicator.rotation.y = angle
+
+	# 3D CharacterModel 諛⑺뼢 ?�?�몄�? �ы�?? (�щ�?? API/�⑸��??�쇰�??��?대�몄�몃�?吏��ъ?대�?)
+	var model := get_node_or_null("CharacterModel")
+	if model:
+		model.rotation.y = angle
 
 
 func reset_actions() -> void:
