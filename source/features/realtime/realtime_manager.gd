@@ -164,6 +164,32 @@ func _setup_player_model(player: Node, class_id: String) -> void:
 	player.add_child(instance)
 	instance.owner = player
 
+	# Find AnimationPlayer in loaded model and store on Unit
+	var anim_player: AnimationPlayer = _find_anim_player(instance)
+	if anim_player:
+		player.set_meta("character_anim_player", anim_player)
+		# Start with Idle
+		if anim_player.has_animation("Idle"):
+			anim_player.play("Idle")
+		else:
+			# Fallback: play any available animation
+			var anims: PackedStringArray = anim_player.get_animation_list()
+			if not anims.is_empty():
+				anim_player.play(anims[0])
+	else:
+		print("[RealTimeManager] No AnimationPlayer found in character model")
+
+
+## Find AnimationPlayer recursively in a node tree.
+func _find_anim_player(root: Node) -> AnimationPlayer:
+	if root is AnimationPlayer:
+		return root
+	for child in root.get_children():
+		var found = _find_anim_player(child)
+		if found:
+			return found
+	return null
+
 
 func _apply_class_to_unit(unit: Node, class_def: Dictionary, class_id: String) -> void:
 	unit.character_class = class_id

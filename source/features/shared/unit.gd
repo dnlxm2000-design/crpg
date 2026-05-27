@@ -84,6 +84,8 @@ var equipped_off_hand = null
 
 ## Movement component
 var movement = null
+## Previous movement state for animation transitions
+var _prev_moving: bool = false
 
 ## Gold
 var gold: int = 0
@@ -137,7 +139,7 @@ func _ready() -> void:
 	add_child(_direction_indicator)
 
 
-## ?ㅼ떆媛?紐⑤뱶 ?붾뱾由?Bobbing).
+## ?ㅼ떆媛?紐⑤뱶 ?붾뱾由?Bobbing + animation).
 func _process(_delta: float) -> void:
 	if not is_alive:
 		return
@@ -155,6 +157,62 @@ func _process(_delta: float) -> void:
 		_sprite_position_y(bob_offset)
 	else:
 		_sprite_position_y(0.0)
+
+	# ?뚯씠??硫붿꽭??
+	_handle_animation(is_moving_flag)
+
+
+## GLB ?뚯씠??Idle/Walk ?ㅻ㈃ ?ㅼ쟾.
+func _handle_animation(is_moving: bool) -> void:
+	var anim_player: AnimationPlayer = null
+	if has_meta("character_anim_player"):
+		anim_player = get_meta("character_anim_player")
+	if not anim_player:
+		return
+
+	# ???섏씠 ?섏씠 媛??異??섍? ?섏? ?꾨즺??
+	if is_moving == _prev_moving:
+		return
+	_prev_moving = is_moving
+
+	if is_moving:
+		var anim_name := "Walking_A"
+		if not anim_player.has_animation(anim_name):
+			anim_name = "Walking_B"
+		if not anim_player.has_animation(anim_name):
+			anim_name = "Running_A"
+		if not anim_player.has_animation(anim_name):
+			# ?듯빀 ?뚯씠??留곸쾅
+			var anims: PackedStringArray = anim_player.get_animation_list()
+			anim_name = ""
+			for a in anims:
+				if a.contains("alk") or a.contains("un"):
+					anim_name = a
+					break
+			if anim_name.is_empty():
+				return
+
+		var anim: Animation = anim_player.get_animation(anim_name)
+		if anim:
+			anim.loop_mode = Animation.LOOP_LINEAR
+		anim_player.play(anim_name)
+	else:
+		var anim_name := "Unarmed_Idle" if anim_player.has_animation("Unarmed_Idle") else "Idle"
+		if not anim_player.has_animation(anim_name):
+			# ?듯빀 ?뚯씠??留곸쾅
+			var anims: PackedStringArray = anim_player.get_animation_list()
+			anim_name = ""
+			for a in anims:
+				if a.contains("Idle") or a.contains("Pose"):
+					anim_name = a
+					break
+			if anim_name.is_empty():
+				return
+
+		var anim: Animation = anim_player.get_animation(anim_name)
+		if anim:
+			anim.loop_mode = Animation.LOOP_LINEAR
+		anim_player.play(anim_name)
 
 
 ## ?먯떇 硫붿돩??y ?꾩튂 議곗젙 (bobbing).
