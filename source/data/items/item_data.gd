@@ -576,6 +576,32 @@ static func items() -> Dictionary:
 		str_req = 10,
 		weight = 1.5,
 	},
+	"rapier": {
+		name = "레이피어(Rapier)",
+		type = 1,
+		description = "찌르기 전용 세검. 긴 사거리와 높은 명중.",
+		value = 200,
+		damage_bonus = 7,
+		accuracy_bonus = 5,
+		weapon_subtype = "1h_sword",
+		weapon_class = "melee",
+		range = 2,
+		dex_req = 14,
+		weight = 1.5,
+	},
+	"dueling_sword": {
+		name = "결투검(Dueling Sword)",
+		type = 1,
+		description = "결투용 가느다란 검. 명중과 균형.",
+		value = 150,
+		damage_bonus = 6,
+		accuracy_bonus = 4,
+		weapon_subtype = "1h_sword",
+		weapon_class = "melee",
+		range = 1,
+		dex_req = 12,
+		weight = 1.2,
+	},
 
 	# ── 둔기 (MACE_FIGHTING) ──
 	"club": {
