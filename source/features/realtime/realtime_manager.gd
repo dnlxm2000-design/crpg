@@ -126,12 +126,21 @@ const CHARACTER_MODELS: Dictionary = {
 	"rogue": "res://addons/kaykit_character_pack_adventures/Characters/gltf/Rogue.glb",
 }
 
-func _get_character_model(class_id: String) -> PackedScene:
+func _get_character_model(class_id: String) -> Node:
 	var path = CHARACTER_MODELS.get(class_id, CHARACTER_MODELS["fighter"])
-	var model = load(path)
-	if model:
-		return model
-	return null
+
+	# Load GLB at runtime using GLTFDocument (no editor import needed)
+	var gltf_doc := GLTFDocument.new()
+	var gltf_state := GLTFState.new()
+	var err := gltf_doc.append_from_file(ProjectSettings.globalize_path(path), gltf_state)
+	if err != OK:
+		push_warning("[RealTimeManager] Failed to load GLB: %s (error %d)" % [path, err])
+		return null
+
+	var scene := gltf_doc.generate_scene(gltf_state)
+	if not scene:
+		return null
+	return scene
 
 
 ## Replace placeholder visual with a KayKit character model.
@@ -143,14 +152,9 @@ func _setup_player_model(player: Node, class_id: String) -> void:
 			child.queue_free()
 
 	# Load and attach character model
-	var model = _get_character_model(class_id)
-	if not model:
-		# Fallback: placeholder
-		player.setup_placeholder_visual(Color(0.2, 0.6, 1.0))
-		return
-
-	var instance = model.instantiate()
+	var instance = _get_character_model(class_id)
 	if not instance:
+		# Fallback: placeholder
 		player.setup_placeholder_visual(Color(0.2, 0.6, 1.0))
 		return
 
