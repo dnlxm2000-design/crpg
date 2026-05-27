@@ -61,7 +61,30 @@ Knowledge-graph-driven development with [graphify](https://github.com/OhMyOpenCo
 
 ---
 
-## 🔜 다음 할 일
+## 📏 코드 간결화 노트 (2026-05-27)
+
+현재 52개 파일, 11,412줄. 상위 15개 파일이 전체의 68% 차지.
+
+### 발견된 비대화 패턴
+
+| 패턴 | 발생 | 설명 |
+|------|------|------|
+| `"prop" in obj` / `obj.get("prop")` | unit_movement.gd에만 14회 | 방어적 동적 접근. `is Unit` 체크 후 정적 접근으로 대체 가능 다수 |
+| 반복되는 alive/facing 검증 | unit_movement 전역 | `_is_alive(node)` 헬퍼 하나면 3~4줄씩 절약 |
+| 매번 코드 생성하는 머티리얼/메시 | unit.gd _ready() 30줄 | player.tscn 씬 리소스로 미리 배치 가능 |
+| _process 폴링 | unit.gd | `movement_started/stopped` 시그널로 대체 시 10줄 해결 |
+
+### 제안 우선순위
+
+1. `is Unit` 정적 접근으로 dynamic get 절반 감축
+2. 반복 검증 로직 static 헬퍼로 통합
+3. 자주 생성되는 머티리얼 → .tscn 리소스화
+4. 폴링 → 시그널 구독
+5. 긴 `if/elif` → `match` / 데이터 테이블
+
+**주의:** 방어적 `in` 체크 중 일부는 버그 방벽. 전부 제거가 아니라 식별 후 정리 필요.
+
+---
 
 ### 높은 우선순위
 - [x] ~~플레이어 시작 위치 조정 — 길 교차점 (30,61)~~
