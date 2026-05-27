@@ -167,25 +167,104 @@ d53ab32 — KayKit Medieval Hexagon Pack + MapDecorator
 
 ---
 
-## 5. 아키텍처 참조
-
-핵심 구조는 `AGENTS.md`의 Feature Index 기준.
+## 5. 프로젝트 전체 구조
 
 ```
-main.tscn
-  └── main.gd
-       ├── GameLoop (game_loop.gd)
-       │    ├── ModeStateMachine (mode_state_machine.gd)
-       │    │    ├── RealtimeState (realtime_state.gd)
-       │    │    └── TurnbasedState (turnbased_state.gd)
-       │    ├── TurnManager (turn_manager.gd)
-       │    ├── ActionPoints (action_points.gd)
-       │    └── Timeline (timeline_manager.gd)
-       ├── RealTimeManager (realtime_manager.gd)
-       ├── Camera3D (camera_follow.gd) ← 2026-05-27: 오빗 추가
-       ├── HUD (hud.gd)
-       └── PlayerUnit (unit.gd)
-            ├── UnitMovement (unit_movement.gd)
-            ├── CharacterModel (GLB scene) ← 2026-05-27: 애니메이션 + 방향전환 추가
-            └── Inventory (inventory.gd)
+source/
+│
+├── main.tscn                      ─── 루트 씬
+├── main.gd                        ─── 진입점 (플레이어 생성, HUD, 맵)
+│
+├── autoload/                      ─── 전역 싱글톤
+│   ├── event_bus.gd               ─── 신호 버스
+│   ├── game_state.gd              ─── 게임 모드/설정 상태
+│   └── localization.gd            ─── 다국어 UI
+│
+├── core/                          ─── FSM + 게임 루프
+│   ├── game_loop.gd               ─── 모드 오케스트레이터
+│   ├── mode_state_machine.gd
+│   ├── state_machine/
+│   │   ├── state.gd               ─── State 베이스
+│   │   └── state_machine.gd       ─── 제네릭 FSM
+│   └── states/
+│       ├── realtime_state.gd
+│       └── turnbased_state.gd
+│
+├── data/                          ─── 데이터 정의
+│   ├── classes/ (class_data.gd, class_definition.gd)
+│   ├── crafting/ (alchemy_data.gd)
+│   ├── enemies/ (enemy_data.gd)
+│   ├── items/ (item.gd, item_data.gd, item_types.gd + resources/*.tres)
+│   ├── skills/ (skill_data.gd, skill_types.gd)
+│   ├── status_effects/ (status_effect_data.gd)
+│   ├── terrain_data.gd
+│   ├── terrain_data.tres
+│   └── terrain_type_definition.gd
+│
+├── features/                      ─── 핵심 게임플레이
+│   ├── realtime/
+│   │   ├── realtime_manager.gd    ─── 실시간 모드 관리자
+│   │   └── map_item.gd
+│   ├── shared/
+│   │   ├── unit.gd                ─── 유닛 베이스 (CharacterBody3D)
+│   │   ├── unit_movement.gd       ─── 이동 컴포넌트
+│   │   ├── player_controller.gd   ─── 입력 처리
+│   │   ├── grid_world.gd          ─── A* 그리드
+│   │   ├── enemy_ai.gd            ─── 적 AI
+│   │   ├── corpse.gd              ─── 시체
+│   │   ├── effects/
+│   │   │   ├── camera_follow.gd   ─── 3인칭 오빗 카메라
+│   │   │   ├── map_decorator.gd   ─── 건물/숲/강/호수 배치
+│   │   │   ├── Terrain.gd         ─── 지형 생성
+│   │   │   ├── terrain.gdshader
+│   │   │   ├── water.gdshader
+│   │   │   ├── path_preview.gd
+│   │   │   ├── projectile.gd
+│   │   │   └── movement_range_overlay.gd
+│   │   └── inventory/ (inventory.gd)
+│   └── turnbased/
+│       ├── turn_manager.gd        ─── 턴 큐
+│       ├── action_points.gd       ─── AP 시스템
+│       ├── combat_resolver.gd     ─── 전투 판정
+│       ├── zoc_controller.gd      ─── ZOC + AoO
+│       └── timeline/ (timeline_manager.gd)
+│
+├── ui/                            ─── HUD / 오버레이
+│   ├── hud/ (hud.gd, inventory_panel.gd, equipment_panel.gd,
+│   │         action_bar.gd, targeting.gd, event_log.gd,
+│   │         turn_order_panel.gd, minimap_panel.gd)
+│   └── screens/ (defeat_panel.gd)
+│
+└── utils/ (helpers.gd)
+```
+
+### main.tscn 런타임 노드 트리
+
+```
+Main (Node3D) — main.gd
+├── Terrain (MeshInstance3D)
+├── GridWorld (Node)
+├── GameLoop (Node) — game_loop.gd
+│   ├── ModeStateMachine (Node)
+│   ├── TurnManager (Node)
+│   ├── ActionPoints (Node)
+│   └── Timeline (Node)
+├── MapDecorator (Node)
+├── RealTimeManager (Node)
+├── RealtimeState (Node)
+├── TurnbasedState (Node)
+├── HUD (CanvasLayer) — hud.gd
+├── MinimapPanel (CanvasLayer)
+├── PlayerUnit (CharacterBody3D/Unit)       ← 동적 생성
+│   ├── CollisionShape3D
+│   ├── UnitMovement (unit_movement.gd)
+│   ├── Inventory (inventory.gd)
+│   ├── ShadowMesh
+│   ├── DirectionIndicator
+│   └── CharacterModel (Node3D)              ← GLB 로드
+│       ├── Rig/ → Skeleton3D + MeshInstances
+│       └── AnimationPlayer                  ← Idle / Walk 전환
+├── Camera3D (Orthogonal) — camera_follow.gd ← 동적 생성
+├── PathPreview (Node)
+└── MapItems (Node)
 ```
