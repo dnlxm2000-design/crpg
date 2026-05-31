@@ -5,23 +5,43 @@ class_name MapDecorator
 
 ## Building placement data: grid position, model path, scale, Y rotation.
 const BUILDINGS: Array[Dictionary] = [
-	# ── Village center (near player spawn at grid 30,61) ──
-	{grid=Vector2i(28,58), path="green/building_tavern_green", scale=1.6, rot=0.0},
-	{grid=Vector2i(32,58), path="blue/building_church_blue", scale=1.6, rot=0.0},
-	{grid=Vector2i(28,62), path="green/building_home_A_green", scale=1.4, rot=0.0},
-	{grid=Vector2i(32,62), path="green/building_home_B_green", scale=1.4, rot=0.0},
-	{grid=Vector2i(26,60), path="neutral/building_destroyed", scale=1.4, rot=0.0},
-	{grid=Vector2i(34,60), path="blue/building_blacksmith_blue", scale=1.5, rot=0.0},
-	{grid=Vector2i(30,55), path="blue/building_barracks_blue", scale=1.5, rot=0.0},
-	{grid=Vector2i(30,65), path="green/building_well_green", scale=1.3, rot=0.0},
-	# ── Outskirts ──
-	{grid=Vector2i(24,55), path="blue/building_lumbermill_blue", scale=1.5, rot=0.0},
-	{grid=Vector2i(36,65), path="blue/building_windmill_blue", scale=1.5, rot=0.0},
-	# ── Towers (defense) ──
-	{grid=Vector2i(23,50), path="green/building_tower_A_green", scale=1.5, rot=0.0},
-	{grid=Vector2i(43,70), path="blue/building_tower_B_blue", scale=1.5, rot=0.0},
-	{grid=Vector2i(37,50), path="blue/building_tower_base_blue", scale=1.5, rot=0.0},
-	{grid=Vector2i(44,62), path="blue/building_watermill_blue", scale=1.5, rot=0.0},
+	# ── Silverhaven central cluster (village center: 30, 45) ──
+	# 강은 마을 남쪽(y≈85) 좌→우 수평, 마을은 강 북쪽
+	#
+	# Inner ring (around central plaza at 30,45)
+	{grid=Vector2i(28,44), path="green/building_home_A_green", scale=1.3, rot=0.0},
+	{grid=Vector2i(30,44), path="green/building_home_B_green", scale=1.3, rot=0.0},
+	{grid=Vector2i(32,44), path="green/building_home_A_green", scale=1.3, rot=0.0},
+	{grid=Vector2i(27,46), path="green/building_home_B_green", scale=1.3, rot=0.0},
+	{grid=Vector2i(30,46), path="green/building_home_A_green", scale=1.3, rot=0.0},
+	{grid=Vector2i(33,46), path="green/building_home_B_green", scale=1.3, rot=0.0},
+	{grid=Vector2i(28,48), path="green/building_home_A_green", scale=1.3, rot=0.0},
+	{grid=Vector2i(32,48), path="green/building_home_B_green", scale=1.3, rot=0.0},
+	#
+	# Special buildings (around plaza)
+	{grid=Vector2i(30,42), path="green/building_tavern_green", scale=1.5, rot=0.0},     # tavern (north)
+	{grid=Vector2i(26,38), path="blue/building_church_blue", scale=1.5, rot=0.0},        # church (northwest)
+	{grid=Vector2i(36,40), path="blue/building_blacksmith_blue", scale=1.4, rot=0.0},    # blacksmith (east)
+	{grid=Vector2i(30,49), path="green/building_well_green", scale=1.2, rot=0.0},        # well (south of plaza)
+	#
+	# Outer ring
+	{grid=Vector2i(26,42), path="green/building_home_A_green", scale=1.3, rot=0.0},
+	{grid=Vector2i(34,42), path="green/building_home_B_green", scale=1.3, rot=0.0},
+	{grid=Vector2i(26,46), path="green/building_home_A_green", scale=1.3, rot=0.0},
+	{grid=Vector2i(34,46), path="green/building_home_B_green", scale=1.3, rot=0.0},
+	{grid=Vector2i(28,50), path="green/building_home_A_green", scale=1.3, rot=0.0},
+	{grid=Vector2i(32,50), path="green/building_home_B_green", scale=1.3, rot=0.0},
+	#
+	# Village edge utility
+	{grid=Vector2i(24,40), path="blue/building_lumbermill_blue", scale=1.4, rot=0.0},    # lumbermill (west)
+	{grid=Vector2i(30,38), path="blue/building_barracks_blue", scale=1.4, rot=0.0},      # barracks (north)
+	{grid=Vector2i(22,44), path="neutral/building_destroyed", scale=1.3, rot=0.0},       # ruins (west outskirts)
+	{grid=Vector2i(38,52), path="blue/building_windmill_blue", scale=1.4, rot=0.0},      # windmill (southeast)
+	{grid=Vector2i(34,52), path="blue/building_watermill_blue", scale=1.4, rot=0.0},     # watermill (south)
+	#
+	# ── Castle (northeast hill: 48, 22) ──
+	{grid=Vector2i(48,22), path="blue/building_tower_B_blue", scale=1.8, rot=0.0},       # main keep
+	{grid=Vector2i(46,24), path="blue/building_tower_base_blue", scale=1.5, rot=0.0},    # base structure
 ]
 
 ## Decoration scatter config.
@@ -52,16 +72,27 @@ const DECO_BASE: String = "res://addons/kaykit_medieval_hexagon_pack/Assets/gltf
 ## Scatter density: tiles checked per decoration (larger = sparser).
 @export var scatter_step: int = 4
 @export var scatter_padding: int = 3  # tiles from map edge
-@export var village_radius: int = 6  # tiles around center kept clear of nature
+@export var village_radius: int = 12  # tiles around center kept clear of nature
 
-# ── Forest zones — dense tree clusters ──
+# ── Forest zones — dense tree clusters (마을 주변 빽빽한 숲) ──
 const FOREST_ZONES: Array[Dictionary] = [
-	{center=Vector2i(12, 35), radius=14},   # 서쪽 큰 숲
-	{center=Vector2i(50, 35), radius=10},   # 동쪽 숲
-	{center=Vector2i(25, 85), radius=12},   # 남쪽 숲
+	{center=Vector2i(30, 2), radius=7},     # 북쪽 가장자리 숲 (맨 위)
+	{center=Vector2i(10, 18), radius=13},   # 서북 숲 (밭 위)
+	{center=Vector2i(50, 20), radius=12},   # 동북 숲 (성 주변)
+	{center=Vector2i(3, 50), radius=18},    # 서쪽 숲
+	{center=Vector2i(60, 50), radius=18},   # 동쪽 숲
+	{center=Vector2i(28, 110), radius=18},  # 남쪽 숲 (강 너머)
+	{center=Vector2i(55, 80), radius=12},   # 남동 숲
 ]
 @export var forest_step: int = 2       # 숲 내 설치 간격 (1=최대밀집)
 @export var forest_density: float = 0.75  # 숲 내 배치 확률
+
+# ── Agricultural field zones (나무가 없어야 할 경작지) ──
+const FIELD_ZONES: Array[Dictionary] = [
+	{center=Vector2i(30, 18), radius=7},    # 북쪽 큰 밭
+	{center=Vector2i(45, 63), radius=5},    # 남동 밭 1
+	{center=Vector2i(45, 68), radius=5},    # 남동 밭 2
+]
 
 var _grid_world: Node = null
 var _terrain: Node = null
@@ -134,6 +165,19 @@ func _is_in_forest_zone(gp: Vector2i) -> bool:
 	return false
 
 
+## Check if a grid tile falls within any agricultural field zone.
+func _is_in_field_zone(gp: Vector2i) -> bool:
+	for fz in FIELD_ZONES:
+		var center: Vector2i = fz.get("center", Vector2i(0, 0))
+		var radius: int = fz.get("radius", 0)
+		var dx: int = gp.x - center.x
+		var dz: int = gp.y - center.y
+		var dist := sqrt(float(dx * dx + dz * dz))
+		if dist <= float(radius):
+			return true
+	return false
+
+
 ## Plant dense forests within defined forest zones.
 func _scatter_forests() -> void:
 	var total: int = 0
@@ -173,6 +217,9 @@ func _scatter_forests() -> void:
 				if _terrain and _terrain.has_method("is_water_tile"):
 					if _terrain.is_water_tile(gp):
 						continue
+				# Skip field zones (agriculture)
+				if _is_in_field_zone(gp):
+					continue
 				# Skip water (original noise height)
 				if not _grid_world.is_walkable(gp, true):
 					continue
@@ -206,7 +253,7 @@ func _scatter_nature() -> void:
 		return
 
 	# Village center — no nature scatter here
-	var center: Vector2i = Vector2i(30, 60)
+	var center: Vector2i = Vector2i(30, 45)
 
 	var sx: int = _grid_world.grid_width if "grid_width" in _grid_world else 63
 	var sz: int = _grid_world.grid_height if "grid_height" in _grid_world else 126
@@ -229,6 +276,10 @@ func _scatter_nature() -> void:
 			if _terrain and _terrain.has_method("is_water_tile"):
 				if _terrain.is_water_tile(gp):
 					continue
+
+			# Skip field zones (agriculture)
+			if _is_in_field_zone(gp):
+				continue
 
 			# Skip occupied/blocked/walkable? try to place only on walkable grass
 			if not _grid_world.is_walkable(gp, true):
