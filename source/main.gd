@@ -76,7 +76,7 @@ func _ready() -> void:
 	if _game_loop:
 		var rt_manager: Node = $RealTimeManager
 		if rt_manager and rt_manager.has_method("spawn_player"):
-			var spawn_grid := Vector2i(30, 61)
+			var spawn_grid := Vector2i(30, 45)
 			var spawn_pos: Vector3 = _grid_world.grid_to_world(spawn_grid) if _grid_world else Vector3(0, 0, 320)
 			var player = rt_manager.spawn_player(spawn_pos)
 			print("[Main] Player spawned at iso grid %s → world %s" % [str(spawn_grid), str(spawn_pos)])
@@ -104,8 +104,8 @@ func _spawn_test_items() -> void:
 		push_error("[Main] Failed to load health_potion.tres")
 		return
 
-	# Place a health potion 2 tiles to the right of spawn (grid 6, 5)
-	var potion_pos: Vector2i = Vector2i(6, 5)
+	# Place a health potion 2 tiles east of spawn
+	var potion_pos: Vector2i = Vector2i(32, 45)
 	var potion_item = load("res://source/features/realtime/map_item.gd").new()
 	potion_item.setup(health_potion, potion_pos)
 	# Set world position directly (avoid get_node during _ready)
@@ -138,6 +138,19 @@ func _verify_map_item_group() -> void:
 
 ## Place KayKit 3D buildings and decorations on the terrain.
 func _spawn_map_decorator() -> void:
+	# If buildings were pre-placed in the editor (via bake_buildings_into_scene.gd), skip runtime placement
+	if has_node("Buildings"):
+		var blocked := 0
+		if _grid_world and _grid_world.has_method("set_blocked"):
+			var bldg_node := get_node("Buildings")
+			for child in bldg_node.get_children():
+				var gx := roundi(child.position.x / 2.0)
+				var gz := roundi(child.position.z / 2.0)
+				_grid_world.set_blocked(Vector2i(gx, gz), true)
+				blocked += 1
+		print("[Main] Buildings node found — blocked %d tiles, skipping MapDecorator" % blocked)
+		return
+
 	var decorator = load("res://source/features/shared/effects/map_decorator.gd").new()
 	decorator.name = "MapDecorator"
 	add_child(decorator)

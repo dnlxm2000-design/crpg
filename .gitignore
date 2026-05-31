@@ -1,6 +1,16 @@
 # graphify output + cache
 graphify-out/
 
+# sisyphus session data
+.sisyphus/
+
+# backup files
+backup_*.zip
+backup_*.tar.gz
+
+# node modules
+node_modules/
+
 # Python
 __pycache__/
 *.py[cod]
