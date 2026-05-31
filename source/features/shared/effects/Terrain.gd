@@ -20,11 +20,11 @@ const WATER_HEIGHT: float = -1.5
 ## Use Curve3D-based river carving (true) or linear waypoints (false, fallback).
 @export var river_curve_enabled: bool = true
 ## Riverbed radius at start (narrow).
-@export var river_width_start: float = 1.5
+@export var river_width_start: float = 3.0
 ## Riverbed radius at end (wide).
-@export var river_width_end: float = 3.0
+@export var river_width_end: float = 5.0
 ## Bank smoothing radius beyond riverbed edge.
-@export var river_bank_width: float = 1.5
+@export var river_bank_width: float = 2.0
 
 var coords: Array[Vector3] = []
 ## Grid positions of river tiles (for decorator queries)
@@ -33,22 +33,20 @@ var river_tiles: Array[Vector2i] = []
 var lake_tiles: Array[Vector2i] = []
 
 # ── Lake definitions: center (grid), radius ──
-const LAKES: Array[Dictionary] = [
-	{center=Vector2i(48, 20), radius=7},   # 큰 호수 (북동쪽)
-	{center=Vector2i(18, 72), radius=3},   # 작은 연못 (마을 서쪽, 건물 회피)
-	{center=Vector2i(22, 100), radius=8},  # 큰 호수 (남쪽)
+const LAKES: Array = [
+	{center=Vector2i(48, 15), radius=4},   # 작은 호수 (북동쪽, 장식)
 ]
 
 # ── River definitions: waypoints (grid) ──
-const RIVERS: Array[Array] = [
-	# 강 1: 북동쪽 호수(48,20) → 마을 동쪽 우회 → 남쪽 호수(22,100)
-	# 마을 중심부(24~36, 55~65)는 건물 밀집 지역 — 강은 동쪽으로 우회
+const RIVERS: Array = [
+	# 강 1: 좌측→우측 수평 — 마을 남쪽(y≈80~100) 통과
+	# Silverhaven 마을 중심: (30,45), 강은 남쪽(y≈85)에 위치
+	# 완만한 S자 곡선
 	[
-		Vector2i(48, 20),
-		Vector2i(46, 26), Vector2i(44, 32), Vector2i(42, 40),
-		Vector2i(40, 48), Vector2i(41, 56), Vector2i(40, 64),
-		Vector2i(37, 72), Vector2i(35, 80), Vector2i(32, 88),
-		Vector2i(28, 96), Vector2i(24, 103),
+		Vector2i(0, 88),
+		Vector2i(8, 84), Vector2i(16, 82), Vector2i(24, 83),
+		Vector2i(32, 86), Vector2i(40, 90),
+		Vector2i(48, 92), Vector2i(56, 94), Vector2i(63, 96),
 	],
 ]
 
@@ -184,7 +182,6 @@ func _carve_river_curve(waypoints: Array) -> void:
 ## Carve river using linear waypoint subdivision (fallback).
 func _carve_river_linear(waypoints: Array) -> void:
 	var river_radius: float = 2.5
-	var bank_radius: float = 4.0
 	var pts := _subdivide_path(waypoints, 0.5)
 	var seen: Array[Vector2i] = []
 	for p in pts:
@@ -269,7 +266,7 @@ func _ensure_water_plane() -> void:
 	quad.size = Vector2(1.0, 1.0)
 	quad.subdivide_width = 200
 	quad.subdivide_depth = 200
-	quad.orientation = 1  # ORIENTATION_Y — horizontal (XZ)
+	quad.orientation = PlaneMesh.FACE_Y
 	wp.mesh = quad
 
 	var mat := ShaderMaterial.new()
@@ -395,5 +392,5 @@ func _ensure_noise() -> void:
 	if noise:
 		return
 	noise = FastNoiseLite.new()
-	noise.seed = 42
+	noise.seed = 0
 	noise.frequency = 0.015
